@@ -20,9 +20,9 @@ const display = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "Menoid — The private pirate wallet on Monad",
+  title: "Menoid — Private Wallet on Monad · Join Waitlist",
   description:
-    "Menoid is a self-custody wallet for Monad with two modes: Open for the public seas, Noid for zero-knowledge stealth. Mask in, transact unseen, unmask out.",
+    "Menoid is an AI-native private wallet built on Monad. Shield your assets, transact completely unseen, and unmask safely — with one click. Join the testnet waitlist for early access.",
 };
 
 export default function RootLayout({

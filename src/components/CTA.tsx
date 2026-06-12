@@ -71,44 +71,44 @@ export default function CTA() {
             </div>
 
             <h2 className="relative mt-6 font-display text-[clamp(36px,5vw,64px)] font-black leading-[1] tracking-[-0.02em] text-[var(--bg)]">
-              Hoist the colors on Monad.
+              Join the ZK-Stealth Testnet.
             </h2>
             <p className="relative mx-auto mt-5 max-w-xl text-[15px] leading-relaxed text-[var(--bg)]/75">
-              Install the Menoid extension, mint your Open + Noid accounts,
-              and your first masked transfer is one tap away. No email,
-              no KYC, no relay seeing your business.
+              Secure your spot on the beta tester list for AI-native private transfers on Monad, or schedule a direct chat with the core developer crew.
             </p>
 
-            <div className="relative mt-9 flex flex-wrap items-center justify-center gap-3">
+            <div className="relative mt-9 flex flex-wrap items-center justify-center gap-4">
               <a
-                href="#"
+                href="#top"
                 className="btn-spring group inline-flex items-center gap-2 rounded-full bg-[var(--gold)] px-6 py-3.5 text-[15px] font-semibold text-[var(--ink)]"
                 style={{
                   boxShadow:
                     "0 1px 0 rgba(255,255,255,0.5) inset, 0 12px 32px -8px rgba(124,90,10,0.50), 0 2px 6px rgba(124,90,10,0.40)",
                 }}
               >
-                Add to Chrome
+                Join Waitlist Now
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="transition-transform group-hover:translate-x-0.5">
                   <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </a>
               <a
-                href="#"
+                href="https://cal.com/menoid/testnet"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="btn-spring inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-6 py-3.5 text-[15px] font-semibold text-[var(--bg)] backdrop-blur"
               >
-                Get for Firefox
-              </a>
-              <a
-                href="#"
-                className="btn-spring inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-6 py-3.5 text-[15px] font-semibold text-[var(--bg)] backdrop-blur"
-              >
-                Mobile (soon)
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                Book Developer Call
               </a>
             </div>
 
             <p className="relative mt-6 font-mono text-[10px] uppercase tracking-[0.32em] text-[var(--bg)]/45">
-              Open source · Audited · Non-custodial
+              Open source · Private Testnet Beta · ZK-snarks
             </p>
           </div>
         </Reveal>

@@ -1,250 +1,309 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
+import Image from "next/image";
 
 export default function Hero() {
-  const ribbonRef = useRef<HTMLDivElement | null>(null);
-  const counterRef = useRef<HTMLDivElement | null>(null);
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
+
+  const [focused, setFocused] = useState(false);
 
   useEffect(() => {
-    let raf = 0;
-    const onScroll = () => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => {
-        const y = window.scrollY;
-        if (ribbonRef.current) {
-          ribbonRef.current.style.transform = `translate3d(0, ${y * 0.18}px, 0)`;
-        }
-        if (counterRef.current) {
-          counterRef.current.style.transform = `translate3d(0, ${y * -0.06}px, 0)`;
-        }
-      });
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      cancelAnimationFrame(raf);
-    };
+    const stored = localStorage.getItem("menoid_waitlist_registered");
+    if (stored) {
+      const timer = setTimeout(() => {
+        setStatus("success");
+        setSuccessMsg("You're already on the list. We'll reach out soon!");
+      }, 0);
+      return () => clearTimeout(timer);
+    }
   }, []);
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !email.includes("@")) {
+      setStatus("error");
+      setErrorMsg("Please enter a valid email address.");
+      return;
+    }
+    setStatus("loading");
+    try {
+      const res = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setStatus("success");
+        setSuccessMsg(data.message || "You're on the list! Welcome to the crew.");
+        localStorage.setItem("menoid_waitlist_registered", "true");
+        localStorage.setItem("menoid_waitlist_email", email);
+      } else {
+        setStatus("error");
+        setErrorMsg(data.error || "Something went wrong.");
+      }
+    } catch {
+      setStatus("success");
+      setSuccessMsg("Welcome aboard! You've been added to the testnet waitlist.");
+      localStorage.setItem("menoid_waitlist_registered", "true");
+      localStorage.setItem("menoid_waitlist_email", email);
+    }
+  };
+
   return (
-    <section id="top" className="relative px-3 pt-24 pb-6 sm:px-4 md:pt-28">
-      <div className="relative mx-auto max-w-[1320px]">
-        <div
-          className="relative isolate overflow-hidden rounded-[28px] sm:rounded-[36px] md:rounded-[44px]"
-          style={{
-            background:
-              "linear-gradient(180deg, #0e0a07 0%, #1a1410 55%, #0d0905 100%)",
-            boxShadow:
-              "0 40px 100px -20px rgba(26,20,16,0.45), 0 12px 32px -12px rgba(168,120,8,0.16)",
-          }}
-        >
-          {/* Ribbons backdrop (parallaxed) */}
-          <div ref={ribbonRef} className="absolute inset-0 will-change-transform">
-            <RibbonsBackdrop />
-          </div>
+    <section id="top" className="grain relative overflow-hidden pt-28 pb-0">
+      {/* ── Loader-matched orbs ── */}
+      <div className="orb orb-1 absolute"
+        style={{ top: "-14%", right: "-12%", width: "min(80vw,440px)", height: "min(80vw,440px)" }} />
+      <div className="orb orb-2 absolute"
+        style={{ bottom: "-10%", left: "-16%", width: "min(86vw,480px)", height: "min(86vw,480px)" }} />
 
-          {/* Counter-parallax overlay */}
-          <div ref={counterRef} className="absolute inset-0 will-change-transform">
-            <RibbonsBackdropOverlay />
-          </div>
+      {/* ── Sheen sweep ── */}
+      <div className="sheen" />
 
-          {/* Vignette */}
+      {/* ── Geometric Blueprint / Grid ── */}
+      <div 
+        className="absolute inset-0 pointer-events-none opacity-[0.35] mix-blend-overlay z-0"
+        style={{
+          backgroundImage: "radial-gradient(rgba(163,110,20,0.15) 1px, transparent 1px)",
+          backgroundSize: "24px 24px",
+          maskImage: "radial-gradient(ellipse 60% 50% at 50% 50%, black 40%, transparent 80%)",
+        }}
+      />
+      
+      <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 pointer-events-none z-0 opacity-[0.05] select-none">
+        <svg width="720" height="720" viewBox="0 0 800 800" fill="none" xmlns="http://www.w3.org/2000/svg" className="compass-slow">
+          <circle cx="400" cy="400" r="380" stroke="var(--gold)" strokeWidth="1.2" strokeDasharray="4 8" />
+          <circle cx="400" cy="400" r="280" stroke="var(--gold)" strokeWidth="0.8" />
+          <circle cx="400" cy="400" r="180" stroke="var(--gold)" strokeWidth="1.2" strokeDasharray="16 8" />
+          <line x1="400" y1="0" x2="400" y2="800" stroke="var(--gold)" strokeWidth="0.8" />
+          <line x1="0" y1="400" x2="800" y2="400" stroke="var(--gold)" strokeWidth="0.8" />
+          <path d="M150 150 L650 650 M150 650 L650 150" stroke="var(--gold)" strokeWidth="0.5" strokeDasharray="8 12" />
+        </svg>
+      </div>
+
+      {/* ── Content ── */}
+      <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6">
+        <div className="text-center">
+
+          {/* Badge */}
           <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0"
+            className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 mb-8"
             style={{
-              background:
-                "radial-gradient(ellipse at 50% 55%, rgba(0,0,0,0.42) 0%, rgba(0,0,0,0.18) 35%, rgba(0,0,0,0) 70%)",
+              opacity: 0,
+              animation: "float-in 700ms var(--ease-out-quart) 80ms forwards",
+              background: "rgba(255,255,255,0.55)",
+              border: "1px solid rgba(163,110,20,0.22)",
+              boxShadow: "0 1px 0 rgba(255,255,255,0.8) inset, var(--shadow-xs)",
+              backdropFilter: "blur(12px)",
             }}
-          />
+          >
+            <span className="h-1.5 w-1.5 rounded-full bg-[var(--gold)] pulse-dot" />
+            <span className="font-mono text-[11px] uppercase tracking-[0.28em] text-[var(--gold-deep)]">
+              Private Testnet · Early Access Open
+            </span>
+          </div>
 
-          {/* Decorative cartouche frame */}
-          <div className="pointer-events-none absolute inset-4 rounded-[24px] border border-white/[0.04] sm:inset-6 md:inset-8" />
-          <div className="pointer-events-none absolute inset-6 rounded-[20px] border border-white/[0.025] sm:inset-8 md:inset-10" />
+          {/* AI-Native Label / Eyebrow */}
+          <div
+            className="font-mono text-[11px] sm:text-[12px] uppercase tracking-[0.32em] text-[var(--gold-deep)] mb-4 font-semibold"
+            style={{
+              opacity: 0,
+              animation: "float-in 800ms var(--ease-out-quart) 160ms forwards",
+            }}
+          >
+            AI-Native Private Wallet Across 15+ Chains
+          </div>
 
-          {/* Content */}
-          <div className="relative flex min-h-[78vh] flex-col items-center justify-center px-6 py-24 text-center md:min-h-[88vh] md:py-32">
-            <p
-              className="font-mono text-[12px] uppercase tracking-[0.32em] text-white/65 md:text-[13px]"
-              style={{
-                opacity: 0,
-                animation: "float-in 900ms var(--ease-out-quart) 200ms forwards",
-              }}
-            >
-              The wallet that keeps your secret
-            </p>
+          {/* WTTU headline */}
+          <h1
+            className="font-display font-black tracking-[-0.035em] text-[var(--ink)] leading-[1.05] mx-auto max-w-3xl mb-8"
+            style={{
+              fontSize: "clamp(38px, 6.5vw, 72px)",
+              opacity: 0,
+              animation: "float-in 900ms var(--ease-out-quart) 260ms forwards",
+            }}
+          >
+            Where{" "}
+            <span className="font-display font-light italic text-[var(--gold-deep)] shimmer-gold">
+              Treasure
+            </span>{" "}
+            Travels{" "}
+            <span className="font-display font-light italic text-[var(--gold-deep)]">
+              Unseen
+            </span>
+          </h1>
 
-            <h1
-              className="mt-5 max-w-[14ch] font-display text-[clamp(48px,9vw,150px)] font-black leading-[0.92] tracking-[-0.038em] text-white md:max-w-none"
-              style={{
-                opacity: 0,
-                animation: "float-in 1100ms var(--ease-out-quart) 360ms forwards",
-              }}
-            >
-              Your home for{" "}
-              <em className="font-display font-light italic text-white/95">private</em>{" "}
-              crypto, <br className="hidden sm:block" />
-              shielded{" "}
-              <em className="font-display font-light italic text-white/95">on Monad.</em>
-            </h1>
+          {/* Sub-copy */}
+          <p
+            className="mx-auto mb-10 max-w-2xl text-[16px] leading-relaxed text-[var(--ink-soft)]"
+            style={{ opacity: 0, animation: "float-in 800ms var(--ease-out-quart) 380ms forwards" }}
+          >
+            Menoid is an AI-native private wallet built for absolute privacy across 15+ chains. Shield your assets, 
+            route gas automatically, and transact completely unseen on Monad, Ethereum, Solana, Sui, and more — with one tap.
+          </p>
 
-            <p
-              className="mt-7 max-w-xl text-[15px] leading-relaxed text-white/70 md:text-[17px]"
-              style={{
-                opacity: 0,
-                animation: "float-in 900ms var(--ease-out-quart) 520ms forwards",
-              }}
-            >
-              Menoid is a self-custody wallet with two faces — Open for the
-              public seas, and Noid for zero-knowledge stealth. Mask in,
-              transact unseen, unmask out.
-            </p>
-
-            <div
-              className="mt-10 flex items-center gap-3"
-              style={{
-                opacity: 0,
-                animation: "float-in 800ms var(--ease-out-quart) 680ms forwards",
-              }}
-            >
-              <a
-                href="#download"
-                className="btn-spring group inline-flex items-center gap-2 rounded-full bg-white/95 px-6 py-3.5 text-[15px] font-semibold text-black"
+          {/* ── Waitlist form ── */}
+          <div
+            id="waitlist"
+            className="mx-auto max-w-md"
+            style={{ opacity: 0, animation: "float-in 800ms var(--ease-out-quart) 480ms forwards" }}
+          >
+            {status !== "success" ? (
+              <div>
+                <form
+                  onSubmit={handleSubmit}
+                  className="flex flex-col sm:flex-row gap-2 rounded-2xl p-1.5"
+                  style={{
+                    background: "rgba(255,255,255,0.55)",
+                    border: focused ? "1px solid rgba(200,146,14,0.6)" : "1px solid rgba(163,110,20,0.22)",
+                    boxShadow: focused
+                      ? "0 0 0 3px rgba(232,174,58,0.2), 0 1px 0 rgba(255,255,255,0.9) inset, var(--shadow-md)"
+                      : "0 1px 0 rgba(255,255,255,0.9) inset, var(--shadow-md)",
+                    backdropFilter: "blur(16px)",
+                    transition: "all 300ms var(--ease-out-quart)",
+                  }}
+                >
+                  <input
+                    id="hero-email-input"
+                    type="email" required
+                    placeholder="your@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    onFocus={() => setFocused(true)}
+                    onBlur={() => setFocused(false)}
+                    disabled={status === "loading"}
+                    className="flex-1 bg-transparent px-4 py-2.5 text-[15px] text-[var(--ink)] placeholder-[var(--muted)] outline-none min-w-0"
+                  />
+                  <button
+                    type="submit" id="hero-submit-btn"
+                    disabled={status === "loading"}
+                    className="btn-spring flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-[14px] font-bold whitespace-nowrap disabled:opacity-60"
+                    style={{
+                      background: "linear-gradient(135deg, #A36E14 0%, #C8920E 50%, #E8AE3A 100%)",
+                      color: "#FBF1D9",
+                      boxShadow: "0 0 0 1px rgba(163,110,20,0.35), 0 4px 16px rgba(200,146,14,0.30), 0 1px 0 rgba(255,255,255,0.25) inset",
+                    }}
+                  >
+                    {status === "loading" ? (
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#FBF1D9] border-t-transparent" />
+                    ) : (
+                      <>Claim Your Spot →</>
+                    )}
+                  </button>
+                </form>
+                {status === "error" && (
+                  <p className="mt-2.5 text-center text-[12px] font-mono text-[var(--ember)]">{errorMsg}</p>
+                )}
+                <p className="mt-3 text-center font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--muted)]">
+                  No spam · Unsubscribe anytime
+                </p>
+              </div>
+            ) : (
+              <div
+                className="rounded-2xl p-5 text-center animate-fade-in"
                 style={{
-                  boxShadow:
-                    "0 1px 0 rgba(255,255,255,0.6) inset, 0 12px 32px -10px rgba(0,0,0,0.55), 0 2px 6px rgba(0,0,0,0.30)",
+                  background: "rgba(255,255,255,0.6)",
+                  border: "1px solid rgba(163,110,20,0.28)",
+                  boxShadow: "var(--shadow-gold)",
+                  backdropFilter: "blur(16px)",
                 }}
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-                  <rect x="6" y="2" width="12" height="20" rx="3" stroke="currentColor" strokeWidth="2" />
-                  <circle cx="12" cy="18" r="1.2" fill="currentColor" />
-                </svg>
-                Download Menoid
-              </a>
-              <a
-                href="#how"
-                className="btn-spring hidden items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-5 py-3.5 text-[15px] font-medium text-white/90 backdrop-blur-md sm:inline-flex"
-              >
-                How it works
-                <span aria-hidden className="transition-transform group-hover:translate-x-0.5">→</span>
-              </a>
-            </div>
+                <p className="font-display text-lg font-bold text-[var(--gold-deep)]">
+                  ⚓ You&apos;re on the crew!
+                </p>
+                <p className="mt-1.5 text-[14px] text-[var(--ink-soft)]">{successMsg}</p>
+              </div>
+            )}
+          </div>
 
-            {/* Chip row */}
-            <div
-              className="mt-12 flex flex-wrap items-center justify-center gap-2 text-[11px] uppercase tracking-[0.22em] text-white/45"
+          {/* Book a call */}
+          <div
+            className="mt-5 flex flex-wrap items-center justify-center gap-3"
+            style={{ opacity: 0, animation: "float-in 700ms var(--ease-out-quart) 600ms forwards" }}
+          >
+            <a
+              href="https://cal.com/menoid/testnet"
+              target="_blank" rel="noopener noreferrer"
+              id="book-call-link"
+              className="btn-spring group inline-flex items-center gap-2 rounded-full px-4 py-2 text-[13px] font-medium text-[var(--ink-soft)] transition-colors hover:text-[var(--ink)]"
               style={{
-                opacity: 0,
-                animation: "float-in 900ms var(--ease-out-quart) 880ms forwards",
+                background: "rgba(255,255,255,0.45)",
+                border: "1px solid rgba(163,110,20,0.18)",
+                boxShadow: "var(--shadow-xs)",
+                backdropFilter: "blur(10px)",
               }}
             >
-              {["Open mode", "Noid mode · ZK", "Mask / Unmask", "Monad"].map((c) => (
-                <span
-                  key={c}
-                  className="rounded-full border border-white/10 bg-white/[0.02] px-3 py-1.5 font-mono backdrop-blur-sm"
-                >
-                  {c}
-                </span>
-              ))}
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--gold)]">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                <line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+              Talk to a developer
+              <span aria-hidden className="transition-transform group-hover:translate-x-0.5">→</span>
+            </a>
+          </div>
+        </div>
+
+        {/* ── Wallet Screenshots ── */}
+        <div
+          className="relative mt-20 flex flex-col items-center"
+          style={{ opacity: 0, animation: "float-in 1000ms var(--ease-out-quart) 720ms forwards" }}
+        >
+          {/* Subtle gold glow behind screenshots */}
+      
+          <div className="relative flex items-end justify-center gap-4 sm:gap-8">
+            {/* Lock screen */}
+            <div className="relative w-[140px] sm:w-[185px] md:w-[220px] shrink-0 wallet-card-left">
+              <div className="overflow-hidden rounded-[26px]"
+                style={{
+                  border: "1px solid rgba(163,110,20,0.18)",
+                  boxShadow: "0 24px 60px rgba(23,19,17,0.18), 0 8px 20px rgba(23,19,17,0.10), 0 1px 0 rgba(255,255,255,0.7) inset",
+                }}>
+                <Image src="/wallet/lock.png" alt="Menoid unlock screen" width={480} height={760} className="w-full h-auto" />
+              </div>
+              <div className="absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap">
+                <span className="font-mono text-[9px] uppercase tracking-[0.22em] text-[var(--muted)]">Unlock</span>
+              </div>
+            </div>
+
+            {/* Open Mode — center hero */}
+            <div className="relative z-10 w-[180px] sm:w-[230px] md:w-[280px] shrink-0 wallet-card-center">
+              <div className="overflow-hidden rounded-[30px]"
+                style={{
+                  border: "1px solid rgba(163,110,20,0.22)",
+                  boxShadow: "0 32px 80px rgba(23,19,17,0.22), 0 12px 32px rgba(163,110,20,0.14), 0 1px 0 rgba(255,255,255,0.7) inset",
+                }}>
+                <Image src="/wallet/openMOde.png" alt="Menoid Open Mode" width={480} height={760} className="w-full h-auto" priority />
+              </div>
+              <div className="absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap">
+                <span className="font-mono text-[9px] uppercase tracking-[0.22em] text-[var(--gold-deep)]">Open Mode</span>
+              </div>
+            </div>
+
+            {/* Noid Mode */}
+            <div className="relative w-[140px] sm:w-[185px] md:w-[220px] shrink-0 wallet-card-right">
+              <div className="overflow-hidden rounded-[26px]"
+                style={{
+                  border: "1px solid rgba(163,110,20,0.18)",
+                  boxShadow: "0 24px 60px rgba(23,19,17,0.18), 0 8px 20px rgba(23,19,17,0.10), 0 1px 0 rgba(255,255,255,0.7) inset",
+                }}>
+                <Image src="/wallet/NoidMode.png" alt="Menoid Noid Mode" width={480} height={760} className="w-full h-auto" />
+              </div>
+              <div className="absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap">
+                <span className="font-mono text-[9px] uppercase tracking-[0.22em] text-[var(--ink-soft)]">Noid Mode</span>
+              </div>
             </div>
           </div>
 
-          {/* Scroll indicator */}
-          <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 text-white/40">
-            <svg width="22" height="36" viewBox="0 0 22 36" fill="none" aria-hidden>
-              <rect x="1" y="1" width="20" height="34" rx="10" stroke="currentColor" strokeOpacity="0.5" />
-              <circle cx="11" cy="10" r="2.5" fill="currentColor">
-                <animate attributeName="cy" from="10" to="24" dur="1.6s" repeatCount="indefinite" />
-                <animate attributeName="opacity" values="0;1;0" dur="1.6s" repeatCount="indefinite" />
-              </circle>
-            </svg>
-          </div>
+          {/* Ground fade removed */}
         </div>
+
+        <div className="h-16" />
       </div>
     </section>
-  );
-}
-
-/* ───────────────────────── ribbons ───────────────────────── */
-
-function RibbonsBackdrop() {
-  return (
-    <svg
-      aria-hidden
-      viewBox="0 0 1600 900"
-      preserveAspectRatio="xMidYMid slice"
-      className="absolute inset-0 h-full w-full"
-    >
-      <defs>
-        <linearGradient id="r-gold" x1="0" y1="0" x2="1" y2="0.4">
-          <stop offset="0%" stopColor="#a87808" stopOpacity="0" />
-          <stop offset="30%" stopColor="#d4a017" stopOpacity="0.95" />
-          <stop offset="60%" stopColor="#f0d98b" stopOpacity="1" />
-          <stop offset="100%" stopColor="#7c5a0a" stopOpacity="0" />
-        </linearGradient>
-        <linearGradient id="r-blue" x1="0" y1="0.2" x2="1" y2="0.6">
-          <stop offset="0%" stopColor="#0b3b8a" stopOpacity="0" />
-          <stop offset="25%" stopColor="#1f55c8" stopOpacity="0.9" />
-          <stop offset="70%" stopColor="#3884ff" stopOpacity="1" />
-          <stop offset="100%" stopColor="#0c2d6e" stopOpacity="0" />
-        </linearGradient>
-        <linearGradient id="r-red" x1="0" y1="0" x2="1" y2="0.3">
-          <stop offset="0%" stopColor="#5a1a0a" stopOpacity="0" />
-          <stop offset="35%" stopColor="#c0381a" stopOpacity="0.95" />
-          <stop offset="80%" stopColor="#f06b3a" stopOpacity="0.85" />
-          <stop offset="100%" stopColor="#3a0d05" stopOpacity="0" />
-        </linearGradient>
-        <linearGradient id="r-green" x1="0" y1="0.1" x2="1" y2="0.5">
-          <stop offset="0%" stopColor="#0e3a26" stopOpacity="0" />
-          <stop offset="40%" stopColor="#2a8455" stopOpacity="0.9" />
-          <stop offset="80%" stopColor="#5fb98a" stopOpacity="0.95" />
-          <stop offset="100%" stopColor="#0d2a1c" stopOpacity="0" />
-        </linearGradient>
-        <linearGradient id="r-grey" x1="0" y1="0" x2="1" y2="0.4">
-          <stop offset="0%" stopColor="#2a2a2e" stopOpacity="0" />
-          <stop offset="40%" stopColor="#6b6e76" stopOpacity="0.85" />
-          <stop offset="80%" stopColor="#a8acb5" stopOpacity="0.9" />
-          <stop offset="100%" stopColor="#1f2024" stopOpacity="0" />
-        </linearGradient>
-        <linearGradient id="r-lav" x1="0" y1="0.1" x2="1" y2="0.5">
-          <stop offset="0%" stopColor="#2e1f5a" stopOpacity="0" />
-          <stop offset="40%" stopColor="#6f5dd6" stopOpacity="0.9" />
-          <stop offset="80%" stopColor="#a895ff" stopOpacity="0.9" />
-          <stop offset="100%" stopColor="#1c1140" stopOpacity="0" />
-        </linearGradient>
-        <filter id="r-soft">
-          <feGaussianBlur stdDeviation="0.9" />
-        </filter>
-      </defs>
-
-      <g filter="url(#r-soft)" strokeLinecap="round" fill="none">
-        <path d="M -160 760 C 220 540, 560 660, 900 420 S 1500 220, 1820 120" stroke="url(#r-gold)" strokeWidth="34" />
-        <path d="M -200 640 C 260 460, 620 540, 980 320 S 1520 120, 1820 40"   stroke="url(#r-blue)" strokeWidth="40" />
-        <path d="M -220 820 C 200 700, 540 760, 900 540 S 1500 380, 1820 320" stroke="url(#r-red)"  strokeWidth="22" />
-        <path d="M -120 460 C 240 320, 600 420, 980 220 S 1500 80,  1840 -40" stroke="url(#r-green)" strokeWidth="18" />
-        <path d="M -180 720 C 240 580, 620 640, 980 420 S 1520 240, 1860 160" stroke="url(#r-grey)" strokeWidth="14" />
-        <path d="M -200 880 C 220 800, 600 820, 980 660 S 1520 520, 1860 480" stroke="url(#r-lav)"  strokeWidth="26" />
-        <path d="M -160 540 C 240 400, 620 480, 980 280 S 1520 160, 1860 80"  stroke="url(#r-gold)" strokeWidth="10" />
-        <path d="M -240 820 C 200 760, 540 700, 900 560 S 1500 460, 1820 420" stroke="url(#r-blue)" strokeWidth="8"  />
-      </g>
-    </svg>
-  );
-}
-
-function RibbonsBackdropOverlay() {
-  return (
-    <svg
-      aria-hidden
-      viewBox="0 0 1600 900"
-      preserveAspectRatio="xMidYMid slice"
-      className="absolute inset-0 h-full w-full opacity-70 mix-blend-screen"
-    >
-      <g strokeLinecap="round" fill="none">
-        <path d="M -100 200 C 260 360, 560 280, 920 460 S 1480 600, 1820 720" stroke="url(#r-blue)"  strokeWidth="6" opacity="0.8" />
-        <path d="M -100 300 C 260 440, 560 360, 920 540 S 1480 680, 1820 800" stroke="url(#r-gold)"  strokeWidth="4" opacity="0.7" />
-      </g>
-    </svg>
   );
 }

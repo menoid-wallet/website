@@ -40,6 +40,9 @@ export default function Loader() {
     const tick = (now: number) => {
       const elapsed = now - start;
 
+      // Keep Lenis smooth scroll stopped during loader duration
+      (globalThis as any).__menoidLenis?.stop();
+
       // line draws immediately, from t=0
       const f = Math.min(1, elapsed / DRAW_MS);
       setLineFrac(f);
@@ -62,6 +65,7 @@ export default function Loader() {
           setPhase("gone");
           document.documentElement.style.overflow = "";
           document.body.dataset.loaded = "true";
+          (globalThis as any).__menoidLenis?.start(); // Enable scroll
         }, 800);
       }
     };
@@ -69,6 +73,7 @@ export default function Loader() {
     return () => {
       cancelAnimationFrame(rafRef.current);
       document.documentElement.style.overflow = "";
+      (globalThis as any).__menoidLenis?.start(); // Fallback enable scroll
     };
   }, []);
 
@@ -104,7 +109,7 @@ export default function Loader() {
       <div className="grain pointer-events-none absolute inset-0 opacity-[0.45] z-0" />
 
       {/* ── Cursor Particles inside Loader (z-2 relative to loader stack) ── */}
-      <CursorParticles zIndexClass="z-[2]" />
+      <CursorParticles zIndexClass="z-[2]" isLoader={true} />
 
       {/* ── Loader Text / SVG content (z-10 relative to loader stack) ── */}
       <div className="relative z-10 w-full h-full">

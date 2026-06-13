@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import CursorParticles from "./CursorParticles";
 
 export default function Hero() {
   const [email, setEmail] = useState("");
@@ -56,6 +57,7 @@ export default function Hero() {
 
   return (
     <section id="top" className="grain relative overflow-hidden pt-28 pb-0">
+      <CursorParticles zIndexClass="z-[2]" />
       {/* ── Loader-matched orbs ── */}
       <div className="orb orb-1 absolute"
         style={{ top: "-14%", right: "-12%", width: "min(80vw,440px)", height: "min(80vw,440px)" }} />

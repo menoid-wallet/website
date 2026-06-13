@@ -18,19 +18,26 @@ interface Flake {
   orbitAngle: number;
   orbitSpeed: number;
   noiseOffset: number;
+  isFallenState?: boolean; // Tracks if this flake has crossed the bottom wall and fallen
 }
 
 interface CursorParticlesProps {
   zIndexClass?: string;
+  isLoader?: boolean; // If true, disables the falling wall physics for loader viewport swarming
 }
 
-export default function CursorParticles({ zIndexClass = "z-[99]" }: CursorParticlesProps) {
+export default function CursorParticles({ zIndexClass = "z-[2]", isLoader = false }: CursorParticlesProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const mouseRef = useRef({ x: 0, y: 0 });
   const targetMouseRef = useRef({ x: 0, y: 0 });
   const isHoveringRef = useRef(false);
-  const isFooterHoveredRef = useRef(false);
+  const isFallingRef = useRef(false); // Default to swarming hover state
   const hasMovedRef = useRef(false);
+  
+  // Cache the last screen client X/Y coordinates to track scrolling updates
+  const lastClientXRef = useRef(0);
+  const lastClientYRef = useRef(0);
+  
   const [isEnabled, setIsEnabled] = useState(false);
 
   useEffect(() => {
@@ -69,20 +76,30 @@ export default function CursorParticles({ zIndexClass = "z-[99]" }: CursorPartic
       "rgba(163, 110, 20, 0.55)",  // Muted Gold
     ];
 
-    // Resize canvas to fill viewport
+    // Resize canvas to fill the parent container client area
     const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      const parent = canvas.parentElement;
+      if (parent) {
+        canvas.width = parent.clientWidth;
+        canvas.height = parent.clientHeight;
+      } else {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
     };
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
 
-    // Initialize particles at center of viewport
-    const initialX = window.innerWidth / 2;
-    const initialY = window.innerHeight / 2;
+    // Initialize pointer coordinates at center of viewport
+    const initialX = canvas.width / 2;
+    const initialY = canvas.height / 2;
     mouseRef.current = { x: initialX, y: initialY };
     targetMouseRef.current = { x: initialX, y: initialY };
+    
+    lastClientXRef.current = window.innerWidth / 2;
+    lastClientYRef.current = window.innerHeight / 2;
 
+    // Initialize particles at the center of the canvas
     for (let i = 0; i < numFlakes; i++) {
       const colorRandom = Math.random();
       let color = flakeColors[0];
@@ -112,23 +129,52 @@ export default function CursorParticles({ zIndexClass = "z-[99]" }: CursorPartic
         orbitAngle: Math.random() * Math.PI * 2,
         orbitSpeed: (Math.random() * 0.008 + 0.002) * (Math.random() > 0.5 ? 1 : -1),
         noiseOffset: Math.random() * 100,
+        isFallenState: false,
       });
     }
 
-    // Pointer move listener
+
+    // Pointer move listener relative to canvas bounds (handles page scrolling natively)
     const handlePointerMove = (e: PointerEvent) => {
+      lastClientXRef.current = e.clientX;
+      lastClientYRef.current = e.clientY;
+
+      const rect = canvas.getBoundingClientRect();
+      const localX = e.clientX - rect.left;
+      const localY = e.clientY - rect.top;
+
       if (!hasMovedRef.current) {
         hasMovedRef.current = true;
-        // Snap flakes instantly to first movement to prevent line sweeping from center
-        flakes.forEach((f) => {
-          f.x = e.clientX;
-          f.y = e.clientY;
-        });
       }
-      targetMouseRef.current = { x: e.clientX, y: e.clientY };
+      targetMouseRef.current = { x: localX, y: localY };
+
+      // Determine if cursor is inside the canvas boundaries
+      const isInside =
+        e.clientX >= rect.left &&
+        e.clientX <= rect.right &&
+        e.clientY >= rect.top &&
+        e.clientY <= rect.bottom;
+
+      isFallingRef.current = !isInside;
     };
 
-    // Track when hovering over clickable elements or the footer
+    // Track scroll events to detect if the container scrolled out from under the cursor
+    const handleScroll = () => {
+      const rect = canvas.getBoundingClientRect();
+      const localX = lastClientXRef.current - rect.left;
+      const localY = lastClientYRef.current - rect.top;
+      targetMouseRef.current = { x: localX, y: localY };
+
+      const isInside =
+        lastClientXRef.current >= rect.left &&
+        lastClientXRef.current <= rect.right &&
+        lastClientYRef.current >= rect.top &&
+        lastClientYRef.current <= rect.bottom;
+
+      isFallingRef.current = !isInside;
+    };
+
+    // Track when hovering over clickable elements
     const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement | null;
       if (!target) return;
@@ -142,16 +188,14 @@ export default function CursorParticles({ zIndexClass = "z-[99]" }: CursorPartic
         window.getComputedStyle(target).cursor === "pointer";
 
       isHoveringRef.current = isClickable;
-
-      // Detect if cursor is inside the footer section
-      isFooterHoveredRef.current = !!target.closest("footer");
     };
 
     const handlePointerLeave = () => {
-      isFooterHoveredRef.current = false;
+      isFallingRef.current = true; // Fall to bottom if mouse leaves the page/viewport
     };
 
     window.addEventListener("pointermove", handlePointerMove);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     window.addEventListener("mouseover", handleMouseOver);
     window.addEventListener("pointerleave", handlePointerLeave);
 
@@ -170,23 +214,19 @@ export default function CursorParticles({ zIndexClass = "z-[99]" }: CursorPartic
         f.orbitAngle += f.orbitSpeed;
         f.rotationAngle += f.rotationSpeed;
 
-        if (isFooterHoveredRef.current) {
-          // gravity physics: particles detach from cursor and fall to bottom
+        const floor = canvas.height - f.height;
+
+        // Determine if we should use gravity (falling) or spring swarm physics
+        const useGravity = !isLoader && isFallingRef.current;
+
+        if (useGravity) {
+          // gravity physics: particles detach from cursor and fall/settle at the bottom
           f.vy += 0.24; // constant gravity pull
           f.vx *= 0.98; // slight air resistance horizontal drag
           f.vy *= 0.98; // slight air resistance vertical drag
 
           f.x += f.vx;
           f.y += f.vy;
-
-          // floor collision at the bottom of the window
-          const floor = canvas.height - f.height;
-          if (f.y >= floor) {
-            f.y = floor;
-            f.vy = -Math.abs(f.vy) * (Math.random() * 0.24 + 0.14); // bounce upward
-            f.vx *= 0.72; // floor friction slows horizontal movement
-            f.vx += (Math.random() - 0.5) * 0.25; // tiny rolling motion jitter
-          }
         } else {
           // standard spring swarm physics
           const activeRadius = isHoveringRef.current ? f.orbitRadius * 0.16 : f.orbitRadius;
@@ -216,6 +256,15 @@ export default function CursorParticles({ zIndexClass = "z-[99]" }: CursorPartic
           f.y += f.vy;
         }
 
+        // Strict boundary: clamp Y to floor
+        if (!isLoader && f.y >= floor) {
+          f.y = floor;
+          if (f.vy > 0) {
+            f.vy = -f.vy * 0.1; // soft damp bounce
+            f.vx *= 0.8; // floor friction
+          }
+        }
+
         // Draw flake as a rotated rectangle (just like google antigravity website)
         ctx.save();
         ctx.translate(f.x, f.y);
@@ -233,6 +282,7 @@ export default function CursorParticles({ zIndexClass = "z-[99]" }: CursorPartic
     return () => {
       window.removeEventListener("resize", resizeCanvas);
       window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("mouseover", handleMouseOver);
       window.removeEventListener("pointerleave", handlePointerLeave);
       cancelAnimationFrame(animationFrameId);
@@ -244,7 +294,7 @@ export default function CursorParticles({ zIndexClass = "z-[99]" }: CursorPartic
   return (
     <canvas
       ref={canvasRef}
-      className={`pointer-events-none fixed inset-0 ${zIndexClass} h-full w-full select-none animate-fade-in`}
+      className={`pointer-events-none absolute inset-0 ${zIndexClass} h-full w-full select-none animate-fade-in`}
       style={{ mixBlendMode: "multiply" }}
     />
   );

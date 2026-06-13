@@ -155,7 +155,8 @@ export default function Hero() {
             <div
               id="waitlist"
               className="mx-auto lg:mx-0 max-w-md w-full"
-              style={{ opacity: 0, animation: "float-in 800ms var(--ease-out-quart) 480ms forwards" }}
+              style={{ opacity: 0,
+             animation: "float-in 800ms var(--ease-out-quart) 480ms forwards" }}
             >
               {status !== "success" ? (
                 <div>
@@ -163,12 +164,11 @@ export default function Hero() {
                     onSubmit={handleSubmit}
                     className="flex flex-col sm:flex-row gap-2 rounded-2xl p-1.5"
                     style={{
-                      background: "rgba(255,255,255,0.55)",
+                      background: "#FAF5E8", // solid to hide particles underneath
                       border: focused ? "1px solid rgba(200,146,14,0.6)" : "1px solid rgba(163,110,20,0.22)",
                       boxShadow: focused
                         ? "0 0 0 3px rgba(232,174,58,0.2), 0 1px 0 rgba(255,255,255,0.9) inset, var(--shadow-md)"
                         : "0 1px 0 rgba(255,255,255,0.9) inset, var(--shadow-md)",
-                      backdropFilter: "blur(16px)",
                       transition: "all 300ms var(--ease-out-quart)",
                     }}
                   >
@@ -211,10 +211,9 @@ export default function Hero() {
                 <div
                   className="rounded-2xl p-5 text-center lg:text-left animate-fade-in"
                   style={{
-                    background: "rgba(255,255,255,0.6)",
+                    background: "#FAF5E8", // solid to hide particles underneath
                     border: "1px solid rgba(163,110,20,0.28)",
                     boxShadow: "var(--shadow-gold)",
-                    backdropFilter: "blur(16px)",
                   }}
                 >
                   <p className="font-display text-lg font-bold text-[var(--gold-deep)]">
@@ -236,10 +235,9 @@ export default function Hero() {
                 id="book-call-link"
                 className="btn-spring group inline-flex items-center gap-2 rounded-full px-4 py-2 text-[13px] font-medium text-[var(--ink-soft)] transition-colors hover:text-[var(--ink)]"
                 style={{
-                  background: "rgba(255,255,255,0.45)",
+                  background: "#FAF5E8", // solid to hide particles underneath
                   border: "1px solid rgba(163,110,20,0.18)",
                   boxShadow: "var(--shadow-xs)",
-                  backdropFilter: "blur(10px)",
                 }}
               >
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--gold)]">

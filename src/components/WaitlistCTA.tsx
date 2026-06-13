@@ -29,10 +29,12 @@ export default function WaitlistCTA() {
   };
 
   return (
-    <section
-      className="grain relative overflow-hidden py-32 px-4 sm:px-6"
-      style={{ background: "linear-gradient(160deg, #FBF1D9 0%, #F4E7CC 55%, #EAD5A7 100%)" }}
-    >
+    <section className="grain relative overflow-hidden py-32 px-4 sm:px-6">
+      {/* Opaque section background placed behind the particles canvas */}
+      <div 
+        className="absolute inset-0 -z-10 pointer-events-none"
+        style={{ background: "linear-gradient(160deg, #FBF1D9 0%, #F4E7CC 55%, #EAD5A7 100%)" }}
+      />
       {/* Orbs */}
       <div className="orb orb-1 absolute" style={{ top: "-18%", right: "-14%", width: "min(80vw,440px)", height: "min(80vw,440px)" }} />
       <div className="orb orb-2 absolute" style={{ bottom: "-20%", left: "-18%", width: "min(86vw,480px)", height: "min(86vw,480px)" }} />

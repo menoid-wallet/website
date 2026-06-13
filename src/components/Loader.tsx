@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import CursorParticles from "./CursorParticles";
 
 /* ────────────────────────────────────────────────────────────
    MENOID — responsive image loader.
@@ -86,80 +87,91 @@ export default function Loader() {
       aria-hidden={phase !== "in"}
       className={`fixed inset-0 z-[100] overflow-hidden ${phase === "out" ? "opacity-0" : "opacity-100"}`}
       style={{
-        background: "linear-gradient(160deg, #FBF1D9 0%, #F4E7CC 55%, #EAD5A7 100%)",
         transition: "opacity 700ms ease",
       }}
     >
-      {/* ── lockscreen backdrop ── */}
-      <div className="pointer-events-none absolute" style={{ top: "-14%", right: "-18%", width: "min(80vw,340px)", height: "min(80vw,340px)", borderRadius: "50%", background: "radial-gradient(circle, rgba(232,174,58,0.55) 0%, transparent 65%)", filter: "blur(40px)", animation: "ld-orb1 11s ease-in-out infinite" }} />
-      <div className="pointer-events-none absolute" style={{ bottom: "-18%", left: "-22%", width: "min(86vw,380px)", height: "min(86vw,380px)", borderRadius: "50%", background: "radial-gradient(circle, rgba(244,210,122,0.55) 0%, transparent 65%)", filter: "blur(48px)", animation: "ld-orb2 13s ease-in-out infinite 2s" }} />
-      <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.30) 50%, transparent 70%)", animation: "ld-sheen 8s ease-in-out infinite" }} />
-      <div className="pointer-events-none absolute inset-0 opacity-[0.04]" style={{ backgroundImage: "linear-gradient(to right,#171311 1px,transparent 1px),linear-gradient(to bottom,#171311 1px,transparent 1px)", backgroundSize: "28px 28px" }} />
-      <div className="grain pointer-events-none absolute inset-0 opacity-[0.45]" />
+      {/* ── Solid backdrop ── */}
+      <div 
+        className="absolute inset-0 z-0 bg-parchment" 
+        style={{ background: "linear-gradient(160deg, #FBF1D9 0%, #F4E7CC 55%, #EAD5A7 100%)" }}
+      />
 
-      {/* ── WHERE TREASURE TRAVELS UNSEEN ── */}
-      {title !== "menoid" && (
-        <div
-          style={{
-            ...anchor("calc(-1 * clamp(30px, 5.5vw, 70px))"),
-            width: "min(92vw, 1160px)",
-            opacity: title === "fadeout" ? 0 : 1,
-            filter: title === "fadeout" ? "blur(10px)" : "blur(0)",
-            transition: `opacity ${FADE_MS}ms var(--ease-in-out), transform ${FADE_MS}ms var(--ease-in-out), filter ${FADE_MS}ms var(--ease-in-out)`,
-            animation: "ld-in 800ms var(--ease-out-quart) both",
-          }}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/texts/wttu.png" alt="Where Treasure Travels Unseen" style={{ display: "block", width: "100%", height: "auto" }} />
+      {/* ── lockscreen backdrop orbs ── */}
+      <div className="pointer-events-none absolute z-0" style={{ top: "-14%", right: "-18%", width: "min(80vw,340px)", height: "min(80vw,340px)", borderRadius: "50%", background: "radial-gradient(circle, rgba(232,174,58,0.55) 0%, transparent 65%)", filter: "blur(40px)", animation: "ld-orb1 11s ease-in-out infinite" }} />
+      <div className="pointer-events-none absolute z-0" style={{ bottom: "-18%", left: "-22%", width: "min(86vw,380px)", height: "min(86vw,380px)", borderRadius: "50%", background: "radial-gradient(circle, rgba(244,210,122,0.55) 0%, transparent 65%)", filter: "blur(48px)", animation: "ld-orb2 13s ease-in-out infinite 2s" }} />
+      <div className="pointer-events-none absolute inset-0 z-0" style={{ background: "linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.30) 50%, transparent 70%)", animation: "ld-sheen 8s ease-in-out infinite" }} />
+      <div className="pointer-events-none absolute inset-0 opacity-[0.04] z-0" style={{ backgroundImage: "linear-gradient(to right,#171311 1px,transparent 1px),linear-gradient(to bottom,#171311 1px,transparent 1px)", backgroundSize: "28px 28px" }} />
+      <div className="grain pointer-events-none absolute inset-0 opacity-[0.45] z-0" />
+
+      {/* ── Cursor Particles inside Loader (z-2 relative to loader stack) ── */}
+      <CursorParticles zIndexClass="z-[2]" />
+
+      {/* ── Loader Text / SVG content (z-10 relative to loader stack) ── */}
+      <div className="relative z-10 w-full h-full">
+        {/* ── WHERE TREASURE TRAVELS UNSEEN ── */}
+        {title !== "menoid" && (
+          <div
+            style={{
+              ...anchor("calc(-1 * clamp(30px, 5.5vw, 70px))"),
+              width: "min(92vw, 1160px)",
+              opacity: title === "fadeout" ? 0 : 1,
+              filter: title === "fadeout" ? "blur(10px)" : "blur(0)",
+              transition: `opacity ${FADE_MS}ms var(--ease-in-out), transform ${FADE_MS}ms var(--ease-in-out), filter ${FADE_MS}ms var(--ease-in-out)`,
+              animation: "ld-in 800ms var(--ease-out-quart) both",
+            }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/texts/wttu.png" alt="Where Treasure Travels Unseen" style={{ display: "block", width: "100%", height: "auto" }} />
+          </div>
+        )}
+
+        {/* ── MENOID ── */}
+        {title === "menoid" && (
+          <div style={{ ...anchor("calc(-1 * clamp(30px, 4.5vw, 40px))"), width: "min(90vw, 1060px)", animation: "menoid-in 900ms var(--ease-out-quart) both" }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/texts/menoid.png" alt="Menoid" style={{ display: "block", width: "100%", height: "auto" }} />
+          </div>
+        )}
+
+        {/* ── hand-drawn loading line + pen point ── */}
+        <div style={{ ...anchor("clamp(22px, 3.5vw, 32px)"), width: "min(70vw, 600px)", height: "clamp(24px, 5vw, 40px)" }}>
+          <svg viewBox="0 0 620 44" preserveAspectRatio="xMidYMid meet" className="h-full w-full" aria-hidden>
+            <defs>
+              <linearGradient id="ld-ul" x1="0" x2="1">
+                <stop offset="0%" stopColor="#A36E14" stopOpacity="0" />
+                <stop offset="20%" stopColor="#A36E14" />
+                <stop offset="50%" stopColor="#E8AE3A" />
+                <stop offset="80%" stopColor="#A36E14" />
+                <stop offset="100%" stopColor="#A36E14" stopOpacity="0" />
+              </linearGradient>
+            </defs>
+            <path d={LINE_PATH} stroke="rgba(163,110,20,0.18)" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+            <path
+              ref={pathRef}
+              d={LINE_PATH}
+              pathLength={100}
+              stroke="url(#ld-ul)"
+              strokeWidth="3"
+              fill="none"
+              strokeLinecap="round"
+              style={{ strokeDasharray: 100, strokeDashoffset: 100 * (1 - lineFrac) }}
+            />
+            {lineFrac > 0 && lineFrac < 1 && (
+              <g transform={`translate(${point.x}, ${point.y})`}>
+                <circle r="9" fill="rgba(232,174,58,0.25)" />
+                <circle r="4" fill="#E8AE3A" stroke="#A36E14" strokeWidth="1" />
+                <circle r="1.4" fill="#fffaf0" />
+              </g>
+            )}
+            {lineFrac >= 1 && <circle cx={606} cy={22} r="4" fill="#A36E14" />}
+          </svg>
         </div>
-      )}
 
-      {/* ── MENOID ── */}
-      {title === "menoid" && (
-        <div style={{ ...anchor("calc(-1 * clamp(30px, 4.5vw, 40px))"), width: "min(90vw, 1060px)", animation: "menoid-in 900ms var(--ease-out-quart) both" }}>
+        {/* ── AI-NATIVE PRIVATE WALLET (smaller, tight below the line) ── */}
+        <div style={{ ...anchor("clamp(74px, 9vw, 96px)"), width: "min(54vw, 420px)", animation: "ld-in 800ms var(--ease-out-quart) both" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/texts/menoid.png" alt="Menoid" style={{ display: "block", width: "100%", height: "auto" }} />
+          <img src="/texts/ai-text.png" alt="AI-Native Private Wallet" style={{ display: "block", width: "100%", height: "auto" }} />
         </div>
-      )}
-
-      {/* ── hand-drawn loading line + pen point ── */}
-      <div style={{ ...anchor("clamp(22px, 3.5vw, 32px)"), width: "min(70vw, 600px)", height: "clamp(24px, 5vw, 40px)" }}>
-        <svg viewBox="0 0 620 44" preserveAspectRatio="xMidYMid meet" className="h-full w-full" aria-hidden>
-          <defs>
-            <linearGradient id="ld-ul" x1="0" x2="1">
-              <stop offset="0%" stopColor="#A36E14" stopOpacity="0" />
-              <stop offset="20%" stopColor="#A36E14" />
-              <stop offset="50%" stopColor="#E8AE3A" />
-              <stop offset="80%" stopColor="#A36E14" />
-              <stop offset="100%" stopColor="#A36E14" stopOpacity="0" />
-            </linearGradient>
-          </defs>
-          <path d={LINE_PATH} stroke="rgba(163,110,20,0.18)" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-          <path
-            ref={pathRef}
-            d={LINE_PATH}
-            pathLength={100}
-            stroke="url(#ld-ul)"
-            strokeWidth="3"
-            fill="none"
-            strokeLinecap="round"
-            style={{ strokeDasharray: 100, strokeDashoffset: 100 * (1 - lineFrac) }}
-          />
-          {lineFrac > 0 && lineFrac < 1 && (
-            <g transform={`translate(${point.x}, ${point.y})`}>
-              <circle r="9" fill="rgba(232,174,58,0.25)" />
-              <circle r="4" fill="#E8AE3A" stroke="#A36E14" strokeWidth="1" />
-              <circle r="1.4" fill="#fffaf0" />
-            </g>
-          )}
-          {lineFrac >= 1 && <circle cx={606} cy={22} r="4" fill="#A36E14" />}
-        </svg>
-      </div>
-
-      {/* ── AI-NATIVE PRIVATE WALLET (smaller, tight below the line) ── */}
-      <div style={{ ...anchor("clamp(74px, 9vw, 96px)"), width: "min(54vw, 420px)", animation: "ld-in 800ms var(--ease-out-quart) both" }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/texts/ai-text.png" alt="AI-Native Private Wallet" style={{ display: "block", width: "100%", height: "auto" }} />
       </div>
 
       <style>{`

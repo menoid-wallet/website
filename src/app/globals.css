@@ -368,7 +368,7 @@ html.lenis, html.lenis body { height: auto; }
 .wallet-card-left {
   transform: rotate(-6deg) translateY(20px);
   transition: transform 650ms var(--ease-spring), z-index 650ms, filter 650ms var(--ease-out-quart);
-  z-index: 1;
+  z-index: 5;
 }
 .wallet-card-left:hover {
   transform: rotate(-1.5deg) translateY(2px) scale(1.08);
@@ -390,7 +390,7 @@ html.lenis, html.lenis body { height: auto; }
 .wallet-card-right {
   transform: rotate(6deg) translateY(20px);
   transition: transform 650ms var(--ease-spring), z-index 650ms, filter 650ms var(--ease-out-quart);
-  z-index: 1;
+  z-index: 5;
 }
 .wallet-card-right:hover {
   transform: rotate(1.5deg) translateY(2px) scale(1.08);
@@ -416,3 +416,5 @@ html.lenis, html.lenis body { height: auto; }
     transition-duration: 0.001ms !important;
   }
 }
+
+

@@ -39,12 +39,16 @@ export default function WalletModes() {
     <section
       id="wallet-modes"
       className="grain relative overflow-hidden py-28 px-4 sm:px-6 transition-all duration-700 ease-in-out"
-      style={{
-        background: isNoid
-          ? "linear-gradient(160deg, #3C2C1E 0%, #241A12 50%, #150F0B 100%)"
-          : "linear-gradient(160deg, #F4E7CC 0%, #FBF1D9 50%, #EAD5A7 100%)",
-      }}
     >
+      {/* Opaque section background placed behind the particles canvas */}
+      <div 
+        className="absolute inset-0 -z-10 pointer-events-none transition-all duration-700 ease-in-out"
+        style={{
+          background: isNoid
+            ? "linear-gradient(160deg, #3C2C1E 0%, #241A12 50%, #150F0B 100%)"
+            : "linear-gradient(160deg, #F4E7CC 0%, #FBF1D9 50%, #EAD5A7 100%)",
+        }}
+      />
       {/* Orbs */}
       <div className="orb orb-2 absolute"
         style={{

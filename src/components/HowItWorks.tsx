@@ -59,8 +59,12 @@ export default function HowItWorks() {
     <section
       id="how-it-works"
       className="relative py-24 px-4 overflow-hidden"
-      style={{ background: "linear-gradient(180deg, var(--bg) 0%, var(--bg-soft) 50%, var(--bg) 100%)" }}
     >
+      {/* Opaque section background placed behind the particles canvas */}
+      <div 
+        className="absolute inset-0 -z-10 pointer-events-none"
+        style={{ background: "linear-gradient(180deg, var(--bg) 0%, var(--bg-soft) 50%, var(--bg) 100%)" }}
+      />
       {/* Background accent */}
       <div
         className="pointer-events-none absolute inset-0"

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Fraunces } from "next/font/google";
 import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
+import CursorParticles from "@/components/CursorParticles";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,8 +36,11 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${display.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-parchment">
+      <body className="min-h-full flex flex-col">
+        {/* Background layer placed at -z-50 so it sits behind the negative z-index particles */}
+        <div className="fixed inset-0 -z-50 bg-parchment pointer-events-none" />
         <SmoothScroll />
+        <CursorParticles zIndexClass="z-[99]" />
         {children}
       </body>
     </html>

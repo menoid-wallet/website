@@ -71,8 +71,8 @@ export default function Hero() {
       <div 
         className="absolute inset-0 pointer-events-none opacity-[0.35] mix-blend-overlay z-0"
         style={{
-          backgroundImage: "radial-gradient(rgba(163,110,20,0.15) 1px, transparent 1px)",
-          backgroundSize: "24px 24px",
+          backgroundImage: "linear-gradient(to right, rgba(163,110,20,0.15) 1px, transparent 1px), linear-gradient(to bottom, rgba(163,110,20,0.15) 1px, transparent 1px)",
+          backgroundSize: "24px 24px, 24px 24px",
           maskImage: "radial-gradient(ellipse 60% 50% at 50% 50%, black 40%, transparent 80%)",
         }}
       />

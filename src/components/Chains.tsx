@@ -1,0 +1,347 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+import Reveal from "./Reveal";
+
+interface ChainItem {
+  name: string;
+  icon: React.ReactNode;
+}
+
+// Real, official chain logos in single-color (mono) form.
+// They use fill="currentColor" so they inherit the dark icon color
+// set on the wrapper (#171311).
+const CHAINS: ChainItem[] = [
+  {
+    name: "Monad",
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-14 w-14 fill-current">
+        <path d="M12 3c-2.599 0-9 6.4-9 9s6.401 9 9 9 9-6.401 9-9-6.401-9-9-9m-1.402 14.146c-1.097-.298-4.043-5.453-3.744-6.549s5.453-4.042 6.549-3.743c1.095.298 4.042 5.453 3.743 6.549-.298 1.095-5.453 4.042-6.549 3.743" />
+      </svg>
+    ),
+  },
+  {
+    name: "Ethereum",
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-14 w-14 fill-current">
+        <path d="M12 3v6.652l5.625 2.516zm0 0-5.625 9.166L12 9.652zm0 13.478V21l5.625-7.785zM12 21v-4.522l-5.625-3.263z" />
+        <path d="m12 15.43 5.625-3.263L12 9.652zm-5.625-3.263L12 15.43V9.652z" />
+        <path fillRule="evenodd" d="m12 15.43-5.625-3.262L12 3l5.625 9.166zm-5.25-3.528 5.162-8.41v6.115zm-.077.229 5.239-2.327v5.364zm5.418-2.327v5.364l5.233-3.037zm0-.197 5.162 2.295-5.162-8.41z" clipRule="evenodd" />
+        <path fillRule="evenodd" d="m12 16.407-5.625-3.195L12 21l5.625-7.789zm-4.995-2.633 4.906 2.79v4.005zm5.085 2.79v4.005l4.904-6.795z" clipRule="evenodd" />
+      </svg>
+    ),
+  },
+  {
+    name: "Base",
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-14 w-14 fill-current">
+        <path d="M3 4.706c0-.585 0-.877.11-1.101.106-.215.28-.39.496-.495C3.83 3 4.122 3 4.706 3h14.588c.585 0 .876 0 1.101.11.215.105.389.28.494.495.111.225.111.517.111 1.101v14.588c0 .585 0 .876-.11 1.101-.106.215-.28.389-.495.494-.225.111-.517.111-1.101.111H4.706c-.585 0-.876 0-1.101-.11a1.08 1.08 0 0 1-.494-.495C3 20.17 3 19.878 3 19.294z" />
+      </svg>
+    ),
+  },
+  {
+    name: "Arbitrum",
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-14 w-14 fill-current">
+        <path d="m13.353 13.368-.885 2.39a.3.3 0 0 0 0 .205l1.523 4.112 1.76-1.001-2.113-5.706a.152.152 0 0 0-.285 0m1.774-4.019a.152.152 0 0 0-.285 0l-.885 2.39a.3.3 0 0 0 0 .205l2.494 6.732 1.761-1.001z" />
+        <path d="M11.998 4.115a.3.3 0 0 1 .126.033l6.715 3.818a.25.25 0 0 1 .126.214v7.635c0 .089-.048.17-.126.214l-6.715 3.819a.25.25 0 0 1-.126.032.3.3 0 0 1-.125-.032l-6.715-3.815a.25.25 0 0 1-.126-.215V8.182c0-.089.048-.17.126-.215l6.715-3.818a.26.26 0 0 1 .125-.034m0-1.115c-.238 0-.478.06-.692.183L4.593 7A1.36 1.36 0 0 0 3.9 8.182v7.635c0 .487.264.938.693 1.181l6.714 3.819a1.41 1.41 0 0 0 1.386 0l6.714-3.818a1.36 1.36 0 0 0 .693-1.182V8.182A1.36 1.36 0 0 0 19.407 7l-6.716-3.817A1.4 1.4 0 0 0 11.998 3" />
+        <path d="m7.559 18.685.617-1.666 1.244 1.018-1.163 1.046zm3.874-11.05H9.731a.3.3 0 0 0-.285.197l-3.649 9.852 1.761 1.001 4.018-10.849a.15.15 0 0 0-.143-.2" />
+        <path d="M14.412 7.635h-1.703a.3.3 0 0 0-.284.197l-4.167 11.25 1.761 1 4.535-12.246a.15.15 0 0 0-.142-.2" />
+      </svg>
+    ),
+  },
+  {
+    name: "BNB Chain",
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-14 w-14 fill-current">
+        <path d="M7.09 5.755 12 3l4.91 2.755-1.8 1.02L12 5.035l-3.105 1.74zm9.82 3.48-1.8-1.02L12 9.955l-3.105-1.74-1.805 1.02v2.035l3.1 1.74v3.475l1.81 1.02 1.805-1.02V13.01l3.105-1.74zm0 5.515v-2.04l-1.8 1.02v2.035zm1.285.72-3.105 1.735v2.04l4.91-2.76v-5.51l-1.805 1.015zM16.39 7.495l1.8 1.02v2.035L20 9.535v-2.04l-1.805-1.02L16.39 7.5zm-6.2 10.45v2.035L12 21l1.805-1.02v-2.03L12 18.965l-1.805-1.02zm-3.1-3.2 1.8 1.02V13.73l-1.8-1.02v2.04zm3.1-7.25L12 8.515l1.805-1.02L12 6.475 10.195 7.5zm-4.385 1.02 1.805-1.02-1.8-1.02L4 7.5v2.04l1.805 1.015zm0 3.475L4 10.975v5.51l4.91 2.76V17.2l-3.1-1.735v-3.48z" />
+      </svg>
+    ),
+  },
+  {
+    name: "Optimism",
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-14 w-14 fill-current">
+        <path fillRule="evenodd" d="M3.966 15.8q.979.7 2.512.7 1.854 0 2.962-.838 1.108-.85 1.559-2.562.27-1.05.464-2.163.063-.398.064-.663 0-.874-.451-1.499a2.7 2.7 0 0 0-1.237-.95Q9.053 7.5 8.062 7.5q-3.644 0-4.52 3.437a40 40 0 0 0-.477 2.163q-.058.335-.065.674 0 1.314.966 2.026m4.65-2.775c-.247.957-.926 1.58-1.958 1.58-1.02 0-1.368-.69-1.184-1.58a27 27 0 0 1 .464-2.05c.265-1.034.89-1.58 1.956-1.58 1.017 0 1.348.68 1.173 1.58a30 30 0 0 1-.451 2.05m3.902 3.385q.076.09.214.089h1.704a.38.38 0 0 0 .238-.089.36.36 0 0 0 .138-.232l.538-2.52h1.733c1.094 0 1.95-.53 2.576-1.002q.953-.707 1.266-2.186.075-.348.075-.67 0-1.117-.851-1.71-.84-.591-2.23-.591h-3.333a.38.38 0 0 0-.238.09.38.38 0 0 0-.138.232l-1.73 8.356a.3.3 0 0 0 .038.232m6.09-5.966c-.157.689-.757 1.319-1.462 1.319h-1.44l.496-2.369h1.503c.512 0 .94.102.94.665q0 .165-.037.385" clipRule="evenodd" />
+      </svg>
+    ),
+  },
+  {
+    name: "Polygon",
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-14 w-14 fill-current">
+        <path d="m16.364 15.217 4.27-2.435a.73.73 0 0 0 .366-.627V7.284a.72.72 0 0 0-.366-.627l-4.27-2.435a.74.74 0 0 0-.732 0l-4.27 2.435a.72.72 0 0 0-.366.627v8.704l-2.994 1.707-2.994-1.707v-3.415l2.994-1.707 1.974 1.127V9.702l-1.608-.918a.75.75 0 0 0-.732 0l-4.27 2.435a.72.72 0 0 0-.366.627v4.87c0 .258.14.498.366.627l4.27 2.436a.75.75 0 0 0 .732 0l4.27-2.436a.72.72 0 0 0 .366-.626V8.012l.053-.03 2.94-1.677 2.994 1.707v3.415l-2.994 1.707-1.972-1.124v2.291l1.606.916a.75.75 0 0 0 .732 0z" />
+      </svg>
+    ),
+  },
+  {
+    name: "Avalanche",
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-14 w-14 fill-current">
+        <path d="M7.515 19.56H4.492c-.637 0-.952 0-1.142-.114a.7.7 0 0 1-.248-.245.7.7 0 0 1-.101-.327c-.012-.216.145-.475.46-1l7.47-12.461c.32-.53.484-.794.687-.891a.79.79 0 0 1 .697 0c.202.097.36.361.675.89l1.542 2.538.005.011c.253.36.454.75.596 1.16.085.325.085.676 0 1.005a4.7 4.7 0 0 1-.596 1.172l-3.926 6.567-.011.021a4.7 4.7 0 0 1-.766 1.08 2.4 2.4 0 0 1-.927.513c-.32.08-.676.08-1.392.08m7.647 0h4.33c.648 0 .968 0 1.16-.12a.7.7 0 0 0 .246-.244.7.7 0 0 0 .101-.327c.012-.21-.14-.459-.443-.951l-.034-.053-2.171-3.51-.023-.043c-.304-.487-.461-.735-.658-.832a.77.77 0 0 0-.692 0c-.202.097-.36.357-.675.874l-2.172 3.516v.011c-.32.517-.477.777-.466.988a.7.7 0 0 0 .102.329c.06.1.145.185.246.248.187.113.507.113 1.149.113" />
+      </svg>
+    ),
+  },
+  {
+    name: "Solana",
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-14 w-14 fill-current">
+        <path d="M18.413 7.903a.62.62 0 0 1-.411.162H3.58c-.512 0-.77-.585-.416-.928l2.369-2.283a.6.6 0 0 1 .41-.17H20.42c.517 0 .77.591.41.935zm0 11.255a.62.62 0 0 1-.411.157H3.58c-.512 0-.77-.58-.416-.922l2.369-2.29a.6.6 0 0 1 .41-.163H20.42c.517 0 .77.585.41.928zm0-8.686a.62.62 0 0 0-.411-.157H3.58c-.512 0-.77.58-.416.922l2.369 2.29a.6.6 0 0 0 .41.163H20.42c.517 0 .77-.585.41-.928z" />
+      </svg>
+    ),
+  },
+  {
+    name: "Sui",
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-14 w-14 fill-current">
+        <path d="M16.129 10.508a5.44 5.44 0 0 1 1.148 3.356 5.47 5.47 0 0 1-1.18 3.4l-.064.079-.016-.107a5 5 0 0 0-.053-.26c-.37-1.656-1.566-3.08-3.546-4.233-1.334-.774-2.102-1.705-2.304-2.765a4.1 4.1 0 0 1 .16-1.969c.15-.494.385-.961.693-1.376l.773-.963a.334.334 0 0 1 .519 0zm1.217-.964L12.19 3.092a.243.243 0 0 0-.38 0L6.653 9.549l-.016.016a7.1 7.1 0 0 0-1.52 4.405C5.118 17.85 8.199 21 12 21s6.883-3.15 6.883-7.03a7.1 7.1 0 0 0-1.52-4.405zm-9.46.943.46-.577.017.105.037.255c.301 1.604 1.366 2.938 3.15 3.97 1.551.905 2.45 1.943 2.71 3.081.1.443.128.898.079 1.35v.027l-.021.01a5.2 5.2 0 0 1-2.319.544c-2.911 0-5.278-2.412-5.278-5.388a5.44 5.44 0 0 1 1.165-3.377" />
+      </svg>
+    ),
+  },
+  {
+    name: "Aptos",
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-14 w-14 fill-current">
+        <path d="M15.336 9.02a.65.65 0 0 1-.483-.217l-.643-.726a.507.507 0 0 0-.757 0l-.552.623a.95.95 0 0 1-.713.322h-8.68a9 9 0 0 0-.473 2.221h8.196a.53.53 0 0 0 .38-.163l.764-.796a.5.5 0 0 1 .365-.155h.031c.145 0 .283.061.379.17l.643.726a.65.65 0 0 0 .483.218h6.69a9 9 0 0 0-.473-2.221zm-7.341 6.894a.53.53 0 0 0 .38-.163l.764-.796a.5.5 0 0 1 .365-.156h.031c.145 0 .283.062.379.17l.643.727a.65.65 0 0 0 .483.218h9.066c.34-.702.588-1.456.736-2.244h-8.701a.65.65 0 0 1-.483-.217l-.643-.727a.507.507 0 0 0-.757 0l-.552.624a.95.95 0 0 1-.713.321H3.158c.148.789.397 1.542.737 2.243zm6.431-9.32a.53.53 0 0 0 .382-.163l.763-.796a.5.5 0 0 1 .364-.155h.032c.144 0 .283.061.378.17l.643.727a.65.65 0 0 0 .484.217h1.723A8.99 8.99 0 0 0 12.001 3a8.99 8.99 0 0 0-7.195 3.594zm-5.82 11.544a.65.65 0 0 1-.484-.218l-.643-.726a.507.507 0 0 0-.756 0l-.552.623a.95.95 0 0 1-.713.321h-.037A8.97 8.97 0 0 0 12.001 21a8.97 8.97 0 0 0 6.578-2.862z" />
+      </svg>
+    ),
+  },
+  {
+    name: "Berachain",
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-14 w-14 fill-current">
+        <path d="M11.503 11.158a1 1 0 0 1-.032-.135l-.013-.064-.035-.136c.208-.303 1.202-1.884.071-2.9-1.255-1.126-2.722.35-2.722.35l.004.007a3.63 3.63 0 0 0-2.07-.006c-.008-.009-1.47-1.474-2.722-.35-1.252 1.123.1 2.94.107 2.95a1 1 0 0 0-.033.131C3.922 11.783 3 12.023 3 13.378s.965 2.47 2.934 2.47h.808c.003.004.336.458 1.02.458.633 0 1.052-.455 1.056-.459h.77c1.97 0 2.934-1.088 2.934-2.469 0-1.262-.8-1.557-1.019-2.22m9.409-1.548s.146-1.306-.967-1.586V7.5h-.862v.51c-1.174.25-1.023 1.6-1.023 1.6v.224s-.151 1.35 1.023 1.6v1.12c-1.237.218-1.081 1.612-1.081 1.612v.223s-.151 1.35 1.023 1.6v.51h.862v-.523c1.113-.28.966-1.587.966-1.587a.086.086 0 0 0 .089-.084v-.054a.086.086 0 0 0-.088-.085s.145-1.295-.953-1.583v-1.15h-.013c1.175-.25 1.024-1.599 1.024-1.599A.087.087 0 0 0 21 9.75v-.054a.087.087 0 0 0-.088-.085m-.703 4.556h-.079a.087.087 0 0 0-.088.085v.054c0 .046.04.085.088.085h.08c0 .81-.28.946-.374.969a.024.024 0 0 1-.03-.023v-.258c0-.143-.095-.221-.19-.263a.46.46 0 0 0-.377 0c-.095.042-.19.12-.19.263v.258a.024.024 0 0 1-.029.023c-.093-.023-.374-.158-.374-.97v-.223c0-.81.28-.947.373-.97.016-.003.03.008.03.023v.258c0 .143.096.221.19.264a.47.47 0 0 0 .378 0c.094-.043.188-.121.188-.264v-.258c0-.015.015-.026.03-.023.094.023.374.158.374.97m-.02-4.332h.078c0 .812-.28.947-.374.97a.024.024 0 0 1-.03-.023v-.258c0-.143-.094-.221-.188-.264a.46.46 0 0 0-.378 0c-.095.043-.189.12-.189.264v.258c0 .015-.015.026-.03.022-.094-.023-.374-.159-.374-.969V9.61c0-.811.28-.947.374-.97a.024.024 0 0 1 .03.024v.258c0 .142.095.22.189.263.12.054.258.054.378 0 .094-.042.189-.12.189-.263v-.258c0-.016.014-.027.03-.023.094.023.373.16.373.97h-.079a.086.086 0 0 0-.088.084v.054c0 .047.04.085.088.085m-3.589 2.082s.152-1.357-1.033-1.601v-1.22C16.72 8.835 16.57 7.5 16.57 7.5h-.645c0 .812-.28.947-.373.97a.024.024 0 0 1-.03-.023v-.259c0-.142-.095-.22-.19-.263a.46.46 0 0 0-.377 0c-.094.043-.189.12-.189.263v.259c0 .015-.015.026-.03.022-.094-.023-.373-.159-.373-.969h-.645s-.155 1.385 1.07 1.609v1.204c-1.194.24-1.04 1.603-1.04 1.603v.224s-.154 1.364 1.04 1.603v1.149c-1.225.223-1.07 1.608-1.07 1.608h.645c0-.811.28-.946.373-.969a.024.024 0 0 1 .03.023v.258c0 .143.095.221.19.264a.47.47 0 0 0 .377 0c.094-.043.189-.121.189-.264v-.258c0-.016.015-.027.03-.023.094.023.373.16.373.97h.645s.15-1.336-1.004-1.596v-1.163c1.185-.245 1.033-1.602 1.033-1.602a.087.087 0 0 0 .088-.085v-.054a.086.086 0 0 0-.088-.085m-.723.224h.079c0 .812-.28.947-.374.97a.024.024 0 0 1-.03-.023v-.258c0-.143-.095-.221-.189-.264a.46.46 0 0 0-.378 0c-.094.043-.189.121-.189.264v.258c0 .015-.015.026-.03.023-.094-.024-.373-.16-.373-.97v-.224c0-.811.28-.947.373-.97a.024.024 0 0 1 .03.024v.258c0 .143.095.22.19.263a.46.46 0 0 0 .377 0c.094-.042.189-.12.189-.263v-.258c0-.016.015-.027.03-.023.094.023.374.16.374.97h-.08a.087.087 0 0 0-.087.084v.054c0 .047.04.085.088.085" />
+      </svg>
+    ),
+  },
+  {
+    name: "Linea",
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-14 w-14 fill-current">
+        <path d="M17.633 21H3.478V5.921h3.238v12.157h10.917zm.001-12.159c1.595 0 2.889-1.307 2.889-2.92S19.229 3 17.633 3c-1.595 0-2.888 1.308-2.888 2.92 0 1.614 1.293 2.921 2.889 2.921" />
+      </svg>
+    ),
+  },
+  {
+    name: "Scroll",
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-14 w-14 fill-current">
+        <path d="M5.247 9.971C4.55 9.317 4.07 8.466 4.07 7.462v-.109c.066-1.702 1.462-3.098 3.164-3.142H18.12c.284.022.502.219.502.502v9.229c.24.044.371.087.611.153.196.065.458.218.458.218v-9.6a1.597 1.597 0 0 0-1.592-1.57H7.233A4.31 4.31 0 0 0 3 7.462c0 1.374.633 2.552 1.636 3.359.066.066.131.13.328.13.327 0 .545-.261.523-.523 0-.24-.087-.327-.24-.458" />
+        <path d="M17.836 14.552h-8.53A1.03 1.03 0 0 0 8.28 15.6v1.222c.021.567.501 1.047 1.069 1.047h.632v-1.047H9.35v-1.2h.349c1.069 0 1.876 1.003 1.876 2.072 0 .96-.873 2.16-2.313 2.073-1.287-.087-1.985-1.222-1.985-2.073V7.287a.866.866 0 0 0-.85-.85h-.852v1.069h.633v10.21c-.044 2.073 1.483 3.12 3.054 3.12l8.596.022A3.143 3.143 0 0 0 21 17.716c-.022-1.767-1.418-3.164-3.164-3.164m2.073 3.208a2.09 2.09 0 0 1-2.073 2.007l-5.977-.022c.48-.545.763-1.265.763-2.05 0-1.223-.72-2.074-.72-2.074h5.956c1.135 0 2.073.939 2.073 2.073zM15.545 7.68H9.107V6.61h6.436a.53.53 0 0 1 .524.524c0 .306-.218.546-.524.546" />
+        <path d="M15.545 12.698H9.107v-1.069h6.436a.53.53 0 0 1 .524.524c0 .305-.218.545-.524.545m1.137-2.509H9.107v-1.07h7.571a.536.536 0 0 1 0 1.07" />
+      </svg>
+    ),
+  },
+  {
+    name: "Mantle",
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-14 w-14 fill-current">
+        <path d="m12.928 6.082.461-2.975A9 9 0 0 0 12 3h-.005v6.075H12c.259 0 .506.034.754.096l.787-2.96a6 6 0 0 0-.613-.129m-2.39 3.387-1.52-2.605a6 6 0 0 0-.511.338L6.7 4.727a8.5 8.5 0 0 1 1.2-.743l1.378 2.683c.282-.14.563-.264.861-.36L9.204 3.44a9 9 0 0 1 1.373-.327l.484 3.027a5 5 0 0 0-.608.13l.788 2.907a2.7 2.7 0 0 0-.704.293M3.972 7.922l2.734 1.39c-.14.28-.265.562-.36.86l-2.914-.945q.219-.674.54-1.305m13.163 1.097-2.605 1.518c.13.22.225.45.293.698l2.908-.787q.085.303.13.607l3.025-.478a9 9 0 0 0-.331-1.378l-2.87.939a5.5 5.5 0 0 0-.354-.866l2.678-1.378a9 9 0 0 0-.737-1.198L16.798 8.5c.124.169.236.338.338.518m-2.368-5.586c.45.146.888.326 1.305.54L14.683 6.7a6 6 0 0 0-.855-.354zm.219 3.375-1.53 2.655c.225.13.427.281.607.467l4.287-4.303a9 9 0 0 0-1.07-.917L15.51 7.151a5 5 0 0 0-.523-.337zm-5.524 3.735-2.655-1.53a8 8 0 0 1 .343-.523L4.71 6.718c.281-.382.585-.742.917-1.069L9.93 9.936q-.272.27-.467.607m-3.251-.084 2.959.787a3 3 0 0 0-.096.754H3c0-.467.034-.94.112-1.395l2.97.461c.034-.202.08-.41.13-.607m11.081 4.23 2.734 1.39c.214-.423.393-.862.54-1.306l-2.914-.945c-.096.293-.22.585-.36.86m-3.825-.158 1.508 2.605q.271-.152.517-.338l1.806 2.475a8.5 8.5 0 0 1-1.198.743l-1.378-2.683a6 6 0 0 1-.867.36l.94 2.868c-.45.14-.912.253-1.379.326l-.478-3.026q.304-.043.608-.13l-.788-2.907q.373-.1.704-.293zm-6.604.45 2.605-1.518a2.7 2.7 0 0 1-.293-.698l-2.908.787a5 5 0 0 1-.13-.607l-3.026.478q.112.702.332 1.378l2.87-.94q.143.447.353.867L3.99 16.106c.214.416.461.821.737 1.198L7.202 15.5a5 5 0 0 1-.338-.518m2.368 5.586a9 9 0 0 1-1.305-.54L9.311 17.3q.422.21.86.354zm-.219-3.375 1.53-2.655a3 3 0 0 1-.607-.462L5.649 18.38c.332.326.692.635 1.07.91l1.771-2.435q.253.178.523.338m5.524-3.735 2.65 1.53a5 5 0 0 1-.338.529l2.435 1.766q-.413.575-.91 1.074l-4.304-4.292q.272-.27.467-.607m-3.29 1.372-.788 2.96c.202.055.405.095.613.128l-.461 2.976a9 9 0 0 0 1.389.107h.006v-6.075H12a3 3 0 0 1-.754-.096m3.582-2.075a3 3 0 0 0 .096-.754H21c0 .467-.034.94-.113 1.395l-2.97-.461a7 7 0 0 1-.129.607z" />
+      </svg>
+    ),
+  },
+];
+
+// Duplicate list 3 times to guarantee horizontal overflow and smooth wrapping
+const TRIPLE_CHAINS = [...CHAINS, ...CHAINS, ...CHAINS];
+const ITEM_WIDTH = 100;
+const GAP = 24;
+const SINGLE_CYCLE_WIDTH = 15 * (ITEM_WIDTH + GAP); // 1860px
+
+export default function Chains() {
+  const waveContainerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const container = waveContainerRef.current;
+      if (container) {
+        const scrollY = window.scrollY;
+        // Speed multiplier to adjust translation sensitivity
+        const speed = 0.55;
+        const rawOffset = scrollY * speed;
+        // Smooth modular wrap-around
+        const offset = ((rawOffset % SINGLE_CYCLE_WIDTH) + SINGLE_CYCLE_WIDTH) % SINGLE_CYCLE_WIDTH;
+
+        container.style.transform = `translate3d(${-offset}px, 0, 0)`;
+      }
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+    };
+  }, []);
+
+  return (
+    <section
+      id="chains"
+      className="grain relative overflow-hidden py-28"
+      style={{
+        background: "#171311",
+      }}
+    >
+      {/* Light Parchment Grid Blueprint */}
+      <div
+        className="absolute inset-0 z-0 pointer-events-none"
+        style={{
+          opacity: 0.04,
+          backgroundImage:
+            "linear-gradient(to right,#FBF1D9 1px,transparent 1px),linear-gradient(to bottom,#FBF1D9 1px,transparent 1px)",
+          backgroundSize: "28px 28px",
+        }}
+      />
+
+      {/* Floating background glows / orbs */}
+      <div
+        className="absolute z-0 pointer-events-none"
+        style={{
+          top: "-10%",
+          right: "-5%",
+          width: 350,
+          height: 350,
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(232,174,58,0.18) 0%, transparent 60%)",
+          filter: "blur(60px)",
+          animation: "chainsBgOrb1 14s ease-in-out infinite",
+        }}
+      />
+      <div
+        className="absolute z-0 pointer-events-none"
+        style={{
+          bottom: "-10%",
+          left: "-5%",
+          width: 320,
+          height: 320,
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(163,110,20,0.15) 0%, transparent 60%)",
+          filter: "blur(64px)",
+          animation: "chainsBgOrb2 11s ease-in-out infinite 3s",
+        }}
+      />
+
+      {/* Sheen sweep */}
+      <div className="sheen absolute inset-0 pointer-events-none" style={{ opacity: 0.15 }} />
+
+      <div
+        className="mx-auto mb-20 max-w-6xl h-px relative z-10"
+        style={{
+          background:
+            "linear-gradient(90deg, transparent, rgba(200,146,14,0.15) 30%, rgba(200,146,14,0.15) 70%, transparent)",
+        }}
+      />
+
+      <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6">
+        {/* Scrolling Wave Area (at the top) */}
+        <div className="relative w-full overflow-hidden py-10 mb-10">
+          <div
+            ref={waveContainerRef}
+            className="flex items-center"
+            style={{
+              gap: `${GAP}px`,
+              willChange: "transform",
+            }}
+          >
+            {TRIPLE_CHAINS.map((chain, idx) => {
+              // Complete exactly 2 full wave cycles (4 * Math.PI) across 15 items
+              const frequency = (4 * Math.PI) / 15;
+              const yOffset = Math.sin(idx * frequency) * 32;
+
+              return (
+                <div
+                  key={`${chain.name}-${idx}`}
+                  className="flex-shrink-0"
+                  style={{
+                    transform: `translate3d(0px, ${yOffset.toFixed(4)}px, 0px)`,
+                  }}
+                >
+                  <div
+                    className="group grain relative flex items-center justify-center rounded-full border shadow-md cursor-pointer transition-transform duration-300 hover:scale-[1.15] hover:z-30"
+                    style={{
+                      width: `${ITEM_WIDTH}px`,
+                      height: `${ITEM_WIDTH}px`,
+                      background: "linear-gradient(160deg, #FBF1D9 0%, #F4E7CC 55%, #EAD5A7 100%)",
+                      borderColor: "rgba(163, 110, 20, 0.28)",
+                      boxShadow: "0 6px 20px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.9)",
+                    }}
+                    title={chain.name}
+                  >
+                    {/* Centered Monochromatic Dark Icon */}
+                    <div className="text-[#171311] transition-transform duration-500 group-hover:scale-[1.05]">
+                      {chain.icon}
+                    </div>
+
+                    {/* Subtly animated glow ring on hover */}
+                    <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+                      style={{
+                        border: "2px solid rgba(232, 174, 58, 0.4)",
+                      }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 2-Column Content Layout (at the bottom) */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-16 items-center mt-12">
+          {/* Left Side: Big 15+ text styled like the hero page background (parchment + line grid) */}
+          <div className="md:col-span-4 flex justify-center md:justify-end">
+            <Reveal className="text-center md:text-right">
+              <h3
+                className="font-display font-black text-[120px] sm:text-[140px] md:text-[160px] leading-none tracking-tighter select-none"
+                style={{
+                  backgroundImage: "linear-gradient(to right, rgba(163, 110, 20, 0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(163, 110, 20, 0.08) 1px, transparent 1px), linear-gradient(160deg, #FBF1D9 0%, #F4E7CC 55%, #EAD5A7 100%)",
+                  backgroundSize: "16px 16px, 16px 16px, 100% 100%",
+                  WebkitBackgroundClip: "text",
+                  backgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  color: "transparent",
+                  filter: "drop-shadow(0 4px 12px rgba(0, 0, 0, 0.18))"
+                }}
+              >
+                15+
+              </h3>
+            </Reveal>
+          </div>
+
+          {/* Right Side: Header content */}
+          <div className="md:col-span-8">
+            <Reveal className="text-left">
+              <p className="font-mono text-[11px] uppercase tracking-[0.34em] text-[var(--gold)] mb-3">
+                ✦ Supported Networks ✦
+              </p>
+              <h2
+                className="font-display font-black tracking-[-0.035em] text-[#FBF1D9] mb-4"
+                style={{ fontSize: "clamp(28px, 4vw, 46px)", lineHeight: "1.15" }}
+              >
+                Privacy should be{" "}
+                <em className="font-display font-light italic text-[#E8AE3A]">freedom,</em>{" "}
+                not a compromise.
+              </h2>
+              <p className="max-w-2xl text-[14px] sm:text-[15px] leading-relaxed text-[#C9BBAA]">
+                Menoid routes gas automatically and transacts completely unseen across 15+ chains natively.
+                Shield your assets, maintain full compatibility, and keep your identity protected — without fragmented liquidity.
+              </p>
+            </Reveal>
+          </div>
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes chainsBgOrb1 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          50% { transform: translate(-30px, 25px) scale(1.12); }
+        }
+        @keyframes chainsBgOrb2 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          50% { transform: translate(40px, -30px) scale(1.15); }
+        }
+      `}</style>
+    </section>
+  );
+}

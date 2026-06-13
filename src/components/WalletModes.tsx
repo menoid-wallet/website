@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Reveal from "./Reveal";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface BoxProps {
   title: string;
@@ -43,24 +43,40 @@ const NOID_MODE_BOXES = [
     description: "Hide and lock your funds in the Noid pool.",
     imageSrc: "/wallet_modes/mask.png",
     imageAlt: "Hide Your Funds Screen",
+    bullets: [
+      "Fully privatize on-chain balances",
+      "Deposit assets into ZK pool",
+    ],
   },
   {
     title: "Hidden Transfer",
     description: "Transfer privately to any user.",
     imageSrc: "/wallet_modes/hidden_trasnfer_successful.png",
     imageAlt: "Hidden Transfer Screen",
+    bullets: [
+      "Send funds anonymously to any address",
+      "Zero-knowledge proof verification",
+    ],
   },
   {
     title: "Unhide Your Funds",
     description: "Unhide your funds to open mode any time safely.",
     imageSrc: "/wallet_modes/unmask_meno.png",
     imageAlt: "Unhide Your Funds Screen",
+    bullets: [
+      "Withdraw to any clean EOA at any time",
+      "Instant liquidity decryption",
+    ],
   },
   {
-    title: "Noid Smart Accounts",
-    description: "Create Noid Smart Accounts to interact with dapps privately.",
+    title: "Noid Accounts",
+    description: "Interact with dapps privately with Noid smart accounts.",
     imageSrc: "/wallet_modes/create_noid_account.png",
     imageAlt: "Noid Smart Account Screen",
+    bullets: [
+      "Interact with dApps anonymously",
+      "DeFi execution with shielded identity",
+    ],
   },
 ];
 
@@ -79,8 +95,8 @@ function ModeCard({ title, description, imageSrc, imageAlt, bullets }: BoxProps)
       <div 
         className="absolute inset-0 pointer-events-none opacity-[0.35] mix-blend-overlay z-0"
         style={{
-          backgroundImage: "radial-gradient(rgba(163,110,20,0.15) 1px, transparent 1px)",
-          backgroundSize: "24px 24px",
+          backgroundImage: "linear-gradient(to right, rgba(163,110,20,0.15) 1px, transparent 1px), linear-gradient(to bottom, rgba(163,110,20,0.15) 1px, transparent 1px)",
+          backgroundSize: "24px 24px, 24px 24px",
           maskImage: "radial-gradient(ellipse 60% 50% at 50% 50%, black 40%, transparent 80%)",
         }}
       />
@@ -134,25 +150,15 @@ function ModeCard({ title, description, imageSrc, imageAlt, bullets }: BoxProps)
 }
 
 export default function WalletModes() {
+  const [activeMode, setActiveMode] = useState<"open" | "noid">("open");
   const sectionRef = useRef<HTMLDivElement | null>(null);
   const darkBoxRef = useRef<HTMLDivElement | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
 
-  // Open Mode heading pill
-  const openHeadingRef = useRef<HTMLDivElement | null>(null);
-  const openHeadingPathRef = useRef<SVGRectElement | null>(null);
-  const openHeadingPath2Ref = useRef<SVGRectElement | null>(null);
-  const openHeadingTextRef = useRef<HTMLSpanElement | null>(null);
-
-  // Anchor hook (travels down the short divider as the row scrolls through)
+  // Open Row container ref
   const openRowRef = useRef<HTMLDivElement | null>(null);
-  const hookRef = useRef<HTMLSpanElement | null>(null);
 
-  // Noid Mode heading pill
-  const noidHeadingRef = useRef<HTMLDivElement | null>(null);
-  const noidHeadingPathRef = useRef<SVGRectElement | null>(null);
-  const noidHeadingPath2Ref = useRef<SVGRectElement | null>(null);
-  const noidHeadingTextRef = useRef<HTMLSpanElement | null>(null);
+  // Noid cards ref
   const noidCardsRef = useRef<HTMLDivElement | null>(null);
 
   // Individual card refs for scroll-driven animations
@@ -211,68 +217,24 @@ export default function WalletModes() {
         }
       }
 
-      // ── 2. Open Mode heading unroll ───────────────────────────────────────
-      const openHeading = openHeadingRef.current;
-      if (openHeading) {
-        const r = openHeading.getBoundingClientRect();
-        const p = (viewHeight * 0.95 - r.top) / (viewHeight * 0.3);
-        const cp = Math.max(0, Math.min(1, p));
-
-        const pathLen = 900;
-        const offset = pathLen * (1 - cp);
-        if (openHeadingPathRef.current) openHeadingPathRef.current.setAttribute("stroke-dashoffset", `${offset}`);
-        if (openHeadingPath2Ref.current) openHeadingPath2Ref.current.setAttribute("stroke-dashoffset", `${offset}`);
-        openHeading.style.clipPath = `inset(0 ${100 - cp * 100}% 0 0)`;
-        openHeading.style.opacity = `${cp}`;
-        if (openHeadingTextRef.current) {
-          openHeadingTextRef.current.style.opacity = `${Math.max(0, (cp - 0.3) / 0.7)}`;
-        }
-      }
-
-      // ── 3. Anchor hook travels down the row's short divider ───────────────
       const openRow = openRowRef.current;
-      const hook = hookRef.current;
-      if (openRow && hook) {
-        const r = openRow.getBoundingClientRect();
-        const p = (viewHeight * 0.55 - r.top) / r.height;
-        const cp = Math.max(0, Math.min(1, p));
-        hook.style.top = `${cp * 100}%`;
-      }
 
-      // ── 4. Noid Mode heading unroll ───────────────────────────────────────
-      const noidHeading = noidHeadingRef.current;
-      if (noidHeading) {
-        const r = noidHeading.getBoundingClientRect();
-        const p = (viewHeight * 0.9 - r.top) / (viewHeight * 0.3);
-        const cp = Math.max(0, Math.min(1, p));
-
-        const pathLen = 900;
-        const offset = pathLen * (1 - cp);
-        if (noidHeadingPathRef.current) noidHeadingPathRef.current.setAttribute("stroke-dashoffset", `${offset}`);
-        if (noidHeadingPath2Ref.current) noidHeadingPath2Ref.current.setAttribute("stroke-dashoffset", `${offset}`);
-        noidHeading.style.clipPath = `inset(0 0 0 ${100 - cp * 100}%)`;
-        noidHeading.style.opacity = `${cp}`;
-        if (noidHeadingTextRef.current) {
-          noidHeadingTextRef.current.style.opacity = `${Math.max(0, (cp - 0.3) / 0.7)}`;
-        }
-      }
-
-      // ── 5. Noid cards grid fade-in ────────────────────────────────────────
+      // ── 3. Noid cards grid fade-in ────────────────────────────────────────
       const noidCards = noidCardsRef.current;
       if (noidCards) {
         const r = noidCards.getBoundingClientRect();
-        const p = (viewHeight * 0.95 - r.top) / (viewHeight * 0.4);
+        const p = (viewHeight * 0.85 - r.top) / (viewHeight * 0.3);
         const cp = Math.max(0, Math.min(1, p));
         noidCards.style.opacity = `${cp}`;
       }
 
-      // ── 6. Open Mode Cards Stack and Spread ───────────────────────────────
+      // ── 4. Open Mode Cards Stack and Spread ───────────────────────────────
       const openCard0 = openCard0Ref.current;
       const openCard1 = openCard1Ref.current;
       if (openRow && openCard0 && openCard1) {
         const r = openRow.getBoundingClientRect();
-        const start = viewHeight * 0.95;
-        const end = viewHeight * 0.25;
+        const start = viewHeight * 0.85;
+        const end = viewHeight * 0.50;
         const p = (start - r.top) / (start - end);
         const cp = Math.max(0, Math.min(1, p)); // 0 = stacked, 1 = spread
         const factor = 1 - cp; // 1 = stacked, 0 = spread
@@ -281,15 +243,15 @@ export default function WalletModes() {
         openCard1.style.setProperty("--spread-factor", `${factor}`);
       }
 
-      // ── 7. Noid Mode Cards Stack and Spread ───────────────────────────────
+      // ── 5. Noid Mode Cards Stack and Spread ───────────────────────────────
       const noidCard0 = noidCard0Ref.current;
       const noidCard1 = noidCard1Ref.current;
       const noidCard2 = noidCard2Ref.current;
       const noidCard3 = noidCard3Ref.current;
       if (noidCards && noidCard0 && noidCard1 && noidCard2 && noidCard3) {
         const r = noidCards.getBoundingClientRect();
-        const start = viewHeight * 0.95;
-        const end = viewHeight * 0.25;
+        const start = viewHeight * 0.85;
+        const end = viewHeight * 0.50;
         const p = (start - r.top) / (start - end);
         const cp = Math.max(0, Math.min(1, p)); // 0 = stacked, 1 = spread
         const factor = 1 - cp; // 1 = stacked, 0 = spread
@@ -308,7 +270,7 @@ export default function WalletModes() {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleScroll);
     };
-  }, []);
+  }, [activeMode]);
 
   return (
     <section
@@ -322,8 +284,8 @@ export default function WalletModes() {
       <div
         className="absolute inset-0 pointer-events-none opacity-[0.35] mix-blend-overlay z-0"
         style={{
-          backgroundImage: "radial-gradient(rgba(163,110,20,0.15) 1px, transparent 1px)",
-          backgroundSize: "24px 24px",
+          backgroundImage: "linear-gradient(to right, rgba(163,110,20,0.15) 1px, transparent 1px), linear-gradient(to bottom, rgba(163,110,20,0.15) 1px, transparent 1px)",
+          backgroundSize: "24px 24px, 24px 24px",
           maskImage: "radial-gradient(ellipse 60% 50% at 50% 50%, black 40%, transparent 80%)",
         }}
       />
@@ -389,7 +351,7 @@ export default function WalletModes() {
 
         <div
           ref={contentRef}
-          className="w-full max-w-6xl shrink-0 px-4 sm:px-6 py-28 z-10 flex flex-col gap-28"
+          className="w-full max-w-6xl shrink-0 px-4 sm:px-6 py-28 z-10 flex flex-col gap-12"
           style={{
             opacity: 0,
             transform: "translateY(30px)",
@@ -407,129 +369,118 @@ export default function WalletModes() {
               Sail open, or sail in the{" "}
               <em className="font-display font-light italic text-[#E8AE3A]">shadow waters.</em>
             </h2>
-            <p className="mt-4 max-w-xl mx-auto text-[14px] sm:text-[15px] leading-relaxed text-[#C9BBAA]">
+            <p className="mt-4 max-w-xl mx-auto text-[14px] sm:text-[15px] leading-relaxed text-[#C9BBAA] mb-8">
               Menoid holds two accounts simultaneously. Switch seamlessly between your public EOA
               profile for everyday activities and your ZK profile for shielded stealth operations.
             </p>
-          </Reveal>
 
-          {/* ─────────────────── OPEN MODE ─────────────────── */}
-          <div className="flex flex-col items-center">
-            {/* Heading pill */}
-            <div
-              ref={openHeadingRef}
-              className="relative h-[54px] w-[380px] flex items-center justify-center mb-14 overflow-hidden"
-              style={{
-                borderRadius: "9999px",
-                background: "#FBF1D9",
-                backgroundImage: "radial-gradient(rgba(163,110,20,0.15) 1px, transparent 1px)",
-                backgroundSize: "24px 24px",
-                filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.15))",
-                clipPath: "inset(0 100% 0 0)",
-                maskImage: "linear-gradient(to right, black 65%, transparent 100%)",
-                WebkitMaskImage: "linear-gradient(to right, black 65%, transparent 100%)",
-                opacity: 0,
-              }}
-            >
-              <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 380 54" fill="none">
-                <rect ref={openHeadingPathRef} x="1.5" y="1.5" width="377" height="51" rx="25.5" stroke="#A36E14" strokeWidth="2.5" strokeDasharray="900" strokeDashoffset="900" strokeLinecap="round" />
-                <rect ref={openHeadingPath2Ref} x="2.5" y="2.5" width="375" height="49" rx="24.5" stroke="#C8920E" strokeWidth="1" strokeDasharray="900" strokeDashoffset="900" strokeLinecap="round" opacity="0.6" />
-              </svg>
-              <span
-                ref={openHeadingTextRef}
-                className="font-display text-[18px] sm:text-[20px] font-bold text-[var(--ink)] z-10"
-                style={{ opacity: 0 }}
-              >
-                Open Mode
-              </span>
-            </div>
-
-            {/* Cards row with a centered anchor between them */}
-            <div ref={openRowRef} className="open-container relative w-full max-w-5xl/disabled">
-              {/* Center divider with travelling hook (desktop only) */}
-              <div
-                className="pointer-events-none absolute inset-y-0 left-1/2 hidden w-0.5 -translate-x-1/2 md:block"
+            {/* Premium Toggle Switch Styled to match image */}
+            <div className="flex justify-center mt-6 mb-12">
+              <div 
+                className="relative p-1 rounded-full flex items-center cursor-pointer w-[280px] h-[52px]"
+                onClick={() => setActiveMode(activeMode === "open" ? "noid" : "open")}
                 style={{
-                  background:
-                    "linear-gradient(to bottom, rgba(163,110,20,0.04), rgba(163,110,20,0.32) 18%, rgba(163,110,20,0.32) 82%, rgba(163,110,20,0.04))",
+                  background: "#F1E3C3",
+                  border: "1.5px solid #FAF5E8",
+                  boxShadow: "inset 0 2px 4px rgba(163,110,20,0.12), 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.08)"
                 }}
               >
-                <span
-                  ref={hookRef}
-                  className="absolute left-1/2 z-30 select-none text-[30px]"
+                {/* Dark Charcoal Sliding Background */}
+                <div 
+                  className="absolute top-1 bottom-1 left-1 rounded-full transition-transform duration-300 ease-[cubic-bezier(0.25,1,0.5,1)]"
                   style={{
-                    top: "50%",
-                    transform: "translate(-50%, -50%)",
-                    color: "#E8AE3A",
-                    textShadow: "0 0 16px rgba(232,174,58,0.9), 0 0 4px rgba(232,174,58,0.6)",
+                    width: "136px",
+                    background: "#171311",
+                    transform: activeMode === "open" ? "translateX(0)" : "translateX(136px)",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.3)"
                   }}
+                />
+                
+                {/* Option 1: OPEN */}
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setActiveMode("open"); }}
+                  className={`relative z-10 w-1/2 h-full flex items-center justify-center font-sans font-bold uppercase tracking-widest text-[14px] transition-colors duration-300 outline-none ${
+                    activeMode === "open" 
+                      ? "text-[#FBF1D9]" 
+                      : "text-[#8A7056] hover:text-[#171311]"
+                  }`}
                 >
-                  {"\u2693\uFE0E"}
-                </span>
-              </div>
-
-              {/* Two cards side by side */}
-              <div className="open-container grid grid-cols-1 items-stretch gap-8 md:grid-cols-2 md:gap-16 pb-12 overflow-visible">
-                <div ref={openCard0Ref} className="scroll-card-wrapper open-card-0">
-                  <div className="card-hover-wrapper">
-                    <ModeCard {...OPEN_MODE_BOXES[0]} />
-                  </div>
-                </div>
-                <div ref={openCard1Ref} className="scroll-card-wrapper open-card-1">
-                  <div className="card-hover-wrapper">
-                    <ModeCard {...OPEN_MODE_BOXES[1]} />
-                  </div>
-                </div>
+                  OPEN
+                </button>
+                
+                {/* Option 2: NOID */}
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setActiveMode("noid"); }}
+                  className={`relative z-10 w-1/2 h-full flex items-center justify-center font-sans font-bold uppercase tracking-widest text-[14px] transition-colors duration-300 outline-none ${
+                    activeMode === "noid" 
+                      ? "text-[#FBF1D9]" 
+                      : "text-[#8A7056] hover:text-[#171311]"
+                  }`}
+                >
+                  NOID
+                </button>
               </div>
             </div>
-          </div>
+          </Reveal>
 
-          {/* ─────────────────── NOID MODE ─────────────────── */}
-          <div className="flex flex-col items-center">
-            {/* Heading pill */}
-            <div
-              ref={noidHeadingRef}
-              className="relative h-[54px] w-[380px] flex items-center justify-center mb-14 overflow-hidden"
-              style={{
-                borderRadius: "9999px",
-                background: "#FBF1D9",
-                backgroundImage: "radial-gradient(rgba(163,110,20,0.15) 1px, transparent 1px)",
-                backgroundSize: "24px 24px",
-                filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.15))",
-                clipPath: "inset(0 0 0 100%)",
-                maskImage: "linear-gradient(to left, black 65%, transparent 100%)",
-                WebkitMaskImage: "linear-gradient(to left, black 65%, transparent 100%)",
-                opacity: 0,
-              }}
+          <div className="relative w-full min-h-[420px]">
+            {/* ─────────────────── OPEN MODE ─────────────────── */}
+            <div 
+              className={`w-full transition-all duration-500 ease-out ${
+                activeMode === "open" 
+                  ? "opacity-100 translate-y-0 scale-100 pointer-events-auto relative" 
+                  : "opacity-0 translate-y-8 scale-95 pointer-events-none absolute inset-x-0 top-0 -z-10"
+              }`}
             >
-              <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 380 54" fill="none">
-                <rect ref={noidHeadingPathRef} x="1.5" y="1.5" width="377" height="51" rx="25.5" stroke="#A36E14" strokeWidth="2.5" strokeDasharray="900" strokeDashoffset="900" strokeLinecap="round" />
-                <rect ref={noidHeadingPath2Ref} x="2.5" y="2.5" width="375" height="49" rx="24.5" stroke="#C8920E" strokeWidth="1" strokeDasharray="900" strokeDashoffset="900" strokeLinecap="round" opacity="0.6" />
-              </svg>
-              <span
-                ref={noidHeadingTextRef}
-                className="font-display text-[18px] sm:text-[20px] font-bold text-[var(--ink)] z-10"
-                style={{ opacity: 0 }}
-              >
-                Noid Mode
-              </span>
-            </div>
+              <div className="flex flex-col items-center">
+                {/* Cards row */}
+                <div ref={openRowRef} className="open-container relative w-full max-w-5xl">
 
-            <div
-              ref={noidCardsRef}
-              className="noid-container w-full max-w-5xl grid grid-cols-1 sm:grid-cols-2 gap-6 z-10 pb-16 overflow-visible"
-              style={{ opacity: 0 }}
-            >
-              {NOID_MODE_BOXES.map((box, idx) => {
-                const cardRef = idx === 0 ? noidCard0Ref : idx === 1 ? noidCard1Ref : idx === 2 ? noidCard2Ref : noidCard3Ref;
-                return (
-                  <div key={box.title} ref={cardRef} className={`scroll-card-wrapper noid-card-${idx}`}>
-                    <div className="card-hover-wrapper">
-                      <ModeCard {...box} />
+                  {/* Two cards side by side */}
+                  <div className="open-container grid grid-cols-1 items-stretch gap-8 md:grid-cols-2 md:gap-16 pb-12 overflow-visible">
+                    <div ref={openCard0Ref} className="scroll-card-wrapper open-card-0">
+                      <div className="card-hover-wrapper">
+                        <ModeCard {...OPEN_MODE_BOXES[0]} />
+                      </div>
+                    </div>
+                    <div ref={openCard1Ref} className="scroll-card-wrapper open-card-1">
+                      <div className="card-hover-wrapper">
+                        <ModeCard {...OPEN_MODE_BOXES[1]} />
+                      </div>
                     </div>
                   </div>
-                );
-              })}
+                </div>
+              </div>
+            </div>
+
+            {/* ─────────────────── NOID MODE ─────────────────── */}
+            <div 
+              className={`w-full transition-all duration-500 ease-out ${
+                activeMode === "noid" 
+                  ? "opacity-100 translate-y-0 scale-100 pointer-events-auto relative" 
+                  : "opacity-0 translate-y-8 scale-95 pointer-events-none absolute inset-x-0 top-0 -z-10"
+              }`}
+            >
+              <div className="flex flex-col items-center">
+                <div
+                  ref={noidCardsRef}
+                  className="noid-container w-full max-w-5xl grid grid-cols-1 sm:grid-cols-4 gap-6 z-10 pb-16 overflow-visible"
+                  style={{ opacity: 0 }}
+                >
+                  {NOID_MODE_BOXES.map((box, idx) => {
+                    const cardRef = idx === 0 ? noidCard0Ref : idx === 1 ? noidCard1Ref : idx === 2 ? noidCard2Ref : noidCard3Ref;
+                    return (
+                      <div key={box.title} ref={cardRef} className={`scroll-card-wrapper noid-card-${idx}`}>
+                        <div className="card-hover-wrapper">
+                          <ModeCard {...box} />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -612,10 +563,10 @@ export default function WalletModes() {
 
         /* Noid Mode Card 0 */
         .noid-card-0 {
-          --center-x-pct: 50%;
-          --center-x-px: 12px;
-          --center-y-pct: 50%;
-          --center-y-px: 12px;
+          --center-x-pct: 150%;
+          --center-x-px: 36px;
+          --center-y-pct: 0%;
+          --center-y-px: 0px;
           --stack-rotate: 0deg;
           --stack-x-offset: 0px;
           --stack-y-offset: 0px;
@@ -623,10 +574,10 @@ export default function WalletModes() {
 
         /* Noid Mode Card 1 */
         .noid-card-1 {
-          --center-x-pct: -50%;
-          --center-x-px: -12px;
-          --center-y-pct: 50%;
-          --center-y-px: 12px;
+          --center-x-pct: 50%;
+          --center-x-px: 12px;
+          --center-y-pct: 0%;
+          --center-y-px: 0px;
           --stack-rotate: 2.5deg;
           --stack-x-offset: 35px;
           --stack-y-offset: 5px;
@@ -634,10 +585,10 @@ export default function WalletModes() {
 
         /* Noid Mode Card 2 */
         .noid-card-2 {
-          --center-x-pct: 50%;
-          --center-x-px: 12px;
-          --center-y-pct: -50%;
-          --center-y-px: -12px;
+          --center-x-pct: -50%;
+          --center-x-px: -12px;
+          --center-y-pct: 0%;
+          --center-y-px: 0px;
           --stack-rotate: 5deg;
           --stack-x-offset: 70px;
           --stack-y-offset: 10px;
@@ -645,16 +596,16 @@ export default function WalletModes() {
 
         /* Noid Mode Card 3 */
         .noid-card-3 {
-          --center-x-pct: -50%;
-          --center-x-px: -12px;
-          --center-y-pct: -50%;
-          --center-y-px: -12px;
+          --center-x-pct: -150%;
+          --center-x-px: -36px;
+          --center-y-pct: 0%;
+          --center-y-px: 0px;
           --stack-rotate: 7.5deg;
           --stack-x-offset: 105px;
           --stack-y-offset: 15px;
         }
 
-        @media (max-width: 639px) {
+        @media (max-width: 767px) {
           .noid-card-0 {
             --center-x-pct: 0%;
             --center-x-px: 0px;
@@ -690,15 +641,6 @@ export default function WalletModes() {
             --hover-offset-x: 35px;
             --hover-offset-r: 3.5deg;
           }
-        }
-        @media (max-width: 767px) {
-          .open-container:hover .open-card-1 {
-            --hover-offset-y: 25px;
-            --hover-offset-r: 3.5deg;
-          }
-        }
-
-        @media (min-width: 640px) {
           .noid-container:hover .noid-card-1 {
             --hover-offset-x: 35px;
             --hover-offset-y: 5px;
@@ -715,7 +657,11 @@ export default function WalletModes() {
             --hover-offset-r: 7.5deg;
           }
         }
-        @media (max-width: 639px) {
+        @media (max-width: 767px) {
+          .open-container:hover .open-card-1 {
+            --hover-offset-y: 25px;
+            --hover-offset-r: 3.5deg;
+          }
           .noid-container:hover .noid-card-1 {
             --hover-offset-y: 25px;
             --hover-offset-r: 2.5deg;

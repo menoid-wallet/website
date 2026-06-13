@@ -149,21 +149,105 @@ const GAP = 24;
 const SINGLE_CYCLE_WIDTH = 15 * (ITEM_WIDTH + GAP); // 1860px
 
 export default function Chains() {
+  const trackRef = useRef<HTMLDivElement | null>(null);
+  const stickyContainerRef = useRef<HTMLDivElement | null>(null);
   const waveContainerRef = useRef<HTMLDivElement | null>(null);
+  const nativeMonadRef = useRef<HTMLDivElement | null>(null);
+  const zoomOverlayRef = useRef<HTMLDivElement | null>(null);
+  const contentWrapperRef = useRef<HTMLDivElement | null>(null);
+  const gridRef = useRef<HTMLDivElement | null>(null);
+  const glow1Ref = useRef<HTMLDivElement | null>(null);
+  const glow2Ref = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
-      const container = waveContainerRef.current;
-      if (container) {
-        const scrollY = window.scrollY;
-        // Speed multiplier to adjust translation sensitivity
-        const speed = 0.55;
-        const rawOffset = scrollY * speed;
-        // Smooth modular wrap-around
-        const offset = ((rawOffset % SINGLE_CYCLE_WIDTH) + SINGLE_CYCLE_WIDTH) % SINGLE_CYCLE_WIDTH;
+      const track = trackRef.current;
+      const sticky = stickyContainerRef.current;
+      const wave = waveContainerRef.current;
+      const nativeMonad = nativeMonadRef.current;
+      const zoomOverlay = zoomOverlayRef.current;
+      const contentWrapper = contentWrapperRef.current;
+      const grid = gridRef.current;
+      const glow1 = glow1Ref.current;
+      const glow2 = glow2Ref.current;
 
-        container.style.transform = `translate3d(${-offset}px, 0, 0)`;
+      if (!track || !sticky || !wave || !nativeMonad || !zoomOverlay || !contentWrapper) return;
+
+      const rect = track.getBoundingClientRect();
+      const trackHeight = rect.height;
+      const windowHeight = window.innerHeight;
+      const scrollRange = trackHeight - windowHeight;
+      const relativeScroll = -rect.top;
+
+      // Overall progress of the sticky pinning track (0 to 1)
+      const progress = Math.max(0, Math.min(1, relativeScroll / scrollRange));
+
+      // zoomProgress goes from 0 to 1 over the first 40% of the scroll track
+      const zoomProgress = Math.min(1, progress / 0.4);
+
+      // 1. Zoom Overlay Animation (active when zoomProgress < 1 and section is entering/entered viewport)
+      if (zoomProgress < 1 && rect.top < windowHeight) {
+        zoomOverlay.style.display = "flex";
+
+        // Coordinates relative to the sticky container
+        const nativeRect = nativeMonad.getBoundingClientRect();
+        const stickyRect = sticky.getBoundingClientRect();
+
+        // Start position: Center of the viewport/sticky container
+        const startX = stickyRect.width / 2;
+        const startY = stickyRect.height / 2;
+
+        // Target position: Center of the native Monad card relative to the sticky container
+        const targetX = nativeRect.left - stickyRect.left + nativeRect.width / 2;
+        const targetY = nativeRect.top - stickyRect.top + nativeRect.height / 2;
+
+        // Linear interpolation of X, Y coordinates
+        const currentX = startX - (startX - targetX) * zoomProgress;
+        const currentY = startY - (startY - targetY) * zoomProgress;
+
+        // Calculate a responsive starting scale that keeps the outer border of the badge visible
+        // We aim for the badge to occupy roughly 70-80% of the viewport height or width
+        const viewportMin = Math.min(stickyRect.width, stickyRect.height);
+        const startScale = Math.max(6.0, Math.min(10.0, (viewportMin * 0.80) / 100));
+        const currentScale = startScale - (startScale - 1) * zoomProgress;
+
+        // Rotate from 15deg down to 0deg
+        const startRotate = 15;
+        const currentRotate = startRotate - startRotate * zoomProgress;
+
+        // Set transform (offset by 50px for item width/height center pivoting)
+        zoomOverlay.style.transform = `translate3d(${currentX - 50}px, ${currentY - 50}px, 0) scale(${currentScale}) rotate(${currentRotate}deg)`;
+        zoomOverlay.style.opacity = "1";
+
+        // Hide native Monad card to prevent visual doubling
+        nativeMonad.style.visibility = "hidden";
+      } else {
+        zoomOverlay.style.display = "none";
+        nativeMonad.style.visibility = "visible";
       }
+
+      // 2. Fading in surrounding content (divider, wave, text, background grid, and glow orbs)
+      // We start the fade in at 15% zoom progress and reach full opacity at 100% zoom progress
+      const fadeProgress = Math.max(0, Math.min(1, (zoomProgress - 0.15) / 0.85));
+      contentWrapper.style.opacity = `${fadeProgress}`;
+
+      if (glow1) {
+        glow1.style.opacity = `${fadeProgress}`;
+      }
+      if (glow2) {
+        glow2.style.opacity = `${fadeProgress}`;
+      }
+
+      // 3. Horizontal Wave translation (active after zoom-out completes at progress > 0.4)
+      const speed = 0.55;
+      let offset = 0;
+      if (relativeScroll > scrollRange * 0.4) {
+        const scrollAfterZoom = relativeScroll - (scrollRange * 0.4);
+        offset = scrollAfterZoom * speed;
+      }
+
+      const wrappedOffset = ((offset % SINGLE_CYCLE_WIDTH) + SINGLE_CYCLE_WIDTH) % SINGLE_CYCLE_WIDTH;
+      wave.style.transform = `translate3d(${-wrappedOffset}px, 0, 0)`;
     };
 
     handleScroll();
@@ -177,160 +261,199 @@ export default function Chains() {
   }, []);
 
   return (
-    <section
-      id="chains"
-      className="grain relative overflow-hidden py-28"
-      style={{
-        background: "#171311",
-      }}
-    >
-      {/* Light Parchment Grid Blueprint */}
-      <div
-        className="absolute inset-0 z-0 pointer-events-none"
+    <div ref={trackRef} className="relative w-full" style={{ height: "200vh" }}>
+      <section
+        ref={stickyContainerRef}
+        id="chains"
+        className="grain sticky top-0 h-screen min-h-[620px] w-full overflow-hidden flex flex-col justify-center"
         style={{
-          opacity: 0.04,
-          backgroundImage:
-            "linear-gradient(to right,#FBF1D9 1px,transparent 1px),linear-gradient(to bottom,#FBF1D9 1px,transparent 1px)",
-          backgroundSize: "28px 28px",
+          background: "#171311",
         }}
-      />
+      >
+        {/* Light Parchment Grid Blueprint */}
+        <div
+          ref={gridRef}
+          className="absolute inset-0 z-0 pointer-events-none"
+          style={{
+            opacity: 0.04,
+            backgroundImage:
+              "linear-gradient(to right,#FBF1D9 1px,transparent 1px),linear-gradient(to bottom,#FBF1D9 1px,transparent 1px)",
+            backgroundSize: "28px 28px",
+          }}
+        />
 
-      {/* Floating background glows / orbs */}
-      <div
-        className="absolute z-0 pointer-events-none"
-        style={{
-          top: "-10%",
-          right: "-5%",
-          width: 350,
-          height: 350,
-          borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(232,174,58,0.18) 0%, transparent 60%)",
-          filter: "blur(60px)",
-          animation: "chainsBgOrb1 14s ease-in-out infinite",
-        }}
-      />
-      <div
-        className="absolute z-0 pointer-events-none"
-        style={{
-          bottom: "-10%",
-          left: "-5%",
-          width: 320,
-          height: 320,
-          borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(163,110,20,0.15) 0%, transparent 60%)",
-          filter: "blur(64px)",
-          animation: "chainsBgOrb2 11s ease-in-out infinite 3s",
-        }}
-      />
+        {/* Floating background glows / orbs */}
+        <div
+          ref={glow1Ref}
+          className="absolute z-0 pointer-events-none"
+          style={{
+            top: "-10%",
+            right: "-5%",
+            width: 350,
+            height: 350,
+            borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(232,174,58,0.18) 0%, transparent 60%)",
+            filter: "blur(60px)",
+            animation: "chainsBgOrb1 14s ease-in-out infinite",
+            opacity: 0,
+          }}
+        />
+        <div
+          ref={glow2Ref}
+          className="absolute z-0 pointer-events-none"
+          style={{
+            bottom: "-10%",
+            left: "-5%",
+            width: 320,
+            height: 320,
+            borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(163,110,20,0.15) 0%, transparent 60%)",
+            filter: "blur(64px)",
+            animation: "chainsBgOrb2 11s ease-in-out infinite 3s",
+            opacity: 0,
+          }}
+        />
 
-      {/* Sheen sweep */}
-      <div className="sheen absolute inset-0 pointer-events-none" style={{ opacity: 0.15 }} />
+        {/* Sheen sweep */}
+        <div className="sheen absolute inset-0 pointer-events-none" style={{ opacity: 0.15 }} />
 
-      <div
-        className="mx-auto mb-20 max-w-6xl h-px relative z-10"
-        style={{
-          background:
-            "linear-gradient(90deg, transparent, rgba(200,146,14,0.15) 30%, rgba(200,146,14,0.15) 70%, transparent)",
-        }}
-      />
+        {/* Zoom Overlay Monad Badge */}
+        <div
+          ref={zoomOverlayRef}
+          className="grain absolute z-50 flex items-center justify-center rounded-full border shadow-md pointer-events-none"
+          style={{
+            width: `${ITEM_WIDTH}px`,
+            height: `${ITEM_WIDTH}px`,
+            left: 0,
+            top: 0,
+            background: "linear-gradient(160deg, #FBF1D9 0%, #F4E7CC 55%, #EAD5A7 100%)",
+            borderColor: "rgba(163, 110, 20, 0.28)",
+            boxShadow: "0 6px 20px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.9)",
+            display: "none",
+            transformOrigin: "center center",
+            willChange: "transform",
+          }}
+        >
+          {/* Centered Monochromatic Dark Icon */}
+          <div className="text-[#171311]">
+            {CHAINS[0].icon}
+          </div>
+        </div>
 
-      <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6">
-        {/* Scrolling Wave Area (at the top) */}
-        <div className="relative w-full overflow-hidden py-10 mb-10">
+        {/* Main Content Wrapper (opacity controlled by scroll) */}
+        <div
+          ref={contentWrapperRef}
+          className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 w-full flex flex-col justify-center py-6 md:py-12"
+          style={{ opacity: 0 }}
+        >
+          {/* Top Divider */}
           <div
-            ref={waveContainerRef}
-            className="flex items-center"
+            className="mx-auto mb-14 max-w-6xl h-px w-full"
             style={{
-              gap: `${GAP}px`,
-              willChange: "transform",
+              background:
+                "linear-gradient(90deg, transparent, rgba(200,146,14,0.15) 30%, rgba(200,146,14,0.15) 70%, transparent)",
             }}
-          >
-            {TRIPLE_CHAINS.map((chain, idx) => {
-              // Complete exactly 2 full wave cycles (4 * Math.PI) across 15 items
-              const frequency = (4 * Math.PI) / 15;
-              const yOffset = Math.sin(idx * frequency) * 32;
+          />
 
-              return (
-                <div
-                  key={`${chain.name}-${idx}`}
-                  className="flex-shrink-0"
+          {/* Scrolling Wave Area */}
+          <div className="relative w-full overflow-hidden py-10 mb-8">
+            <div
+              ref={waveContainerRef}
+              className="flex items-center"
+              style={{
+                gap: `${GAP}px`,
+                willChange: "transform",
+              }}
+            >
+              {TRIPLE_CHAINS.map((chain, idx) => {
+                // Complete exactly 2 full wave cycles (4 * Math.PI) across 15 items
+                const frequency = (4 * Math.PI) / 15;
+                const yOffset = Math.sin(idx * frequency) * 32;
+                const isFirstMonad = idx === 0;
+
+                return (
+                  <div
+                    key={`${chain.name}-${idx}`}
+                    ref={isFirstMonad ? nativeMonadRef : undefined}
+                    className="flex-shrink-0"
+                    style={{
+                      transform: `translate3d(0px, ${yOffset.toFixed(4)}px, 0px)`,
+                    }}
+                  >
+                    <div
+                      className="group grain relative flex items-center justify-center rounded-full border shadow-md cursor-pointer transition-transform duration-300 hover:scale-[1.15] hover:z-30"
+                      style={{
+                        width: `${ITEM_WIDTH}px`,
+                        height: `${ITEM_WIDTH}px`,
+                        background: "linear-gradient(160deg, #FBF1D9 0%, #F4E7CC 55%, #EAD5A7 100%)",
+                        borderColor: "rgba(163, 110, 20, 0.28)",
+                        boxShadow: "0 6px 20px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.9)",
+                      }}
+                      title={chain.name}
+                    >
+                      {/* Centered Monochromatic Dark Icon */}
+                      <div className="text-[#171311] transition-transform duration-500 group-hover:scale-[1.05]">
+                        {chain.icon}
+                      </div>
+
+                      {/* Subtly animated glow ring on hover */}
+                      <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+                        style={{
+                          border: "2px solid rgba(232, 174, 58, 0.4)",
+                        }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 2-Column Content Layout (at the bottom) */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-16 items-center mt-6">
+            {/* Left Side: Big 15+ text */}
+            <div className="md:col-span-4 flex justify-center md:justify-end">
+              <Reveal className="text-center md:text-right">
+                <h3
+                  className="font-display font-black text-[120px] sm:text-[140px] md:text-[160px] leading-none tracking-tighter select-none"
                   style={{
-                    transform: `translate3d(0px, ${yOffset.toFixed(4)}px, 0px)`,
+                    backgroundImage: "linear-gradient(to right, rgba(163, 110, 20, 0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(163, 110, 20, 0.08) 1px, transparent 1px), linear-gradient(160deg, #FBF1D9 0%, #F4E7CC 55%, #EAD5A7 100%)",
+                    backgroundSize: "16px 16px, 16px 16px, 100% 100%",
+                    WebkitBackgroundClip: "text",
+                    backgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    color: "transparent",
+                    filter: "drop-shadow(0 4px 12px rgba(0, 0, 0, 0.18))"
                   }}
                 >
-                  <div
-                    className="group grain relative flex items-center justify-center rounded-full border shadow-md cursor-pointer transition-transform duration-300 hover:scale-[1.15] hover:z-30"
-                    style={{
-                      width: `${ITEM_WIDTH}px`,
-                      height: `${ITEM_WIDTH}px`,
-                      background: "linear-gradient(160deg, #FBF1D9 0%, #F4E7CC 55%, #EAD5A7 100%)",
-                      borderColor: "rgba(163, 110, 20, 0.28)",
-                      boxShadow: "0 6px 20px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.9)",
-                    }}
-                    title={chain.name}
-                  >
-                    {/* Centered Monochromatic Dark Icon */}
-                    <div className="text-[#171311] transition-transform duration-500 group-hover:scale-[1.05]">
-                      {chain.icon}
-                    </div>
+                  15+
+                </h3>
+              </Reveal>
+            </div>
 
-                    {/* Subtly animated glow ring on hover */}
-                    <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-                      style={{
-                        border: "2px solid rgba(232, 174, 58, 0.4)",
-                      }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
+            {/* Right Side: Header content */}
+            <div className="md:col-span-8">
+              <Reveal className="text-left">
+                <p className="font-mono text-[11px] uppercase tracking-[0.34em] text-[var(--gold)] mb-3">
+                  ✦ Supported Networks ✦
+                </p>
+                <h2
+                  className="font-display font-black tracking-[-0.035em] text-[#FBF1D9] mb-4"
+                  style={{ fontSize: "clamp(28px, 4vw, 46px)", lineHeight: "1.15" }}
+                >
+                  Privacy should be{" "}
+                  <em className="font-display font-light italic text-[#E8AE3A]">freedom,</em>{" "}
+                  not a compromise.
+                </h2>
+                <p className="max-w-2xl text-[14px] sm:text-[15px] leading-relaxed text-[#C9BBAA]">
+                  Menoid routes gas automatically and transacts completely unseen across 15+ chains natively.
+                  Shield your assets, maintain full compatibility, and keep your identity protected — without fragmented liquidity.
+                </p>
+              </Reveal>
+            </div>
           </div>
         </div>
-
-        {/* 2-Column Content Layout (at the bottom) */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-16 items-center mt-12">
-          {/* Left Side: Big 15+ text styled like the hero page background (parchment + line grid) */}
-          <div className="md:col-span-4 flex justify-center md:justify-end">
-            <Reveal className="text-center md:text-right">
-              <h3
-                className="font-display font-black text-[120px] sm:text-[140px] md:text-[160px] leading-none tracking-tighter select-none"
-                style={{
-                  backgroundImage: "linear-gradient(to right, rgba(163, 110, 20, 0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(163, 110, 20, 0.08) 1px, transparent 1px), linear-gradient(160deg, #FBF1D9 0%, #F4E7CC 55%, #EAD5A7 100%)",
-                  backgroundSize: "16px 16px, 16px 16px, 100% 100%",
-                  WebkitBackgroundClip: "text",
-                  backgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  color: "transparent",
-                  filter: "drop-shadow(0 4px 12px rgba(0, 0, 0, 0.18))"
-                }}
-              >
-                15+
-              </h3>
-            </Reveal>
-          </div>
-
-          {/* Right Side: Header content */}
-          <div className="md:col-span-8">
-            <Reveal className="text-left">
-              <p className="font-mono text-[11px] uppercase tracking-[0.34em] text-[var(--gold)] mb-3">
-                ✦ Supported Networks ✦
-              </p>
-              <h2
-                className="font-display font-black tracking-[-0.035em] text-[#FBF1D9] mb-4"
-                style={{ fontSize: "clamp(28px, 4vw, 46px)", lineHeight: "1.15" }}
-              >
-                Privacy should be{" "}
-                <em className="font-display font-light italic text-[#E8AE3A]">freedom,</em>{" "}
-                not a compromise.
-              </h2>
-              <p className="max-w-2xl text-[14px] sm:text-[15px] leading-relaxed text-[#C9BBAA]">
-                Menoid routes gas automatically and transacts completely unseen across 15+ chains natively.
-                Shield your assets, maintain full compatibility, and keep your identity protected — without fragmented liquidity.
-              </p>
-            </Reveal>
-          </div>
-        </div>
-      </div>
+      </section>
 
       <style>{`
         @keyframes chainsBgOrb1 {
@@ -342,6 +465,6 @@ export default function Chains() {
           50% { transform: translate(40px, -30px) scale(1.15); }
         }
       `}</style>
-    </section>
+    </div>
   );
 }

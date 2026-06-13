@@ -212,7 +212,7 @@ export default function Hero() {
                   className="rounded-2xl p-5 text-center lg:text-left animate-fade-in"
                   style={{
                     background: "#FAF5E8", // solid to hide particles underneath
-                    border: "1px solid rgba(163,110,20,0.28)",
+                    border: "1px solid rgba(163,110,28,0.28)",
                     boxShadow: "var(--shadow-gold)",
                   }}
                 >

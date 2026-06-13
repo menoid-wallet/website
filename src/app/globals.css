@@ -204,6 +204,13 @@ html.lenis, html.lenis body { height: auto; }
 }
 .gentle-bob { animation: gentle-bob 4.5s ease-in-out infinite; }
 
+/* ── Ship Floating (aggressive/faster bobbing) ── */
+@keyframes ship-float {
+  0%, 100% { transform: translateY(0) rotate(-2.5deg); }
+  50%       { transform: translateY(-24px) rotate(2.5deg); }
+}
+.ship-float { animation: ship-float 2.8s ease-in-out infinite; }
+
 /* ── Marquee ── */
 @keyframes marquee {
   from { transform: translateX(0); }
@@ -416,5 +423,21 @@ html.lenis, html.lenis body { height: auto; }
     transition-duration: 0.001ms !important;
   }
 }
+
+/* ── Nav Link Hero Hover (Badge-like) ── */
+.nav-link-hero-hover {
+  border: 1px solid transparent;
+  transition: all 300ms var(--ease-out-quart);
+}
+.nav-link-hero-hover:hover {
+  background: rgba(255, 255, 255, 0.96) !important;
+  border-color: rgba(163, 110, 20, 0.22) !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset, var(--shadow-xs) !important;
+  backdrop-filter: blur(12px) !important;
+  color: var(--ink) !important;
+}
+
+
+
 
 

@@ -6,6 +6,7 @@ import Chains from "@/components/Chains";
 import MenoSection from "@/components/MenoSection";
 import WaitlistCTA from "@/components/WaitlistCTA";
 import Footer from "@/components/Footer";
+import CursorParticles from "@/components/CursorParticles";
 
 export default function Home() {
   return (
@@ -16,8 +17,11 @@ export default function Home() {
         <Hero />
         <WalletModes />
         <Chains />
-        <MenoSection />
-        <WaitlistCTA />
+        <div className="relative">
+          <CursorParticles zIndexClass="z-[2]" />
+          <MenoSection />
+          <WaitlistCTA />
+        </div>
       </main>
       <Footer />
     </>

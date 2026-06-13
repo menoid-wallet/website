@@ -160,6 +160,7 @@ export default function MenoSection() {
                       background: "rgba(255, 255, 255, 0.65)",
                       borderColor: "rgba(163, 110, 20, 0.18)",
                       boxShadow: "0 1px 0 rgba(255,255,255,0.9) inset, var(--shadow-xs)",
+                      backdropFilter: "blur(8px)",
                     }}
                   >
                     <div className="shrink-0 p-1.5 rounded-full bg-[rgba(163,110,20,0.06)] border border-[rgba(163,110,20,0.08)]">
@@ -212,6 +213,7 @@ export default function MenoSection() {
                         ? "rgba(163, 110, 20, 0.22)"
                         : "rgba(163, 110, 20, 0.12)",
                       boxShadow: "0 1px 0 rgba(255,255,255,0.9) inset, var(--shadow-xs)",
+                      backdropFilter: "blur(8px)",
                     }}
                   >
                     {item.type === "say" ? (
@@ -245,6 +247,7 @@ export default function MenoSection() {
                   background: "linear-gradient(135deg, rgba(255,255,255,0.65) 0%, rgba(255,255,255,0.45) 100%)",
                   borderColor: "rgba(163, 110, 20, 0.22)",
                   boxShadow: "0 1px 0 rgba(255,255,255,0.9) inset, var(--shadow-md)",
+                  backdropFilter: "blur(8px)",
                 }}
               >
                 <p className="text-[15px] sm:text-[16px] leading-relaxed text-[var(--ink)]">

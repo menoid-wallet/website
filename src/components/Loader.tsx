@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import CursorParticles from "./CursorParticles";
 
 /* ────────────────────────────────────────────────────────────
    MENOID — responsive image loader.
@@ -90,7 +89,7 @@ export default function Loader() {
   return (
     <div
       aria-hidden={phase !== "in"}
-      className={`fixed inset-0 z-[100] overflow-hidden ${phase === "out" ? "opacity-0" : "opacity-100"}`}
+      className={`fixed inset-0 z-[100] overflow-hidden loader-screen ${phase === "out" ? "opacity-0" : "opacity-100"}`}
       style={{
         transition: "opacity 700ms ease",
       }}
@@ -107,9 +106,6 @@ export default function Loader() {
       <div className="pointer-events-none absolute inset-0 z-0" style={{ background: "linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.30) 50%, transparent 70%)", animation: "ld-sheen 8s ease-in-out infinite" }} />
       <div className="pointer-events-none absolute inset-0 opacity-[0.04] z-0" style={{ backgroundImage: "linear-gradient(to right,#171311 1px,transparent 1px),linear-gradient(to bottom,#171311 1px,transparent 1px)", backgroundSize: "28px 28px" }} />
       <div className="grain pointer-events-none absolute inset-0 opacity-[0.45] z-0" />
-
-      {/* ── Cursor Particles inside Loader (z-2 relative to loader stack) ── */}
-      <CursorParticles zIndexClass="z-[2]" isLoader={true} />
 
       {/* ── Loader Text / SVG content (z-10 relative to loader stack) ── */}
       <div className="relative z-10 w-full h-full">

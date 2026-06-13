@@ -38,6 +38,8 @@ export default function CursorParticles({ zIndexClass = "z-[2]", isLoader = fals
   const lastClientXRef = useRef(0);
   const lastClientYRef = useRef(0);
   
+  const currentOpacityRef = useRef(isLoader ? 1 : 0);
+  
   const [isEnabled, setIsEnabled] = useState(false);
 
   useEffect(() => {
@@ -172,6 +174,9 @@ export default function CursorParticles({ zIndexClass = "z-[2]", isLoader = fals
         lastClientYRef.current <= rect.bottom;
 
       isFallingRef.current = !isInside;
+      if (isInside && !hasMovedRef.current) {
+        hasMovedRef.current = true;
+      }
     };
 
     // Track when hovering over clickable elements
@@ -208,6 +213,12 @@ export default function CursorParticles({ zIndexClass = "z-[2]", isLoader = fals
       mouseRef.current.y += (targetMouseRef.current.y - mouseRef.current.y) * 0.12;
 
       const time = Date.now() * 0.001;
+
+      // Determine if cursor is above the canvas bounds
+      const rect = canvas.getBoundingClientRect();
+      const isAbove = lastClientYRef.current !== 0 && lastClientYRef.current < rect.top;
+      const targetOpacity = isLoader ? 1 : (!hasMovedRef.current || isAbove) ? 0 : 1;
+      currentOpacityRef.current += (targetOpacity - currentOpacityRef.current) * 0.08;
 
       flakes.forEach((f) => {
         // Orbit angle update
@@ -264,15 +275,22 @@ export default function CursorParticles({ zIndexClass = "z-[2]", isLoader = fals
             f.vx *= 0.8; // floor friction
           }
         }
-
-        // Draw flake as a rotated rectangle (just like google antigravity website)
-        ctx.save();
-        ctx.translate(f.x, f.y);
-        ctx.rotate(f.rotationAngle + f.orbitAngle * 0.5);
-        ctx.fillStyle = f.color;
-        ctx.fillRect(-f.width / 2, -f.height / 2, f.width, f.height);
-        ctx.restore();
       });
+
+      // Render flakes if canvas is visible
+      if (currentOpacityRef.current > 0.001) {
+        ctx.save();
+        ctx.globalAlpha = currentOpacityRef.current;
+        flakes.forEach((f) => {
+          ctx.save();
+          ctx.translate(f.x, f.y);
+          ctx.rotate(f.rotationAngle + f.orbitAngle * 0.5);
+          ctx.fillStyle = f.color;
+          ctx.fillRect(-f.width / 2, -f.height / 2, f.width, f.height);
+          ctx.restore();
+        });
+        ctx.restore();
+      }
 
       animationFrameId = requestAnimationFrame(update);
     };

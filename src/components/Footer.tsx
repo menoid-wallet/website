@@ -83,28 +83,39 @@ export default function Footer() {
   return (
     <footer
       id="learn"
-      className="relative mt-0 border-t border-[var(--line)] py-16"
+      className="relative mt-0 border-t border-[rgba(255,255,255,0.08)] py-16 overflow-hidden"
       style={{
-        background: "linear-gradient(180deg, var(--bg-soft) 0%, var(--bg-deep) 100%)",
+        background: "#171311",
       }}
     >
-      <div className="mx-auto max-w-6xl px-6">
+      {/* Subtle Grid Blueprint (exactly matching WalletModes dark box) */}
+      <div 
+        className="absolute inset-0 pointer-events-none z-0"
+        style={{
+          opacity: 0.04,
+          backgroundImage:
+            "linear-gradient(to right,#FBF1D9 1px,transparent 1px),linear-gradient(to bottom,#FBF1D9 1px,transparent 1px)",
+          backgroundSize: "28px 28px",
+        }}
+      />
+
+      <div className="relative z-10 mx-auto max-w-6xl px-6">
         <Reveal>
           <div className="grid grid-cols-2 gap-10 md:grid-cols-[1.5fr_repeat(4,1fr)]">
             {/* Brand */}
             <div className="col-span-2 md:col-span-1">
               <div className="flex items-center gap-2.5 mb-4">
                 <div
-                  className="relative h-10 w-10 overflow-hidden rounded-full bg-[var(--paper)] ring-1 ring-[var(--line)]"
+                  className="relative h-10 w-10 overflow-hidden rounded-full bg-[rgba(255,255,255,0.08)] ring-1 ring-[rgba(255,255,255,0.15)]"
                   style={{ boxShadow: "var(--shadow-sm)" }}
                 >
                   <Image src="/meno-hat.png" alt="" fill sizes="40px" className="object-contain p-0.5" />
                 </div>
-                <span className="font-display text-2xl font-bold tracking-tight text-[var(--ink)]">
+                <span className="font-display text-2xl font-bold tracking-tight text-[#FBF1D9]">
                   Menoid
                 </span>
               </div>
-              <p className="max-w-xs text-[14px] leading-relaxed text-[var(--ink-soft)]">
+              <p className="max-w-xs text-[14px] leading-relaxed text-[rgba(251,241,217,0.7)]">
                 The AI-native private wallet on Monad.
                 Where treasure travels unseen.
               </p>
@@ -115,8 +126,8 @@ export default function Footer() {
                     key={s.label}
                     href={s.href}
                     aria-label={s.label}
-                    className="grid h-9 w-9 place-items-center rounded-xl border border-[var(--line)] bg-[var(--paper)] font-mono text-[10px] font-bold text-[var(--ink-soft)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--gold)] hover:text-[var(--gold-deep)]"
-                    style={{ boxShadow: "var(--shadow-xs)" }}
+                    className="grid h-9 w-9 place-items-center rounded-xl border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.05)] font-mono text-[10px] font-bold text-[rgba(251,241,217,0.7)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--gold)] hover:text-[var(--gold-bright)] hover:bg-[rgba(255,255,255,0.08)]"
+                    style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.2)" }}
                   >
                     {s.icon}
                   </a>
@@ -126,7 +137,7 @@ export default function Footer() {
 
             {COLS.map((col) => (
               <div key={col.title}>
-                <h4 className="font-mono text-[10px] uppercase tracking-[0.32em] text-[var(--muted)] mb-4">
+                <h4 className="font-mono text-[10px] uppercase tracking-[0.32em] text-[rgba(251,241,217,0.4)] mb-4">
                   {col.title}
                 </h4>
                 <ul className="space-y-2.5">
@@ -134,7 +145,7 @@ export default function Footer() {
                     <li key={l.label}>
                       <a
                         href={l.href}
-                        className="text-[14px] text-[var(--ink-soft)] transition-colors duration-200 hover:text-[var(--ink)] link-underline"
+                        className="text-[14px] text-[rgba(251,241,217,0.7)] transition-colors duration-200 hover:text-[#FBF1D9] link-underline"
                       >
                         {l.label}
                       </a>
@@ -146,14 +157,14 @@ export default function Footer() {
           </div>
         </Reveal>
 
-        <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-[var(--line)] pt-8 md:flex-row">
-          <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-[var(--muted)]">
+        <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-[rgba(255,255,255,0.08)] pt-8 md:flex-row">
+          <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-[rgba(251,241,217,0.4)]">
             © {new Date().getFullYear()} Menoid · Plundering privacy back, one block at a time
           </p>
-          <div className="flex gap-6 text-[12px] text-[var(--ink-soft)]">
-            <a href="#" className="hover:text-[var(--ink)] transition-colors">Privacy</a>
-            <a href="#" className="hover:text-[var(--ink)] transition-colors">Terms</a>
-            <a href="#" className="hover:text-[var(--ink)] transition-colors">Disclosures</a>
+          <div className="flex gap-6 text-[12px] text-[rgba(251,241,217,0.7)]">
+            <a href="#" className="hover:text-[#FBF1D9] transition-colors">Privacy</a>
+            <a href="#" className="hover:text-[#FBF1D9] transition-colors">Terms</a>
+            <a href="#" className="hover:text-[#FBF1D9] transition-colors">Disclosures</a>
           </div>
         </div>
       </div>

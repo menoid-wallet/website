@@ -1,36 +1,171 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🌑 Menoid Wallet
+An AI-native private smart wallet for 15+ chains.
 
-## Getting Started
+## ✨ Introduction
+Menoid is an AI-native private smart wallet built for multi-chain privacy, supporting 15+ chains including the Monad ecosystem.
 
-First, run the development server:
+Unlike traditional wallets that publicly expose every interaction and require users to manually understand complex onchain actions, Menoid combines privacy infrastructure, smart accounts, and AI-assisted execution into a seamless wallet experience.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Menoid enables users to:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+🌍 Use both Public Mode and Noid Mode depending on how visible they want to be onchain
+🕶️ Transfer assets privately through Noid Mode
+🔐 Interact with onchain protocols privately through Noid Smart Accounts
+🤖 Get an integrated AI companion called Meno across the entire wallet experience
+⚡ Let Meno simulate transactions before execution and explain what could happen
+🚨 Receive warnings from Meno about suspicious or dangerous onchain activities
+🔎 Explore and discover protocols, NFT collections, DeFi platforms, and new onchain opportunities through Meno
+🚀 Receive live market-style suggestions from Meno — for example, notifying users when a token suddenly surges in activity, volume, or price movement and suggesting possible actions like buy, sell, or swap
+⏰ Schedule secure transfers, swaps, purchases, and automated actions — even in Noid Mode
+📰 Stay updated with crypto and ecosystem news through Menews
+💬 Chat with Meno about crypto, protocols, wallet activity, and the Menoid ecosystem
+🛡️ Maintain privacy while remaining fully composable with multi-chain protocols
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## ⚙️ Tech Stack
+### 🧠 Zero Knowledge
+- Circom
+- SnarkJS
+- Groth16
+- Poseidon commitments
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 🤖 AI Infrastructure
+- AI Wallet Companion (Meno)
+- AI Transaction Simulation & Risk Analysis
 
-## Learn More
+### ⛓️ Smart Contracts
+- Solidity
+- Hardhat
+- OpenZeppelin
 
-To learn more about Next.js, take a look at the following resources:
+### 🌐 Wallet & Frontend
+- Next.js / React
+- Vite
+- Chrome Extension APIs
+- CRXJS
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 🔗 Blockchain
+- 15+ Chains (Monad, Base, Arbitrum, Optimism, Polygon, Solana, Avalanche, Sui, Aptos, Linea, Scroll, Mantle, Berachain, Ethereum, and more)
+- Parallel EVM & EVM Compatible Architecture
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🚧 Current Building Status
+### ✅ Completed
+- 🌑 Private wallet Architecture
+- 🔑 Deterministic wallet derivation
+- 🧮 Poseidon commitment system
+- 🚫 Nullifier-based double spend prevention
+- 🌳 Incremental Merkle Tree integration
+- 🔐 Encrypted on-chain note transfers
+- 📡 Relayer-based transaction broadcasting
+- ⚖️ zk balance conservation logic
 
-## Deploy on Vercel
+*Fully implemented, tested, and demonstrated through the PriFi web application: https://pri-fi.vercel.app*
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+#### 💰 Deposit System
+- 🌳 Commitment generation
+- 🔐 Encrypted note creation
+- 🔒 zk deposit proof system
+- 📡 Relayer fee note architecture
+- ⛓️ On-chain commitment insertion
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+#### 🔒 Transfer System
+- 👤 Private peer-to-peer transfers
+- 🌳 Merkle inclusion verification
+- 🚫 Nullifier validation
+- 🔐 Encrypted ownership transfers
+- ⚖️ Batched balance conservation
+- 🧩 Fixed-size circuit architecture
+
+#### 💸 Withdraw System
+- 💰 Shielded withdrawals
+- 🔄 Change note generation
+- 📡 Relayer fee handling
+- 🔒 zk withdrawal proof system
+- ⛓️ On-chain nullifier tracking
+
+#### 🌐 Infrastructure
+- 📜 Solidity smart contracts
+- ⚡ Circom zk circuits
+- 📡 Relayer architecture
+- 🖥️ Frontend application
+- 🧪 Multi-chain testnet deployment
+
+### ⚙️ Currently Building
+#### 👻 Private Execution Infrastructure
+- 🧠 Private smart account abstraction (Noid Account)
+- 🌐 Private protocol interaction system
+- 📜 Arbitrary smart contract execution
+- 🔄 zk-authorized execution accounts
+- 🔐 Private execution infrastructure for 15+ chains
+
+#### 🌑 Menoid Wallet
+- 🖥️ Complete browser wallet extension
+- 📚 Wallet integration libraries (dev SDKs)
+- 🔗 Multi-chain wallet provider injection
+
+## 🌌 Vision
+Menoid expands beyond private transfers into a complete AI-native private smart wallet ecosystem for 15+ chains.
+
+The goal is not only to hide balances — but to give users full control over how they exist and interact onchain, with an integrated AI companion that helps users navigate crypto, understand risks, discover opportunities, and interact smarter across the entire wallet experience.
+
+Users should be able to:
+- 🌍 Switch seamlessly between Public Mode and Noid Mode
+- 👻 Become ghosts onchain when privacy is needed
+- 🔐 Interact with protocols privately through Noid infrastructure
+- 🧠 Execute interactions through zk-authorized smart accounts
+- 🤖 Use an integrated AI companion called Meno across the wallet experience
+- ⚡ Understand transactions, risks, and protocol behavior before execution
+- 🔎 Discover new protocols, NFTs, tokens, and ecosystem opportunities through Meno
+- 📰 Stay updated with crypto ecosystem activity through Menews
+- 🔐 Hold assets privately while remaining fully composable with multi-chain protocols
+
+## 🌐 Private Execution Layer
+Menoid introduces a private execution architecture where users interact with protocols through private smart execution accounts called Noid Smart Accounts (Unlinkable pseudonymous execution).
+
+Instead of directly exposing wallet activity publicly, Menoid abstracts:
+- 👤 User identity
+- 🔗 Protocol interaction relationships
+- 📜 Smart contract execution ownership
+- 🌊 DeFi activity correlations
+through zk-based execution authorization.
+
+The goal is to make:
+- 🔄 Private swaps
+- 🌊 Stealth liquidity positions
+- 🏦 Invisible lending strategies
+- 📜 Private smart contract interactions
+- 🕶️ Hidden on-chain activity
+feel native across 15+ chains.
+
+## 🖥️ Wallet Ecosystem
+Menoid is being designed as a complete AI-native smart wallet infrastructure.
+
+The ecosystem direction includes:
+- 🌑 Browser wallet extension
+- ⚡ Sidebar-first wallet architecture
+- 🤖 Integrated AI companion called Meno across the wallet experience
+- 📚 Developer SDKs & integration libraries
+- 🔗 Wallet-provider injection system
+- 🧩 Smart account infrastructure
+- 📡 Relayer-powered private execution
+- 🛡️ zk-authorized transaction flows
+- 📰 Menews — integrated crypto ecosystem updates by Meno
+- ⏰ Secure scheduled transfers, swaps, purchases, and automated actions
+- 🔎 AI-powered protocol, NFT, and token discovery infrastructure
+
+The goal is to provide a wallet experience where privacy and AI become integrated primitives — not additional tools.
+
+## ⚡ Direction
+Menoid aims to evolve into an AI-native private execution layer for 15+ chains.
+
+A smart wallet where users can:
+- 🌍 Interact publicly when desired
+- 👻 Disappear privately through Noid Mode when needed
+- 🤖 Navigate crypto with an integrated AI companion called Meno
+- ⚡ Understand transactions and protocol interactions before execution
+- 🔎 Discover opportunities, tokens, NFTs, and ecosystem activity in real time
+while maintaining:
+- ⚡ Fast UX
+- 🌐 Full protocol composability
+- 🔐 Strong privacy guarantees
+- 🧩 Seamless smart wallet interactions
+- 🛡️ Intelligent onchain safety and guidance

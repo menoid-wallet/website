@@ -3,6 +3,7 @@ import Nav from "@/components/Nav";
 import Hero from "@/components/Hero";
 import WalletModes from "@/components/WalletModes";
 import Chains from "@/components/Chains";
+import MenoSection from "@/components/MenoSection";
 import WaitlistCTA from "@/components/WaitlistCTA";
 import Footer from "@/components/Footer";
 
@@ -15,6 +16,7 @@ export default function Home() {
         <Hero />
         <WalletModes />
         <Chains />
+        <MenoSection />
         <WaitlistCTA />
       </main>
       <Footer />

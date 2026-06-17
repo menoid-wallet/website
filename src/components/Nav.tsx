@@ -14,6 +14,7 @@ export default function Nav() {
 
       const walletModes = document.getElementById("wallet-modes");
       const chains = document.getElementById("chains");
+      const roadmap = document.getElementById("roadmap");
       const navY = 40;
 
       const isOver = (el: HTMLElement | null) => {
@@ -22,7 +23,7 @@ export default function Nav() {
         return rect.top <= navY && rect.bottom >= navY;
       };
 
-      if (isOver(walletModes) || isOver(chains)) {
+      if (isOver(walletModes) || isOver(chains) || isOver(roadmap)) {
         setTheme("light");
       } else {
         setTheme("dark");

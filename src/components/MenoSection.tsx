@@ -29,46 +29,46 @@ interface FeatureCardData {
 const FEATURE_CARDS: FeatureCardData[] = [
   {
     index: "01",
-    kicker: "Live Assist",
-    title: "Co-Piloting",
+    kicker: "Side-by-Side",
+    title: "Assist",
     intro:
-      "Stop copying, pasting, and guessing. Meno tracks your live dApp interactions in real-time right from your sidebar.",
+      "Stop copying, pasting, and guessing. Meno tracks your live dApp interactions in real-time right from your sidebar as a side-by-side collaboration layer.",
     points: [
       {
         label: "Dynamic Form Optimization",
         text:
-          "As you type an NFT name or description into a dApp field, Meno evaluates the inputs locally, suggesting optimized, stylish copywriting improvements on the fly.",
+          "As you type an NFT name or description into a dApp field, Meno evaluates the inputs locally, instantly text-chatting you with cool, stylized alternative suggestions and copywriting improvements to upgrade your metadata on the fly.",
       },
       {
-        label: "Proactive Risk & Simulation",
+        label: "Context-Aware Support",
         text:
-          "Meno runs predictive simulations alongside your typing, warning you of smart contract risks or high gas conditions before you ever click a button.",
+          "If you encounter confusing sliders or complex settings on the page, Meno reads the web code contextually and explains exactly what they mean inside your chat bubble—no googling required.",
       },
     ],
   },
   {
     index: "02",
-    kicker: "Autopilot",
-    title: "Automation",
+    kicker: "Hands-Free",
+    title: "AutoPilot",
     intro:
-      "Don't fight confusing user interfaces on unfamiliar dApps. Let Meno pilot the web page for you using simple natural language commands.",
+      "Bypass confusing layouts entirely. If you open an unfamiliar or intricate dApp, you don't have to touch the website interface or hunt for buttons at all.",
     points: [
       {
-        label: "Hands-Free DApp Navigation",
+        label: "Intent-Driven Execution",
         text:
-          'Type a macro prompt like "Hey Meno, I\'m new to this marketplace—mint an NFT and list it for 4 SOL."',
+          'You simply type your true, natural language intent straight into the sidebar chat—like "Hey Meno, connect my wallet, mint an NFT using a cool name, and list it for sale for 4 SOL."',
       },
       {
-        label: "Autonomous Execution",
+        label: "Hands-Free Navigation",
         text:
-          "Meno securely reads the webpage's DOM elements, programmatically establishes the wallet handshake, handles form fields, and executes the target transaction flow seamlessly—no manual clicks required.",
+          "Using native browser extension permissions, Meno securely takes the wheel. It reads the frontend elements, handles the wallet handshake, populates form fields, and executes the target transaction flow smoothly without you making a single manual click.",
       },
     ],
   },
 ];
 
 const STALE_DESCRIPTION =
-  "Traditional Web3 wallets are silent signature signers—blind to what you are doing until the final confirmation screen. Meno transforms your browser sidebar from a stagnant ledger into a proactive, intelligent Web3 console.";
+  "Traditional Web3 wallets are silent signature signers—blind to what you are doing until the final confirmation screen. Meno transforms your browser sidebar from a stagnant ledger into a proactive, intelligent Web3 Co-Pilot — a console that thinks and acts with you.";
 
 /* Solid dark feature card (matched in size to the wallet image). */
 function FeatureCard({ index, kicker, title, intro, points }: FeatureCardData) {

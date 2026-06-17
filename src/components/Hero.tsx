@@ -12,6 +12,31 @@ export default function Hero() {
 
   const [focused, setFocused] = useState(false);
 
+  // Hold the hero entrance until the loader has finished, then rise in.
+  const [revealed, setRevealed] = useState(false);
+  useEffect(() => {
+    if (typeof document !== "undefined" && document.body.dataset.revealed === "true") {
+      setRevealed(true);
+      return;
+    }
+    const onReveal = () => setRevealed(true);
+    window.addEventListener("menoid:revealed", onReveal);
+    // Safety net in case the loader was skipped or removed.
+    const fallback = window.setTimeout(() => setRevealed(true), 4200);
+    return () => {
+      window.removeEventListener("menoid:revealed", onReveal);
+      window.clearTimeout(fallback);
+    };
+  }, []);
+
+  // Clean "rise from the bottom" entrance, delayed until `revealed` flips true.
+  const rise = (delay: number): React.CSSProperties => ({
+    opacity: 0,
+    animation: revealed
+      ? `hero-rise 820ms var(--ease-out-quart) ${delay}ms forwards`
+      : "none",
+  });
+
   useEffect(() => {
     const stored = localStorage.getItem("menoid_waitlist_registered");
     if (stored) {
@@ -98,8 +123,7 @@ export default function Hero() {
             <div
               className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 mb-8"
               style={{
-                opacity: 0,
-                animation: "float-in 700ms var(--ease-out-quart) 80ms forwards",
+                ...rise(0),
                 background: "rgba(255,255,255,0.55)",
                 border: "1px solid rgba(163,110,20,0.22)",
                 boxShadow: "0 1px 0 rgba(255,255,255,0.8) inset, var(--shadow-xs)",
@@ -108,17 +132,14 @@ export default function Hero() {
             >
               <span className="h-1.5 w-1.5 rounded-full bg-[var(--gold)] pulse-dot" />
               <span className="font-mono text-[11px] uppercase tracking-[0.28em] text-[var(--gold-deep)]">
-                Private Testnet · Early Access Open
+                V1 Private Beta
               </span>
             </div>
 
             {/* AI-Native Label / Eyebrow */}
             <div
               className="font-mono text-[11px] sm:text-[12px] uppercase tracking-[0.32em] text-[var(--gold-deep)] mb-4 font-semibold"
-              style={{
-                opacity: 0,
-                animation: "float-in 800ms var(--ease-out-quart) 160ms forwards",
-              }}
+              style={rise(100)}
             >
               AI-Native Private Wallet Across 15+ Chains
             </div>
@@ -126,11 +147,7 @@ export default function Hero() {
             {/* WTTU headline */}
             <h1
               className="font-display font-black tracking-[-0.035em] text-[var(--ink)] leading-[1.05] mx-auto lg:mx-0 max-w-3xl mb-8"
-              style={{
-                fontSize: "clamp(38px, 6.5vw, 72px)",
-                opacity: 0,
-                animation: "float-in 900ms var(--ease-out-quart) 260ms forwards",
-              }}
+              style={{ fontSize: "clamp(38px, 6.5vw, 72px)", ...rise(200) }}
             >
               Where{" "}
               <span className="font-display font-light italic text-[var(--gold-deep)] shimmer-gold">
@@ -145,18 +162,17 @@ export default function Hero() {
             {/* Sub-copy */}
             <p
               className="mx-auto lg:mx-0 mb-10 max-w-2xl text-[16px] leading-relaxed text-[var(--ink-soft)]"
-              style={{ opacity: 0, animation: "float-in 800ms var(--ease-out-quart) 380ms forwards" }}
+              style={rise(320)}
             >
-              Menoid is an AI-native private wallet built for absolute privacy across 15+ chains. Shield your assets, 
-              route gas automatically, and transact completely unseen on Monad, Ethereum, Solana, Sui, and more — with one tap.
+              Menoid is an AI-native private wallet built for absolute privacy across 15+ chains.
+              Shield your assets and transact completely unseen along with hidden swaps, hidden bridges on Monad, Ethereum, Solana, Sui, and more, all in one place.
             </p>
 
             {/* ── Waitlist form ── */}
             <div
               id="waitlist"
               className="mx-auto lg:mx-0 max-w-md w-full"
-              style={{ opacity: 0,
-             animation: "float-in 800ms var(--ease-out-quart) 480ms forwards" }}
+              style={rise(440)}
             >
               {status !== "success" ? (
                 <div>
@@ -224,36 +240,12 @@ export default function Hero() {
               )}
             </div>
 
-            {/* Book a call */}
-            <div
-              className="mt-5 flex flex-wrap items-center justify-center lg:justify-start gap-3"
-              style={{ opacity: 0, animation: "float-in 700ms var(--ease-out-quart) 600ms forwards" }}
-            >
-              <a
-                href="https://cal.com/menoid/testnet"
-                target="_blank" rel="noopener noreferrer"
-                id="book-call-link"
-                className="btn-spring group inline-flex items-center gap-2 rounded-full px-4 py-2 text-[13px] font-medium text-[var(--ink-soft)] transition-colors hover:text-[var(--ink)]"
-                style={{
-                  background: "#FAF5E8", // solid to hide particles underneath
-                  border: "1px solid rgba(163,110,20,0.18)",
-                  boxShadow: "var(--shadow-xs)",
-                }}
-              >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--gold)]">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                  <line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
-                </svg>
-                Talk to a developer
-                <span aria-hidden className="transition-transform group-hover:translate-x-0.5">→</span>
-              </a>
-            </div>
           </div>
 
           {/* Right Column (Wallet Screenshots) */}
           <div
             className="relative w-full lg:w-[42%] flex flex-col items-center lg:items-end mt-12 lg:mt-0"
-            style={{ opacity: 0, animation: "float-in 1000ms var(--ease-out-quart) 720ms forwards" }}
+            style={rise(560)}
           >
             {/* Subtle gold glow behind screenshots */}
             <div className="relative flex items-end justify-center gap-3 sm:gap-5 md:gap-8 lg:gap-2.5 xl:gap-3.5">

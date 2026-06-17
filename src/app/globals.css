@@ -81,6 +81,7 @@
   --font-sans:        var(--font-geist-sans);
   --font-mono:        var(--font-geist-mono);
   --font-display:     var(--font-display);
+  --font-serif:       var(--font-fraunces);
 }
 
 /* ── Base ── */
@@ -100,11 +101,18 @@ html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
 .lenis.lenis-stopped { overflow: hidden; }
 
-/* ── Display font ── */
+/* ── Display font (Bricolage Grotesque) ── */
 .font-display {
-  font-family: var(--font-display), "Times New Roman", Georgia, serif;
+  font-family: var(--font-display), "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
   letter-spacing: -0.025em;
-  font-feature-settings: "ss01", "ss02";
+}
+
+/* ── Italic accent words use the elegant serif (Fraunces) ── */
+.font-display.italic,
+em.font-display,
+.italic.font-display {
+  font-family: var(--font-fraunces), var(--font-serif), "Fraunces", ui-serif, Georgia, serif;
+  font-feature-settings: normal;
 }
 
 /* ════════════════════════════════════════════
@@ -190,6 +198,12 @@ html.lenis, html.lenis body { height: auto; }
   100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
 }
 .float-in { animation: float-in 900ms var(--ease-out-quart) both; }
+
+/* ── Hero entrance: clean rise from the bottom (no blink/scale/blur) ── */
+@keyframes hero-rise {
+  0%   { opacity: 0; transform: translateY(48px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
 
 @keyframes fade-in {
   from { opacity: 0; }

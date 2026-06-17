@@ -60,6 +60,10 @@ export default function Loader() {
         rafRef.current = requestAnimationFrame(tick);
       } else {
         setPhase("out");
+        // Tell the hero (and anything else) the loader is done so its
+        // entrance animation can play as the loader fades away.
+        document.body.dataset.revealed = "true";
+        window.dispatchEvent(new Event("menoid:revealed"));
         setTimeout(() => {
           setPhase("gone");
           document.documentElement.style.overflow = "";

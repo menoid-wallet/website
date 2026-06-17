@@ -447,7 +447,7 @@ export default function Chains() {
                 </h2>
                 <p className="max-w-2xl text-[14px] sm:text-[15px] leading-relaxed text-[#C9BBAA]">
                   Menoid routes gas automatically and transacts completely unseen across 15+ chains natively.
-                  Shield your assets, maintain full compatibility, and keep your identity protected — without fragmented liquidity.
+                  Shield your assets, maintain full compatibility, and keep your identity protected.
                 </p>
               </Reveal>
             </div>

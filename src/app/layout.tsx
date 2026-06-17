@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Fraunces } from "next/font/google";
+import { Geist_Mono, Bricolage_Grotesque, Fraunces, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
 
-const geistSans = Geist({
+// Body / sans — matches the wallet extension's welcome screen
+const geistSans = Plus_Jakarta_Sans({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
@@ -13,9 +14,17 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const display = Fraunces({
+// Display / headings — matches the wallet extension's welcome screen
+const display = Bricolage_Grotesque({
   variable: "--font-display",
   subsets: ["latin"],
+});
+
+// Serif — used for the elegant italic accent words
+const serif = Fraunces({
+  variable: "--font-fraunces",
+  subsets: ["latin"],
+  style: ["normal", "italic"],
   axes: ["SOFT", "WONK", "opsz"],
 });
 
@@ -33,7 +42,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${display.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${display.variable} ${serif.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         {/* Background layer placed at -z-50 so it sits behind the negative z-index particles */}

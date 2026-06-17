@@ -91,17 +91,17 @@ const NOID_MODE_PANELS = [
     ],
   },
   {
-    eyebrow: "Smart Accounts",
-    title: "Noid Accounts",
+    eyebrow: "Actions",
+    title: "Hidden Actions",
     description:
-      "Interact with dApps through Noid smart accounts that keep your identity shielded. Trade, lend, and execute DeFi strategies without ever exposing the wallet behind them.",
-    imageSrc: "/wallet_modes/create_noid_account.png",
-    imageAlt: "Noid Smart Account Screen",
+      "Don't just hold privately — act privately. Swap, bridge, and NFTs entirely inside the shielded pool, so every move you make stays completely unseen on-chain.",
+    imageSrc: "/meno/hidden_swaps.png",
+    imageAlt: "Hidden swaps and bridges",
     bullets: [
-      "Connect to dApps with a shielded identity",
-      "Execute DeFi with no address fingerprint",
-      "Programmable Noid smart accounts",
-      "Full Monad & EVM compatibility",
+      "Hidden swaps with zero trace",
+      "Hidden cross-chain bridges",
+      "Hidden holdings, positions, perps, staking, etc.",
+      "Across 15+ chains.",
     ],
   },
 ];
@@ -495,12 +495,12 @@ export default function WalletModes() {
               className="font-display font-black tracking-[-0.035em] text-[#FBF1D9]"
               style={{ fontSize: "clamp(30px, 4.5vw, 56px)" }}
             >
-              Sail open, or sail in the{" "}
-              <em className="font-display font-light italic text-[#E8AE3A]">shadow waters.</em>
+              Sail open, or sail{" "}
+              <em className="font-display font-light italic text-[#E8AE3A]">hidden</em> with Menoid.
             </h2>
             <p className="mt-4 max-w-xl mx-auto text-[14px] sm:text-[15px] leading-relaxed text-[#C9BBAA]">
-              Menoid holds two accounts simultaneously. Switch seamlessly between your public EOA
-              profile for everyday activities and your ZK profile for shielded stealth operations.
+              Menoid holds two accounts simultaneously. Switch seamlessly between your EOA profile
+              and your encrypted profile — open when you want to be seen, hidden when you don&apos;t.
             </p>
           </Reveal>
 
@@ -535,7 +535,7 @@ export default function WalletModes() {
             <ModeHeader
               eyebrow="Mode 02 · Noid"
               title="Noid Mode"
-              subtitle="Slip beneath the surface. Shield balances, move value privately, and interact with dApps without leaving a trace — all secured by zero-knowledge proofs."
+              subtitle="Slip beneath the surface. Shield balances, move value privately, and Act privately without leaving a trace — all secured by zero-knowledge proofs."
             />
 
             {/* Sticky stacking deck — each panel locks on top of the previous as you scroll. */}

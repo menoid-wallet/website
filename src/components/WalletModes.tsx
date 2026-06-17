@@ -424,7 +424,7 @@ export default function WalletModes() {
       />
 
       <div
-        className="mx-auto mb-20 max-w-6xl h-px relative z-10"
+        className="mx-auto mb-20 max-w-6xl h-px relative z-10 hidden md:block"
         style={{
           background:
             "linear-gradient(90deg, transparent, rgba(200,146,14,0.2) 30%, rgba(200,146,14,0.2) 70%, transparent)",
@@ -433,7 +433,7 @@ export default function WalletModes() {
 
       <div
         ref={darkBoxRef}
-        className="relative mx-auto flex justify-center z-10"
+        className="wm-darkbox relative mx-auto flex justify-center z-10"
         style={{
           background: "#171311",
           width: "60%",
@@ -565,6 +565,16 @@ export default function WalletModes() {
       </div>
 
       <style>{`
+        /* Mobile: static full-width dark slab — NO expanding-box animation.
+           !important overrides the JS-set inline styles; desktop keeps the animation. */
+        @media (max-width: 767px) {
+          .wm-darkbox {
+            width: 100% !important;
+            border-radius: 0 !important;
+            margin-top: 0 !important;
+            transition: none !important;
+          }
+        }
         @keyframes noidBgOrb1 {
           0%, 100% { transform: translate(0, 0) scale(1); }
           50% { transform: translate(-30px, 25px) scale(1.12); }
@@ -634,6 +644,8 @@ export default function WalletModes() {
             --center-x-px: 0px;
             --center-y-pct: -50%;
             --center-y-px: -16px;
+            --stack-x-offset: 0px;
+            --stack-rotate: 0deg;
             --stack-y-offset: 25px;
           }
         }

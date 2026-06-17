@@ -81,7 +81,7 @@ export default function Hero() {
   };
 
   return (
-    <section id="top" className="grain relative overflow-hidden pt-28 pb-0">
+    <section id="top" className="grain relative overflow-hidden pt-28 pb-6 md:pb-16 lg:flex lg:min-h-dvh lg:flex-col">
       <CursorParticles zIndexClass="z-[2]" />
       {/* ── Loader-matched orbs ── */}
       <div className="orb orb-1 absolute"
@@ -114,8 +114,8 @@ export default function Hero() {
       </div>
 
       {/* ── Content ── */}
-      <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-8">
+      <div className="relative z-10 mx-auto w-full max-w-6xl px-4 sm:px-6 lg:flex lg:flex-1 lg:items-center">
+        <div className="w-full flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-8">
           
           {/* Left Column (Content) */}
           <div className="w-full lg:w-[55%] flex flex-col items-center lg:items-start text-center lg:text-left">
@@ -295,7 +295,6 @@ export default function Hero() {
           </div>
 
         </div>
-        <div className="h-16" />
       </div>
     </section>
   );

@@ -3,15 +3,9 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import CursorParticles from "./CursorParticles";
+import WaitlistForm from "./WaitlistForm";
 
 export default function Hero() {
-  const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
-  const [errorMsg, setErrorMsg] = useState("");
-  const [successMsg, setSuccessMsg] = useState("");
-
-  const [focused, setFocused] = useState(false);
-
   // Hold the hero entrance until the loader has finished, then rise in.
   const [revealed, setRevealed] = useState(false);
   useEffect(() => {
@@ -37,48 +31,6 @@ export default function Hero() {
       : "none",
   });
 
-  useEffect(() => {
-    const stored = localStorage.getItem("menoid_waitlist_registered");
-    if (stored) {
-      const timer = setTimeout(() => {
-        setStatus("success");
-        setSuccessMsg("You're already on the list. We'll reach out soon!");
-      }, 0);
-      return () => clearTimeout(timer);
-    }
-  }, []);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email || !email.includes("@")) {
-      setStatus("error");
-      setErrorMsg("Please enter a valid email address.");
-      return;
-    }
-    setStatus("loading");
-    try {
-      const res = await fetch("/api/waitlist", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setStatus("success");
-        setSuccessMsg(data.message || "You're on the list! Welcome to the crew.");
-        localStorage.setItem("menoid_waitlist_registered", "true");
-        localStorage.setItem("menoid_waitlist_email", email);
-      } else {
-        setStatus("error");
-        setErrorMsg(data.error || "Something went wrong.");
-      }
-    } catch {
-      setStatus("success");
-      setSuccessMsg("Welcome aboard! You've been added to the testnet waitlist.");
-      localStorage.setItem("menoid_waitlist_registered", "true");
-      localStorage.setItem("menoid_waitlist_email", email);
-    }
-  };
 
   return (
     <section id="top" className="grain relative overflow-hidden pt-28 pb-6 md:pb-16 lg:flex lg:min-h-dvh lg:flex-col">
@@ -174,70 +126,7 @@ export default function Hero() {
               className="mx-auto lg:mx-0 max-w-md w-full"
               style={rise(440)}
             >
-              {status !== "success" ? (
-                <div>
-                  <form
-                    onSubmit={handleSubmit}
-                    className="flex flex-col sm:flex-row gap-2 rounded-2xl p-1.5"
-                    style={{
-                      background: "#FAF5E8", // solid to hide particles underneath
-                      border: focused ? "1px solid rgba(200,146,14,0.6)" : "1px solid rgba(163,110,20,0.22)",
-                      boxShadow: focused
-                        ? "0 0 0 3px rgba(232,174,58,0.2), 0 1px 0 rgba(255,255,255,0.9) inset, var(--shadow-md)"
-                        : "0 1px 0 rgba(255,255,255,0.9) inset, var(--shadow-md)",
-                      transition: "all 300ms var(--ease-out-quart)",
-                    }}
-                  >
-                    <input
-                      id="hero-email-input"
-                      type="email" required
-                      placeholder="your@email.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      onFocus={() => setFocused(true)}
-                      onBlur={() => setFocused(false)}
-                      disabled={status === "loading"}
-                      className="flex-1 bg-transparent px-4 py-2.5 text-[15px] text-[var(--ink)] placeholder-[var(--muted)] outline-none min-w-0"
-                    />
-                    <button
-                      type="submit" id="hero-submit-btn"
-                      disabled={status === "loading"}
-                      className="btn-spring flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-[14px] font-bold whitespace-nowrap disabled:opacity-60"
-                      style={{
-                        background: "linear-gradient(135deg, #A36E14 0%, #C8920E 50%, #E8AE3A 100%)",
-                        color: "#FBF1D9",
-                        boxShadow: "0 0 0 1px rgba(163,110,20,0.35), 0 4px 16px rgba(200,146,14,0.30), 0 1px 0 rgba(255,255,255,0.25) inset",
-                      }}
-                    >
-                      {status === "loading" ? (
-                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#FBF1D9] border-t-transparent" />
-                      ) : (
-                        <>Claim Your Spot →</>
-                      )}
-                    </button>
-                  </form>
-                  {status === "error" && (
-                    <p className="mt-2.5 text-center lg:text-left text-[12px] font-mono text-[var(--ember)]">{errorMsg}</p>
-                  )}
-                  <p className="mt-3 text-center lg:text-left font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--muted)]">
-                    No spam · Unsubscribe anytime
-                  </p>
-                </div>
-              ) : (
-                <div
-                  className="rounded-2xl p-5 text-center lg:text-left animate-fade-in"
-                  style={{
-                    background: "#FAF5E8", // solid to hide particles underneath
-                    border: "1px solid rgba(163,110,28,0.28)",
-                    boxShadow: "var(--shadow-gold)",
-                  }}
-                >
-                  <p className="font-display text-lg font-bold text-[var(--gold-deep)]">
-                    ⚓ You&apos;re on the crew!
-                  </p>
-                  <p className="mt-1.5 text-[14px] text-[var(--ink-soft)]">{successMsg}</p>
-                </div>
-              )}
+              <WaitlistForm inputId="hero-email-input" />
             </div>
 
           </div>

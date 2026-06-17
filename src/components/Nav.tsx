@@ -40,8 +40,9 @@ export default function Nav() {
   }, []);
 
   const links = [
-    { href: "#chains", label: "Chains" },
     { href: "#wallet-modes", label: "Modes" },
+    { href: "#chains", label: "Chains" },
+    { href: "#meno", label: "Meno" },
     { href: "#waitlist", label: "Waitlist" },
   ];
 
@@ -114,11 +115,11 @@ export default function Nav() {
             <div
               className="relative h-8 w-8 overflow-hidden rounded-full"
               style={{
-                background: "linear-gradient(135deg, #FBF1D9, #F4E7CC)",
+                background: "#171311",
                 boxShadow: "0 0 0 1px rgba(163,110,20,0.25), var(--shadow-xs)",
               }}
             >
-              <Image src="/meno-hat.png" alt="" fill sizes="32px" className="object-contain p-0.5" />
+              <Image src="/meno/meno_logo.png" alt="" fill sizes="32px" className="object-cover" />
             </div>
             <span className={`font-display text-xl font-bold tracking-tight transition-colors duration-300 ${brandText}`}>
               Menoid
@@ -137,7 +138,7 @@ export default function Nav() {
                         ? "rounded-xl text-[var(--ink-soft)] hover:text-[var(--ink)] hover:bg-[rgba(163,110,20,0.08)] border border-transparent"
                         : "rounded-xl text-[rgba(251,241,217,0.75)] hover:text-[#FBF1D9] hover:bg-[rgba(255,255,255,0.08)] border border-transparent"
                       )
-                    : "rounded-full text-[var(--ink-soft)] nav-link-hero-hover"
+                    : "rounded-full text-[var(--ink)] font-semibold nav-link-hero-hover"
                 }`}
               >
                 {l.label}

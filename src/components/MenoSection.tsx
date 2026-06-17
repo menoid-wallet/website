@@ -67,9 +67,6 @@ const FEATURE_CARDS: FeatureCardData[] = [
   },
 ];
 
-const STALE_DESCRIPTION =
-  "Traditional Web3 wallets are silent signature signers—blind to what you are doing until the final confirmation screen. Meno transforms your browser sidebar from a stagnant ledger into a proactive, intelligent Web3 Co-Pilot — a console that thinks and acts with you.";
-
 /* Solid dark feature card (matched in size to the wallet image). */
 function FeatureCard({ index, kicker, title, intro, points }: FeatureCardData) {
   return (
@@ -277,8 +274,8 @@ export default function MenoSection() {
           {/* Stage 1 — small "Let's welcome…" (upper) + big "What if…think?" */}
           <div ref={introRef} className="absolute inset-0 px-6" style={{ opacity: 1, transition: "opacity 90ms linear, transform 90ms linear" }}>
             <p
-              className="absolute left-1/2 top-[20%] w-full -translate-x-1/2 px-6 text-center font-display font-semibold text-[var(--ink-soft)]"
-              style={{ fontSize: "clamp(15px, 2.4vw, 26px)" }}
+              className="absolute left-1/2 top-[20%] w-full -translate-x-1/2 px-6 text-center font-serif italic font-medium text-[var(--ink-soft)]"
+              style={{ fontSize: "clamp(17px, 2.6vw, 30px)" }}
             >
               Let&apos;s welcome the hero product.
             </p>
@@ -298,7 +295,7 @@ export default function MenoSection() {
           >
             <h2 className={bigText} style={{ fontSize: "clamp(46px, 11vw, 168px)" }}>
               Meet{" "}
-              <em className="font-display font-light italic text-[var(--gold-deep)] shimmer-gold">Meno</em>
+              <em className="font-display font-light italic text-[var(--ink)]">Meno</em>
             </h2>
           </div>
 
@@ -313,7 +310,7 @@ export default function MenoSection() {
               <div className="flex justify-center lg:justify-start">
                 <div className="relative h-[clamp(180px,38vw,400px)] w-[clamp(180px,38vw,400px)] gentle-bob">
                   <Image
-                    src="/meno/meno_hi.png"
+                    src="/meno/meno_hi_text.png"
                     alt="Meet Meno"
                     fill
                     sizes="(max-width: 1024px) 55vw, 400px"
@@ -340,7 +337,7 @@ export default function MenoSection() {
                   style={{ fontSize: "clamp(24px, 3.4vw, 44px)" }}
                 >
                   Meet{" "}
-                  <em className="font-display font-light italic text-[var(--gold-deep)] shimmer-gold">Meno.</em>
+                  <em className="font-display font-light italic text-[var(--ink)]">Meno.</em>
                 </p>
                 <p className="mx-auto mt-4 max-w-md text-[14px] sm:text-[15px] leading-relaxed text-[var(--ink-soft)] lg:mx-0">
                   An AI-native private wallet companion that thinks alongside you — guiding every
@@ -372,7 +369,7 @@ export default function MenoSection() {
         {/* Heading + description */}
         <div className="mb-12 max-w-3xl">
           <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.34em] text-[var(--gold-deep)]">
-            ✦ The Stale Wallet Problem ✦
+            ✦ Meno Copilot ✦
           </p>
           <h2
             ref={part2HeadingRef}
@@ -389,7 +386,11 @@ export default function MenoSection() {
             Pop-Up
           </h2>
           <p className="mt-6 max-w-2xl text-[15px] sm:text-[16px] leading-relaxed text-[var(--ink-soft)]">
-            {STALE_DESCRIPTION}
+            Traditional Web3 wallets are silent signature signers—blind to what you are doing until
+            the final confirmation screen. Meno transforms your browser sidebar from a stagnant
+            ledger into a proactive, intelligent Web3{" "}
+            <strong className="font-bold text-[var(--ink)]">Co-Pilot</strong> — a console that thinks
+            and acts with you.
           </p>
         </div>
 

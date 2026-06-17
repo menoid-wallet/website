@@ -49,7 +49,7 @@ export default function Nav() {
   const isLight = theme === "light";
   
   const navBg = isLight
-    ? (scrolled ? "#FBF1D9" : "transparent")
+    ? (scrolled ? "#FBEECB" : "transparent")
     : (scrolled ? "#171311" : "transparent");
     
   const navBorder = isLight

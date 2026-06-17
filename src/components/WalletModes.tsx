@@ -484,7 +484,6 @@ export default function WalletModes() {
               animation: "noidBgOrb2 11s ease-in-out infinite 3s",
             }}
           />
-          <div className="sheen absolute inset-0" style={{ opacity: 0.15 }} />
         </div>
 
         <div
@@ -519,7 +518,7 @@ export default function WalletModes() {
             <ModeHeader
               eyebrow="Mode 01 · Open"
               title="Open Mode"
-              subtitle="Your public EOA for everyday on-chain life — create a wallet and transact in the clear, exactly like any other wallet."
+              subtitle="Your public EOA, create a wallet and transact, exactly like any other wallet."
             />
 
             <div className="flex flex-col items-center">

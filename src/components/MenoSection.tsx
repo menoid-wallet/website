@@ -70,20 +70,18 @@ const FEATURE_CARDS: FeatureCardData[] = [
 const STALE_DESCRIPTION =
   "Traditional Web3 wallets are silent signature signers—blind to what you are doing until the final confirmation screen. Meno transforms your browser sidebar from a stagnant ledger into a proactive, intelligent Web3 console.";
 
-/* Dark, transparent-glass feature card (matches the Noid-mode panels). */
+/* Solid dark feature card (matched in size to the wallet image). */
 function FeatureCard({ index, kicker, title, intro, points }: FeatureCardData) {
   return (
     <div
-      className="relative w-full overflow-hidden rounded-[26px] p-6 md:p-8"
+      className="relative w-full overflow-hidden rounded-[26px] p-6 md:p-8 lg:flex lg:min-h-[520px] lg:flex-col lg:justify-center"
       style={{
-        background: "linear-gradient(150deg, rgba(34,28,23,0.86) 0%, rgba(20,16,14,0.84) 100%)",
-        border: "1px solid rgba(232,174,58,0.16)",
-        boxShadow: "0 30px 70px rgba(23,19,17,0.30), 0 1px 0 rgba(255,255,255,0.05) inset",
-        backdropFilter: "blur(22px) saturate(120%)",
-        WebkitBackdropFilter: "blur(22px) saturate(120%)",
+        background: "linear-gradient(150deg, #221c17 0%, #14100e 100%)",
+        border: "1px solid rgba(232,174,58,0.18)",
+        boxShadow: "0 26px 60px rgba(23,19,17,0.28), 0 1px 0 rgba(255,255,255,0.05) inset",
       }}
     >
-      {/* glass grid + glow */}
+      {/* subtle grid + glow */}
       <div
         className="absolute inset-0 z-0 pointer-events-none"
         style={{
@@ -150,13 +148,14 @@ function FeatureCard({ index, kicker, title, intro, points }: FeatureCardData) {
 export default function MenoSection() {
   // Part 1 refs
   const part1Ref = useRef<HTMLDivElement | null>(null);
-  const welcomeRef = useRef<HTMLDivElement | null>(null);
-  const thinkRef = useRef<HTMLDivElement | null>(null);
+  const introRef = useRef<HTMLDivElement | null>(null);
   const meetRef = useRef<HTMLDivElement | null>(null);
   const finalRef = useRef<HTMLDivElement | null>(null);
 
-  // Part 2 ref
+  // Part 2 refs
   const part2HeadingRef = useRef<HTMLHeadingElement | null>(null);
+  const imageCardRef = useRef<HTMLDivElement | null>(null);
+  const cardsRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -169,38 +168,51 @@ export default function MenoSection() {
         const total = Math.max(r.height - vh, 1);
         const p = clamp(-r.top / total, 0, 1);
 
-        if (welcomeRef.current) {
-          const out = seg(p, 0.12, 0.22);
-          welcomeRef.current.style.opacity = `${1 - out}`;
-          welcomeRef.current.style.transform = `translateY(${-out * 70}px) scale(${lerp(1, 0.92, out)})`;
+        // Stage 1 — "Let's welcome…" + "What if your wallet could think?" (together)
+        if (introRef.current) {
+          const out = seg(p, 0.28, 0.42);
+          introRef.current.style.opacity = `${1 - out}`;
+          introRef.current.style.transform = `translateY(${-out * 70}px)`;
         }
-        if (thinkRef.current) {
-          const inn = seg(p, 0.2, 0.3);
-          const out = seg(p, 0.44, 0.54);
-          thinkRef.current.style.opacity = `${clamp(inn - out, 0, 1)}`;
-          thinkRef.current.style.transform = `translateY(${lerp(50, 0, inn) - out * 60}px) scale(${lerp(0.95, 1, inn)})`;
-        }
+        // Stage 2 — "Meet Meno" (big)
         if (meetRef.current) {
-          const inn = seg(p, 0.52, 0.62);
-          const out = seg(p, 0.8, 0.92);
+          const inn = seg(p, 0.38, 0.5);
+          const out = seg(p, 0.72, 0.86);
           meetRef.current.style.opacity = `${clamp(inn - out, 0, 1)}`;
-          meetRef.current.style.transform = `translateY(${lerp(50, 0, inn) - out * 50}px) scale(${lerp(0.92, 1, inn) * lerp(1, 0.72, out)})`;
+          meetRef.current.style.transform = `translateY(${lerp(50, 0, inn) - out * 50}px) scale(${lerp(0.9, 1, inn) * lerp(1, 0.72, out)})`;
         }
+        // Stage 3 — settled two-column hero
         if (finalRef.current) {
-          const inn = seg(p, 0.82, 1.0);
+          const inn = seg(p, 0.8, 1.0);
           finalRef.current.style.opacity = `${inn}`;
           finalRef.current.style.transform = `translateY(${lerp(44, 0, inn)}px)`;
           finalRef.current.style.pointerEvents = inn > 0.5 ? "auto" : "none";
         }
       }
 
-      /* ── Part 2: heading "appears big, settles to its position" ── */
+      /* ── Part 2: heading "appears big, settles to its position" (desktop only) ── */
       const h = part2HeadingRef.current;
       if (h) {
         const r = h.getBoundingClientRect();
         const hp = clamp((vh * 0.82 - r.top) / (vh * 0.82 - vh * 0.24), 0, 1);
-        h.style.transform = `scale(${lerp(1.22, 1, hp)})`;
-        h.style.opacity = `${clamp(0.3 + hp, 0, 1)}`;
+        const isDesktop = window.innerWidth >= 1024;
+        h.style.transform = isDesktop ? `scale(${lerp(1.18, 1, hp)})` : "none";
+        h.style.opacity = `${clamp(0.35 + hp, 0, 1)}`;
+      }
+
+      /* ── Part 2 (mobile): fade the wallet image out as cards scroll over it ── */
+      const imgCard = imageCardRef.current;
+      const cards = cardsRef.current;
+      if (imgCard && cards) {
+        if (window.innerWidth < 1024) {
+          const ir = imgCard.getBoundingClientRect();
+          const cardsTop = cards.getBoundingClientRect().top;
+          // 0 when cards reach the image's bottom, 1 when they cover its top
+          const t = clamp((ir.bottom - cardsTop) / Math.max(ir.height, 1), 0, 1);
+          imgCard.style.opacity = `${1 - t}`;
+        } else {
+          imgCard.style.opacity = "1";
+        }
       }
     };
 
@@ -213,8 +225,7 @@ export default function MenoSection() {
     };
   }, []);
 
-  const bigText =
-    "font-display font-black tracking-[-0.04em] text-[var(--ink)] leading-[1.02]";
+  const bigText = "font-display font-black tracking-[-0.04em] text-[var(--ink)] leading-[1.02]";
 
   return (
     <section
@@ -223,7 +234,7 @@ export default function MenoSection() {
       style={{ background: "linear-gradient(160deg, #FBF1D9 0%, #F4E7CC 55%, #EAD5A7 100%)" }}
     >
       {/* Decorative clip layer — keeps the section overflow-visible so the
-          sticky pins work, while clipping the glows/grid/sheen to the section. */}
+          sticky pins work, while clipping the glows/grid to the section. */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         <div
           className="absolute inset-0 opacity-[0.35] mix-blend-overlay"
@@ -249,7 +260,7 @@ export default function MenoSection() {
         <div
           className="absolute"
           style={{
-            top: "44%",
+            top: "46%",
             right: "-6%",
             width: 420,
             height: 420,
@@ -258,48 +269,28 @@ export default function MenoSection() {
             filter: "blur(64px)",
           }}
         />
-        <div
-          className="absolute"
-          style={{
-            bottom: "4%",
-            left: "8%",
-            width: 380,
-            height: 380,
-            borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(232,174,58,0.12) 0%, transparent 60%)",
-            filter: "blur(64px)",
-          }}
-        />
       </div>
 
       {/* ════════════════════ PART 1 — pinned intro ════════════════════ */}
       <div ref={part1Ref} className="relative z-10" style={{ height: "300vh" }}>
-        <div className="sticky top-0 flex h-screen items-center justify-center overflow-hidden">
-          {/* Stage 1 — Let's welcome the hero product */}
-          <div
-            ref={welcomeRef}
-            className="absolute inset-0 flex items-center justify-center px-6 text-center"
-            style={{ opacity: 1, transition: "opacity 90ms linear, transform 90ms linear" }}
-          >
-            <h2 className={bigText} style={{ fontSize: "clamp(34px, 7vw, 104px)" }}>
-              Let&apos;s welcome the{" "}
-              <em className="font-display font-light italic text-[var(--gold-deep)]">hero product.</em>
-            </h2>
+        <div className="sticky top-0 flex h-dvh min-h-[560px] items-center justify-center overflow-hidden">
+          {/* Stage 1 — small "Let's welcome…" (upper) + big "What if…think?" */}
+          <div ref={introRef} className="absolute inset-0 px-6" style={{ opacity: 1, transition: "opacity 90ms linear, transform 90ms linear" }}>
+            <p
+              className="absolute left-1/2 top-[20%] w-full -translate-x-1/2 px-6 text-center font-display font-semibold text-[var(--ink-soft)]"
+              style={{ fontSize: "clamp(15px, 2.4vw, 26px)" }}
+            >
+              Let&apos;s welcome the hero product.
+            </p>
+            <div className="absolute inset-0 flex items-center justify-center text-center">
+              <h2 className={bigText} style={{ fontSize: "clamp(34px, 7.4vw, 112px)" }}>
+                What if your wallet could{" "}
+                <em className="font-display font-light italic text-[var(--gold-deep)] shimmer-gold">think?</em>
+              </h2>
+            </div>
           </div>
 
-          {/* Stage 2 — What if your wallet could think? */}
-          <div
-            ref={thinkRef}
-            className="absolute inset-0 flex items-center justify-center px-6 text-center"
-            style={{ opacity: 0, transition: "opacity 90ms linear, transform 90ms linear" }}
-          >
-            <h2 className={bigText} style={{ fontSize: "clamp(34px, 7.2vw, 110px)" }}>
-              What if your wallet could{" "}
-              <em className="font-display font-light italic text-[var(--gold-deep)] shimmer-gold">think?</em>
-            </h2>
-          </div>
-
-          {/* Stage 3 — Meet Meno (big) */}
+          {/* Stage 2 — Meet Meno (big) */}
           <div
             ref={meetRef}
             className="absolute inset-0 flex items-center justify-center px-6 text-center"
@@ -311,21 +302,21 @@ export default function MenoSection() {
             </h2>
           </div>
 
-          {/* Stage 4 — settled two-column hero */}
+          {/* Stage 3 — settled two-column hero */}
           <div
             ref={finalRef}
             className="absolute inset-0 flex items-center"
             style={{ opacity: 0, transition: "opacity 120ms linear, transform 120ms linear" }}
           >
-            <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-8 px-4 sm:px-6 lg:grid-cols-2 lg:gap-12">
+            <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-6 px-4 sm:px-6 lg:grid-cols-2 lg:gap-12">
               {/* Meno picture (left) */}
               <div className="flex justify-center lg:justify-start">
-                <div className="relative h-[clamp(220px,34vw,420px)] w-[clamp(220px,34vw,420px)] gentle-bob">
+                <div className="relative h-[clamp(180px,38vw,400px)] w-[clamp(180px,38vw,400px)] gentle-bob">
                   <Image
                     src="/meno/meno_hi.png"
                     alt="Meet Meno"
                     fill
-                    sizes="(max-width: 1024px) 60vw, 420px"
+                    sizes="(max-width: 1024px) 55vw, 400px"
                     className="object-contain drop-shadow-[0_24px_40px_rgba(163,110,20,0.30)]"
                     priority
                   />
@@ -339,19 +330,19 @@ export default function MenoSection() {
                 </p>
                 <h2
                   className="font-display font-black tracking-[-0.035em] text-[var(--ink)] leading-[1.05]"
-                  style={{ fontSize: "clamp(30px, 4.6vw, 60px)" }}
+                  style={{ fontSize: "clamp(28px, 4.6vw, 58px)" }}
                 >
                   What if your wallet could{" "}
                   <em className="font-display font-light italic text-[var(--gold-deep)]">think?</em>
                 </h2>
                 <p
-                  className="mt-4 font-display font-black tracking-[-0.03em] text-[var(--ink)]"
-                  style={{ fontSize: "clamp(26px, 3.4vw, 44px)" }}
+                  className="mt-3 font-display font-black tracking-[-0.03em] text-[var(--ink)]"
+                  style={{ fontSize: "clamp(24px, 3.4vw, 44px)" }}
                 >
                   Meet{" "}
                   <em className="font-display font-light italic text-[var(--gold-deep)] shimmer-gold">Meno.</em>
                 </p>
-                <p className="mx-auto mt-5 max-w-md text-[15px] leading-relaxed text-[var(--ink-soft)] lg:mx-0">
+                <p className="mx-auto mt-4 max-w-md text-[14px] sm:text-[15px] leading-relaxed text-[var(--ink-soft)] lg:mx-0">
                   An AI-native private wallet companion that thinks alongside you — guiding every
                   move you make onchain.
                 </p>
@@ -360,28 +351,26 @@ export default function MenoSection() {
           </div>
 
           {/* scroll hint */}
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
-            <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-[var(--muted)]">
-              Scroll
-            </span>
-            <span className="h-6 w-px bg-[rgba(163,110,20,0.4)] scroll-hint" />
+          <div className="absolute bottom-8 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2">
+            <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-[var(--muted)]">Scroll</span>
+            <span className="scroll-hint h-6 w-px bg-[rgba(163,110,20,0.4)]" />
           </div>
         </div>
       </div>
 
       {/* ════════════════════ PART 2 — stale wallet ════════════════════ */}
-      <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 pb-28 pt-[8vh]">
+      <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 pb-28 pt-[6vh]">
         {/* Top divider */}
         <div
-          className="mx-auto mb-14 h-px max-w-3xl"
+          className="mx-auto mb-12 h-px max-w-3xl"
           style={{
             background:
               "linear-gradient(90deg, transparent, rgba(163,110,20,0.22) 30%, rgba(163,110,20,0.22) 70%, transparent)",
           }}
         />
 
-        {/* Heading (appears big, settles into place) */}
-        <div className="mb-14 max-w-3xl">
+        {/* Heading + description */}
+        <div className="mb-12 max-w-3xl">
           <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.34em] text-[var(--gold-deep)]">
             ✦ The Stale Wallet Problem ✦
           </p>
@@ -389,7 +378,7 @@ export default function MenoSection() {
             ref={part2HeadingRef}
             className="font-display font-black tracking-[-0.035em] text-[var(--ink)] leading-[1.05]"
             style={{
-              fontSize: "clamp(30px, 4.6vw, 58px)",
+              fontSize: "clamp(28px, 4.6vw, 58px)",
               transformOrigin: "left center",
               opacity: 1,
               transition: "opacity 90ms linear, transform 90ms linear",
@@ -399,34 +388,39 @@ export default function MenoSection() {
             <em className="font-display font-light italic text-[var(--gold-deep)]">Stale Wallet</em>{" "}
             Pop-Up
           </h2>
-          <p className="mt-6 max-w-2xl text-[16px] leading-relaxed text-[var(--ink-soft)]">
+          <p className="mt-6 max-w-2xl text-[15px] sm:text-[16px] leading-relaxed text-[var(--ink-soft)]">
             {STALE_DESCRIPTION}
           </p>
         </div>
 
-        {/* Fixed image (left) + scrolling feature cards (right) */}
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-12">
+        {/* Fixed image (left) + scrolling feature cards (right).
+            `contents` on mobile lets the sticky image pin against the whole
+            block (image stays, cards rise over it); on desktop they become a
+            two-column grid where the left column stretches so the image sticks. */}
+        <div className="relative lg:grid lg:grid-cols-2 lg:gap-10">
           {/* Left — sticky image */}
-          <div className="lg:col-span-5">
-            <div className="lg:sticky lg:top-[16vh]">
+          <div className="contents lg:block">
+            <div className="sticky top-[84px] z-0 mb-8 lg:top-[14vh] lg:mb-0">
               <div
-                className="relative aspect-square w-full overflow-hidden rounded-[28px]"
+                ref={imageCardRef}
+                className="relative h-[280px] w-full overflow-hidden rounded-[28px] sm:h-[340px] lg:h-[520px]"
                 style={{
                   border: "1px solid rgba(163,110,20,0.22)",
                   boxShadow:
                     "0 30px 70px rgba(23,19,17,0.18), 0 8px 20px rgba(23,19,17,0.10), 0 1px 0 rgba(255,255,255,0.7) inset",
+                  transition: "opacity 120ms linear",
                 }}
               >
                 <Image
                   src="/wallet/walletpic.png"
                   alt="A wallet locked away, stale on the sand"
                   fill
-                  sizes="(max-width: 1024px) 100vw, 42vw"
+                  sizes="(max-width: 1024px) 100vw, 48vw"
                   className="object-cover"
                 />
                 <div
                   className="absolute inset-0 pointer-events-none"
-                  style={{ background: "linear-gradient(180deg, transparent 55%, rgba(23,19,17,0.28))" }}
+                  style={{ background: "linear-gradient(180deg, transparent 52%, rgba(23,19,17,0.34))" }}
                 />
                 <div className="absolute bottom-5 left-6 right-6">
                   <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#FBF1D9]/80">
@@ -440,11 +434,13 @@ export default function MenoSection() {
             </div>
           </div>
 
-          {/* Right — scrolling cards */}
-          <div className="flex flex-col gap-8 lg:col-span-7">
-            {FEATURE_CARDS.map((card) => (
-              <FeatureCard key={card.title} {...card} />
-            ))}
+          {/* Right — scrolling cards (solid, rise over the image on mobile) */}
+          <div className="contents lg:block">
+            <div ref={cardsRef} className="relative z-10 flex flex-col gap-8">
+              {FEATURE_CARDS.map((card) => (
+                <FeatureCard key={card.title} {...card} />
+              ))}
+            </div>
           </div>
         </div>
       </div>

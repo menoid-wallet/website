@@ -331,7 +331,17 @@ export default function WalletModes() {
       const content = contentRef.current;
       if (section && darkBox && content) {
         const rect = section.getBoundingClientRect();
-        if (rect.bottom >= 0 && rect.top <= viewHeight) {
+        const isMobile = window.innerWidth < 768;
+        if (isMobile) {
+          // Full-width dark slab on mobile (no shrink / parchment sliver).
+          darkBox.style.width = "100%";
+          darkBox.style.borderRadius = "0px";
+          darkBox.style.marginTop = "0px";
+          if (rect.bottom >= 0 && rect.top <= viewHeight) {
+            content.style.opacity = "1";
+            content.style.transform = "none";
+          }
+        } else if (rect.bottom >= 0 && rect.top <= viewHeight) {
           const boxP = (viewHeight - rect.top) / viewHeight;
           const clampedBoxP = Math.max(0, Math.min(1, boxP));
 

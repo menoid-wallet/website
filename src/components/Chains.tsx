@@ -265,7 +265,7 @@ export default function Chains() {
       <section
         ref={stickyContainerRef}
         id="chains"
-        className="grain sticky top-0 h-screen min-h-[620px] w-full overflow-hidden flex flex-col justify-center"
+        className="grain sticky top-0 h-dvh lg:min-h-[620px] w-full overflow-hidden flex flex-col justify-center"
         style={{
           background: "#171311",
         }}

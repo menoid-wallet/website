@@ -61,7 +61,7 @@ export default function ShipSlider({
 
   const onPointerMove = useCallback(
     (e: React.PointerEvent) => {
-      if (!dragging || disabled || committed.current) return;
+      if (!dragging || !canDrag || committed.current) return;
       const travelW = getTrackWidth() - THUMB_W;
       const delta = e.clientX - dragStartX.current;
       const newProgress = clampP(dragStartProgress.current + delta / travelW);
@@ -73,7 +73,7 @@ export default function ShipSlider({
         onCommit();
       }
     },
-    [dragging, disabled, onCommit]
+    [dragging, canDrag, onCommit]
   );
 
   const onPointerUp = useCallback(() => {
@@ -129,14 +129,12 @@ export default function ShipSlider({
         borderRadius: 28,
         border:
           phase === "success"
-            ? "1.5px solid rgba(5,150,105,0.35)"
-            : canSubmit
-            ? "1.5px solid rgba(218,162,28,0.45)"
-            : "1.5px solid rgba(163,110,20,0.22)",
+            ? "1.5px solid rgba(5,150,105,0.45)"
+            : "1.5px solid rgba(23,19,17,0.42)",
         background: phase === "success" ? "#EAF6F0" : "#FAF5E8",
         boxShadow: "0 1px 0 rgba(255,255,255,0.8) inset",
         overflow: "hidden",
-        cursor: disabled ? "not-allowed" : "default",
+        cursor: "default",
         userSelect: "none",
         transition: "border-color 0.3s ease, background 0.3s ease",
       }}
@@ -226,8 +224,10 @@ export default function ShipSlider({
         </span>
       </div>
 
-      {/* Ship thumb */}
+      {/* Ship thumb — role="button" so the cursor particles treat it like a button */}
       <div
+        role="button"
+        aria-label="Drag the ship to join the waitlist"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
@@ -242,8 +242,7 @@ export default function ShipSlider({
             : { left: thumbX, right: "auto", transform: "translateY(-50%)" }),
           width: THUMB_W,
           height: THUMB_W,
-          cursor:
-            phase === "submitting" ? "wait" : disabled ? "not-allowed" : dragging ? "grabbing" : "grab",
+          cursor: phase === "submitting" ? "wait" : dragging ? "grabbing" : "grab",
           transition:
             phase === "submitting"
               ? "left 0.6s cubic-bezier(0.22,1,0.36,1), transform 0.6s cubic-bezier(0.22,1,0.36,1), filter 0.3s"
@@ -268,7 +267,7 @@ export default function ShipSlider({
             height: 46,
             objectFit: "contain",
             pointerEvents: "none",
-            opacity: disabled && phase !== "submitting" && phase !== "success" ? 0.4 : 1,
+            opacity: 1,
             transition: "opacity 0.3s",
             transform: dragging ? "scale(1.07) translateY(-2px)" : "scale(1)",
             animation:

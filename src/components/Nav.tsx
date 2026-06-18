@@ -43,7 +43,7 @@ export default function Nav() {
     { href: "#wallet-modes", label: "Modes" },
     { href: "#chains", label: "Chains" },
     { href: "#meno", label: "Meno" },
-    { href: "#waitlist", label: "Waitlist" },
+    { href: "#roadmap", label: "Roadmap" },
   ];
 
   // Colors based on theme & scroll
@@ -62,8 +62,10 @@ export default function Nav() {
     : (scrolled ? "0 2px 20px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.05) inset" : "none");
 
   const brandText = (isLight || !scrolled) ? "text-[var(--ink)]" : "text-[#FBF1D9]";
-  const linkText = (isLight || !scrolled) 
-    ? "text-[var(--ink-soft)] hover:text-[var(--ink)] hover:bg-[rgba(163,110,20,0.08)]" 
+  // Mobile menu link colour must follow the menu background (which is theme-based),
+  // not the scroll state — otherwise dark text lands on the dark top-of-page menu.
+  const linkText = isLight
+    ? "text-[var(--ink-soft)] hover:text-[var(--ink)] hover:bg-[rgba(163,110,20,0.08)]"
     : "text-[rgba(251,241,217,0.75)] hover:text-[#FBF1D9] hover:bg-[rgba(255,255,255,0.08)]";
 
   const btnBg = (isLight || !scrolled) ? "var(--ink)" : "var(--bg)";
@@ -172,9 +174,9 @@ export default function Nav() {
             >
               <span className="space-y-[5px]">
                 <span className={`block h-[1.5px] w-4 transition-all duration-300 ${menuToggleBarBg}`}
-                  style={open ? { transform: "translateY(6.5px) rotate(45deg)" } : {}} />
+                  style={open ? { transform: "translateY(3.25px) rotate(45deg)" } : {}} />
                 <span className={`block h-[1.5px] w-4 transition-all duration-300 ${menuToggleBarBg}`}
-                  style={open ? { transform: "translateY(-6.5px) rotate(-45deg)" } : {}} />
+                  style={open ? { transform: "translateY(-3.25px) rotate(-45deg)" } : {}} />
               </span>
             </button>
           </div>

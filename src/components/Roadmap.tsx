@@ -141,7 +141,7 @@ function CardInner({ phase }: { phase: Phase }) {
       {/* footer */}
       <div className="rm-foot">
         <span className="rm-foot-icon">
-          <Image src="/meno-hat.png" alt="" width={18} height={18} className="object-contain" />
+          <Image src="/meno/meno_logo.png" alt="" fill sizes="26px" className="object-cover" />
         </span>
         <span className="rm-foot-name">Menoid {phase.version}</span>
         {current ? (
@@ -433,7 +433,7 @@ export default function Roadmap() {
         .rm-coming-sub { font-family: var(--font-geist-mono), monospace; font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; color: #FBF1D9; }
 
         .rm-foot { display: flex; align-items: center; gap: 10px; padding: 13px 18px; }
-        .rm-foot-icon { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 8px; background: linear-gradient(135deg,#FBF1D9,#F4E7CC); box-shadow: 0 0 0 1px rgba(251,241,217,0.25); flex-shrink: 0; }
+        .rm-foot-icon { position: relative; overflow: hidden; width: 26px; height: 26px; border-radius: 8px; background: #171311; box-shadow: 0 0 0 1px rgba(251,241,217,0.25); flex-shrink: 0; }
         .rm-foot-name { font-family: var(--font-geist-mono), monospace; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; color: #C9BBAA; }
         .rm-status { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; font-family: var(--font-geist-mono), monospace; font-size: 9.5px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; padding: 5px 10px; border-radius: 999px; }
         .rm-status-here { background: #FBF1D9; color: #171311; }

@@ -144,25 +144,24 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Coming-soon toast */}
+      {/* Coming-soon toast — light theme, centered */}
       <div
-        className="pointer-events-none fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 transition-all duration-300"
-        style={{
-          opacity: toast ? 1 : 0,
-          transform: `translate(-50%, ${toast ? "0" : "12px"})`,
-        }}
+        className="pointer-events-none fixed inset-x-0 bottom-6 z-[60] flex justify-center px-4"
         aria-live="polite"
       >
         <div
-          className="flex items-center gap-2 rounded-full px-4 py-2 font-mono text-[11px] uppercase tracking-[0.2em] text-[#FBF1D9]"
+          className="flex items-center gap-2 rounded-full px-4 py-2 font-mono text-[11px] uppercase tracking-[0.2em] transition-all duration-300"
           style={{
-            background: "rgba(23,19,17,0.92)",
-            border: "1px solid rgba(232,174,58,0.35)",
-            boxShadow: "0 10px 30px rgba(0,0,0,0.4)",
+            opacity: toast ? 1 : 0,
+            transform: toast ? "translateY(0)" : "translateY(12px)",
+            background: "rgba(251,241,217,0.97)",
+            border: "1px solid rgba(163,110,20,0.3)",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.8) inset",
+            color: "var(--ink)",
             backdropFilter: "blur(8px)",
           }}
         >
-          <span className="text-[var(--gold-bright)]">⚓</span> Coming soon
+          <span className="text-[var(--gold-deep)]">⚓</span> Coming soon
         </div>
       </div>
     </footer>

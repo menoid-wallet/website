@@ -31,7 +31,7 @@ const OPEN_MODE_BOXES = [
     bullets: [
       "Standard EOA setup in seconds",
       "Secure local seed phrase generation",
-      "Full Monad & EVM compatibility",
+      "15+ chains compatibility",
     ],
   },
   {

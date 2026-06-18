@@ -6,9 +6,26 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5010;
 
-app.use(cors());
+// ── CORS — only these origins may call the API ──
+const ALLOWED_ORIGINS = [
+  "http://localhost:3000",
+  "https://menoid.xyz",
+  "https://www.menoid.xyz",
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no Origin header (curl, health checks, server-to-server)
+      if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error(`Origin ${origin} is not allowed by CORS`));
+    },
+  })
+);
 app.use(express.json());
 
 // ───────────────────────── Model ─────────────────────────

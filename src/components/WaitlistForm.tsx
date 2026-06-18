@@ -64,7 +64,7 @@ export default function WaitlistForm({ inputId = "wl-email" }: { inputId?: strin
         setPhase("error");
       }
     } catch {
-      setMsg("Couldn't reach the server — make sure the backend is running on :5000.");
+      setMsg("Couldn't reach the server — make sure the backend is running.");
       setPhase("error");
     }
   };
@@ -102,7 +102,7 @@ export default function WaitlistForm({ inputId = "wl-email" }: { inputId?: strin
         }}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
-        className="w-full rounded-2xl px-4 py-3 text-[15px] text-[var(--ink)] placeholder-[var(--muted)] outline-none transition-all duration-300"
+        className="w-full rounded-[28px] px-5 py-3.5 text-[15px] text-[var(--ink)] placeholder-[var(--muted)] outline-none transition-all duration-300"
         style={{
           background: "#FAF5E8",
           border: focused ? "1px solid rgba(200,146,14,0.6)" : "1px solid rgba(163,110,20,0.22)",
@@ -112,7 +112,7 @@ export default function WaitlistForm({ inputId = "wl-email" }: { inputId?: strin
         }}
       />
 
-      <div className="mt-2.5">
+      <div className="mt-1.5">
         <ShipSlider canSubmit={canSubmit} phase={phase} onCommit={join} disabledLabel={disabledLabel} />
       </div>
 
@@ -124,9 +124,6 @@ export default function WaitlistForm({ inputId = "wl-email" }: { inputId?: strin
       {phase === "error" && (
         <p className="mt-2.5 text-left text-[12px] font-mono text-[var(--ember)]">{msg}</p>
       )}
-      <p className="mt-3 text-left font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--muted)]">
-        No spam · Unsubscribe anytime
-      </p>
     </div>
   );
 }

@@ -6,7 +6,7 @@ const PERKS = ["🎁 Airdrop rewards", "📡 Early feature access", "🏆 Foundi
 
 export default function WaitlistCTA() {
   return (
-    <section className="grain relative overflow-hidden py-32 px-4 sm:px-6">
+    <section id="waitlist" className="grain relative overflow-hidden py-32 px-4 sm:px-6">
       {/* Opaque section background placed behind the particles canvas */}
       <div
         className="absolute inset-0 -z-10 pointer-events-none"
@@ -70,7 +70,7 @@ export default function WaitlistCTA() {
               >
                 <span className="h-1.5 w-1.5 rounded-full bg-[var(--gold)] pulse-dot" />
                 <span className="font-mono text-[11px] uppercase tracking-[0.28em] text-[var(--gold-deep)]">
-                  Limited Spots Available
+                  V1 Private beta
                 </span>
               </div>
 
@@ -84,7 +84,7 @@ export default function WaitlistCTA() {
               </h2>
 
               <p className="text-[14.5px] sm:text-[15px] leading-relaxed text-[var(--ink-soft)] mb-8">
-                The Menoid testnet is filling fast. Secure your spot and get priority access before
+                The Menoid private beta filling fast. Secure your spot and get priority access before
                 public launch — plus exclusive early crew perks.
               </p>
             </Reveal>

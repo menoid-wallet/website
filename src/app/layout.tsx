@@ -29,9 +29,9 @@ const serif = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "Menoid — Private Wallet on Monad · Join Waitlist",
+  title: "Menoid — Ai Native private crypto wallet·",
   description:
-    "Menoid is an AI-native private wallet built on Monad. Shield your assets, transact completely unseen, and unmask safely — with one click. Join the testnet waitlist for early access.",
+    "Menoid is an AI-native private crypto wallet. Shield your assets, transact completely unseen, and unmask safely — with one click. Join the testnet waitlist for early access.",
 };
 
 export default function RootLayout({

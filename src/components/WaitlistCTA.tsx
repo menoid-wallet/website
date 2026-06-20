@@ -44,7 +44,7 @@ export default function WaitlistCTA() {
               <div className="relative mx-auto md:ml-0 md:-translate-x-4 w-[clamp(240px,70vw,400px)]">
                 <div className="waitlist-ship relative w-full aspect-square">
                   <Image
-                    src="/ship/ship.png"
+                    src="/ship/ship.webp"
                     alt="Menoid Ship"
                     fill
                     sizes="(max-width: 768px) 70vw, 400px"

@@ -146,7 +146,7 @@ export default function Hero() {
                     border: "1px solid rgba(163,110,20,0.18)",
                     boxShadow: "0 24px 60px rgba(23,19,17,0.18), 0 8px 20px rgba(23,19,17,0.10), 0 1px 0 rgba(255,255,255,0.7) inset",
                   }}>
-                  <Image src="/wallet/lock.png" alt="Menoid unlock screen" width={480} height={760} className="w-full h-auto" />
+                  <Image src="/wallet/lock.webp" alt="Menoid unlock screen" width={480} height={760} className="w-full h-auto" />
                 </div>
                 <div className="absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap">
                   <span className="font-mono text-[9px] uppercase tracking-[0.22em] text-[var(--muted)]">Unlock</span>
@@ -160,7 +160,7 @@ export default function Hero() {
                     border: "1px solid rgba(163,110,20,0.22)",
                     boxShadow: "0 32px 80px rgba(23,19,17,0.22), 0 12px 32px rgba(163,110,20,0.14), 0 1px 0 rgba(255,255,255,0.7) inset",
                   }}>
-                  <Image src="/wallet/openMOde.png" alt="Menoid Open Mode" width={480} height={760} className="w-full h-auto" priority />
+                  <Image src="/wallet/openMOde.webp" alt="Menoid Open Mode" width={480} height={760} className="w-full h-auto" priority />
                 </div>
                 <div className="absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap">
                   <span className="font-mono text-[9px] uppercase tracking-[0.22em] text-[var(--gold-deep)]">Open Mode</span>
@@ -174,7 +174,7 @@ export default function Hero() {
                     border: "1px solid rgba(163,110,20,0.18)",
                     boxShadow: "0 24px 60px rgba(23,19,17,0.18), 0 8px 20px rgba(23,19,17,0.10), 0 1px 0 rgba(255,255,255,0.7) inset",
                   }}>
-                  <Image src="/wallet/NoidMode.png" alt="Menoid Noid Mode" width={480} height={760} className="w-full h-auto" />
+                  <Image src="/wallet/NoidMode.webp" alt="Menoid Noid Mode" width={480} height={760} className="w-full h-auto" />
                 </div>
                 <div className="absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap">
                   <span className="font-mono text-[9px] uppercase tracking-[0.22em] text-[var(--ink-soft)]">Noid Mode</span>

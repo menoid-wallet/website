@@ -304,7 +304,7 @@ export default function MenoSection() {
               <div className="flex justify-center lg:justify-start">
                 <div className="relative h-[clamp(180px,38vw,400px)] w-[clamp(180px,38vw,400px)] gentle-bob">
                   <Image
-                    src="/meno/meno_hi_text.png"
+                    src="/meno/meno_hi_text.webp"
                     alt="Meet Meno"
                     fill
                     sizes="(max-width: 1024px) 55vw, 400px"
@@ -407,7 +407,7 @@ export default function MenoSection() {
                 }}
               >
                 <Image
-                  src="/wallet/walletpic.png"
+                  src="/wallet/walletpic.webp"
                   alt="A wallet locked away, stale on the sand"
                   fill
                   sizes="(max-width: 1024px) 100vw, 48vw"

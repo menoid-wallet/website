@@ -259,7 +259,7 @@ export default function ShipSlider({
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/ship/ship.png"
+          src="/ship/ship.webp"
           alt="Drag to join the waitlist"
           draggable={false}
           style={{

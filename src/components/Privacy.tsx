@@ -8,7 +8,7 @@ const STEPS = [
     title: "Mask",
     sub: "Deposit MON into the ZK pool",
     body: "Roll two random field elements, build Poseidon commitments for you and the relayer, ECIES-encrypt the notes, then generate a Groth16 proof on-device. Funds leave your Open address as shielded notes.",
-    image: "/ship/send_ship.png",
+    image: "/ship/send_ship.webp",
     tag: "~20s · in-browser proof",
   },
   {
@@ -16,7 +16,7 @@ const STEPS = [
     title: "Noid send",
     sub: "Move shielded value, leave no wake",
     body: "Pick recipients by their Noid public key. The transfer circuit builds nullifiers and new commitments. The chain records a proof, not a path — no one sees who paid whom.",
-    image: "/ship/noid_transfer.png",
+    image: "/ship/noid_transfer.webp",
     tag: "Untraceable on Monad",
   },
   {
@@ -24,7 +24,7 @@ const STEPS = [
     title: "Unmask",
     sub: "Withdraw back to your Open address",
     body: "Batched up to four notes per proof. Menoid plans the batches, builds the Merkle proofs, and submits a single tx that returns your value — minus one flat relayer fee.",
-    image: "/ship/hidden_transfer_successful.png",
+    image: "/ship/hidden_transfer_successful.webp",
     tag: "One flat 0.5 MON fee",
   },
 ];

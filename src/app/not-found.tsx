@@ -42,7 +42,7 @@ export default function NotFound() {
         {/* Meno */}
         <div className="relative mb-2 h-44 w-44 gentle-bob sm:h-52 sm:w-52">
           <Image
-            src="/meno/meno_hi.png"
+            src="/meno/meno_hi.webp"
             alt="Meno the pirate"
             fill
             sizes="208px"

@@ -224,7 +224,7 @@ export default function Modes() {
                   }}
                 />
                 <Image
-                  src="/meno/meno_with_wallet.png"
+                  src="/meno/meno_with_wallet.webp"
                   alt="Meno holding a wallet"
                   fill
                   sizes="(min-width: 768px) 50vw, 100vw"

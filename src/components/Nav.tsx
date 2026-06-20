@@ -121,7 +121,7 @@ export default function Nav() {
                 boxShadow: "0 0 0 1px rgba(163,110,20,0.25), var(--shadow-xs)",
               }}
             >
-              <Image src="/meno/meno_logo.png" alt="" fill sizes="32px" className="object-cover" />
+              <Image src="/meno/meno_logo.webp" alt="" fill sizes="32px" className="object-cover" />
             </div>
             <span className={`font-display text-xl font-bold tracking-tight transition-colors duration-300 ${brandText}`}>
               Menoid

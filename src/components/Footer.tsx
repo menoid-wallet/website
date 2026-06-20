@@ -78,7 +78,7 @@ export default function Footer() {
                   className="relative h-10 w-10 overflow-hidden rounded-full ring-1 ring-[rgba(255,255,255,0.15)]"
                   style={{ background: "#171311", boxShadow: "var(--shadow-sm)" }}
                 >
-                  <Image src="/meno/meno_logo.png" alt="" fill sizes="40px" className="object-cover" />
+                  <Image src="/meno/meno_logo.webp" alt="" fill sizes="40px" className="object-cover" />
                 </div>
                 <span className="font-display text-2xl font-bold tracking-tight text-[#FBF1D9]">Menoid</span>
               </div>

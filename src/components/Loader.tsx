@@ -126,7 +126,7 @@ export default function Loader() {
             }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/texts/wttu.png" alt="Where Treasure Travels Unseen" style={{ display: "block", width: "100%", height: "auto" }} />
+            <img src="/texts/wttu.webp" alt="Where Treasure Travels Unseen" style={{ display: "block", width: "100%", height: "auto" }} />
           </div>
         )}
 
@@ -134,7 +134,7 @@ export default function Loader() {
         {title === "menoid" && (
           <div style={{ ...anchor("calc(-1 * clamp(30px, 4.5vw, 40px))"), width: "min(90vw, 1060px)", animation: "menoid-in 900ms var(--ease-out-quart) both" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/texts/menoid.png" alt="Menoid" style={{ display: "block", width: "100%", height: "auto" }} />
+            <img src="/texts/menoid.webp" alt="Menoid" style={{ display: "block", width: "100%", height: "auto" }} />
           </div>
         )}
 
@@ -175,7 +175,7 @@ export default function Loader() {
         {/* ── AI-NATIVE PRIVATE WALLET (smaller, tight below the line) ── */}
         <div style={{ ...anchor("clamp(74px, 9vw, 96px)"), width: "min(54vw, 420px)", animation: "ld-in 800ms var(--ease-out-quart) both" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/texts/ai-text.png" alt="AI-Native Private Wallet" style={{ display: "block", width: "100%", height: "auto" }} />
+          <img src="/texts/ai-text.webp" alt="AI-Native Private Wallet" style={{ display: "block", width: "100%", height: "auto" }} />
         </div>
       </div>
 

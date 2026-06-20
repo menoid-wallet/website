@@ -26,7 +26,7 @@ const OPEN_MODE_BOXES = [
   {
     title: "Create Wallet",
     description: "Initialize your standard public EOA wallet to start managing your assets.",
-    imageSrc: "/wallet_modes/create_wallet_2.png",
+    imageSrc: "/wallet_modes/create_wallet_2.webp",
     imageAlt: "Create Wallet Screen",
     bullets: [
       "Standard EOA setup in seconds",
@@ -37,7 +37,7 @@ const OPEN_MODE_BOXES = [
   {
     title: "Use the Wallet",
     description: "Transfer, swap, and interact publicly just like every other wallet.",
-    imageSrc: "/wallet_modes/ship_send.png",
+    imageSrc: "/wallet_modes/ship_send.webp",
     imageAlt: "Use the Wallet Screen",
     bullets: [
       "Public transfer, swap, and bridge",
@@ -53,7 +53,7 @@ const NOID_MODE_PANELS = [
     title: "Hide Your Funds",
     description:
       "Move assets from your public balance into the shielded Noid pool. Once hidden, your holdings are cryptographically detached from your public address — invisible on-chain, yet always provably yours.",
-    imageSrc: "/wallet_modes/mask.png",
+    imageSrc: "/wallet_modes/mask.webp",
     imageAlt: "Hide Your Funds Screen",
     bullets: [
       "Privatize any token balance instantly",
@@ -67,7 +67,7 @@ const NOID_MODE_PANELS = [
     title: "Hidden Transfer",
     description:
       "Send value to anyone without revealing who, what, or how much. Transfers settle inside the shielded pool and are verified by zero-knowledge proofs instead of a public ledger.",
-    imageSrc: "/wallet_modes/hidden_trasnfer_successful.png",
+    imageSrc: "/wallet_modes/hidden_trasnfer_successful.webp",
     imageAlt: "Hidden Transfer Screen",
     bullets: [
       "Send anonymously to any address",
@@ -81,7 +81,7 @@ const NOID_MODE_PANELS = [
     title: "Unhide Your Funds",
     description:
       "Step back into open mode whenever you want. Withdraw from the shielded pool to any clean address with instant liquidity and zero waiting periods — privacy on your terms.",
-    imageSrc: "/wallet_modes/unmask_meno.png",
+    imageSrc: "/wallet_modes/unmask_meno.webp",
     imageAlt: "Unhide Your Funds Screen",
     bullets: [
       "Withdraw to any clean EOA on demand",
@@ -95,7 +95,7 @@ const NOID_MODE_PANELS = [
     title: "Hidden Actions",
     description:
       "Don't just hold privately — act privately. Swap, bridge, and NFTs entirely inside the shielded pool, so every move you make stays completely unseen on-chain.",
-    imageSrc: "/meno/hidden_swaps.png",
+    imageSrc: "/meno/hidden_swaps.webp",
     imageAlt: "Hidden swaps and bridges",
     bullets: [
       "Hidden swaps with zero trace",

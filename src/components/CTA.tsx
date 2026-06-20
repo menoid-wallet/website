@@ -62,7 +62,7 @@ export default function CTA() {
             {/* mini meno */}
             <div className="relative mx-auto h-28 w-28 gentle-bob">
               <Image
-                src="/meno/meno_hi_text.png"
+                src="/meno/meno_hi_text.webp"
                 alt=""
                 fill
                 sizes="112px"

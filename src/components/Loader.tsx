@@ -118,23 +118,52 @@ export default function Loader() {
           <div
             style={{
               ...anchor("calc(-1 * clamp(30px, 5.5vw, 70px))"),
-              width: "min(92vw, 1160px)",
               opacity: title === "fadeout" ? 0 : 1,
               filter: title === "fadeout" ? "blur(10px)" : "blur(0)",
               transition: `opacity ${FADE_MS}ms var(--ease-in-out), transform ${FADE_MS}ms var(--ease-in-out), filter ${FADE_MS}ms var(--ease-in-out)`,
               animation: "ld-in 800ms var(--ease-out-quart) both",
             }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/texts/wttu.webp" alt="Where Treasure Travels Unseen" style={{ display: "block", width: "100%", height: "auto" }} />
+            <div
+              aria-label="Where Treasure Travels Unseen"
+              style={{
+                fontFamily: "var(--font-fraunces), Georgia, 'Times New Roman', serif",
+                fontWeight: 800,
+                fontOpticalSizing: "none",
+                fontVariationSettings: '"opsz" 42, "wght" 800, "SOFT" 0, "WONK" 0',
+                color: "#171311",
+                textAlign: "center",
+                textTransform: "uppercase",
+                lineHeight: 0.94,
+                fontSize: "clamp(30px, 6.2vw, 72px)",
+                whiteSpace: "nowrap",
+              }}
+            >
+              <div style={{ fontSize: "0.44em", letterSpacing: "0.04em" }}>Where</div>
+              <div>Treasure</div>
+              <div style={{ fontSize: "0.44em", letterSpacing: "0.04em" }}>Travels Unseen</div>
+            </div>
           </div>
         )}
 
         {/* ── MENOID ── */}
         {title === "menoid" && (
-          <div style={{ ...anchor("calc(-1 * clamp(30px, 4.5vw, 40px))"), width: "min(90vw, 1060px)", animation: "menoid-in 900ms var(--ease-out-quart) both" }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/texts/menoid.webp" alt="Menoid" style={{ display: "block", width: "100%", height: "auto" }} />
+          <div style={{ ...anchor("calc(-1 * clamp(30px, 4.5vw, 40px))"), animation: "menoid-in 900ms var(--ease-out-quart) both" }}>
+            <div
+              style={{
+                fontFamily: "var(--font-fraunces), Georgia, 'Times New Roman', serif",
+                fontWeight: 800,
+                fontOpticalSizing: "none",
+                fontVariationSettings: '"opsz" 42, "wght" 800, "SOFT" 0, "WONK" 0',
+                color: "#171311",
+                letterSpacing: "-0.01em",
+                lineHeight: 1,
+                fontSize: "clamp(38px, 8.4vw, 104px)",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Menoid
+            </div>
           </div>
         )}
 

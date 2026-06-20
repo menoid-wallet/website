@@ -56,7 +56,7 @@ const FEATURE_CARDS: FeatureCardData[] = [
       {
         label: "Intent-Driven Execution",
         text:
-          'You simply type your true, natural language intent straight into the sidebar chat—like "Hey Meno, connect my wallet, mint an NFT using a cool name, and list it for sale for 4 SOL."',
+          'You simply type your true, natural language intent straight into the sidebar chat—like "Hey Meno, connect my wallet, mint an NFT using a cool name, and list it for sale for 40 MON."',
       },
       {
         label: "Hands-Free Navigation",
@@ -271,14 +271,8 @@ export default function MenoSection() {
       {/* ════════════════════ PART 1 — pinned intro ════════════════════ */}
       <div ref={part1Ref} className="relative z-10" style={{ height: "300vh" }}>
         <div className="sticky top-0 flex h-dvh min-h-[560px] items-center justify-center overflow-hidden">
-          {/* Stage 1 — small "Let's welcome…" (upper) + big "What if…think?" */}
+          {/* Stage 1 — big "What if…think?" */}
           <div ref={introRef} className="absolute inset-0 px-6" style={{ opacity: 1, transition: "opacity 90ms linear, transform 90ms linear" }}>
-            <p
-              className="absolute left-1/2 top-[20%] w-full -translate-x-1/2 px-6 text-center font-serif italic font-medium text-[var(--ink-soft)]"
-              style={{ fontSize: "clamp(17px, 2.6vw, 30px)" }}
-            >
-              Let&apos;s welcome the hero product.
-            </p>
             <div className="absolute inset-0 flex items-center justify-center text-center">
               <h2 className={bigText} style={{ fontSize: "clamp(34px, 7.4vw, 112px)" }}>
                 What if your wallet could{" "}

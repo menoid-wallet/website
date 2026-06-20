@@ -314,7 +314,7 @@ export default function Chains() {
           }}
         />
 
-        {/* Sheen sweep */}
+        {/* Sheen sweep (laptop only — hidden on mobile via .sheen media query) */}
         <div className="sheen absolute inset-0 pointer-events-none" style={{ opacity: 0.15 }} />
 
         {/* Zoom Overlay Monad Badge */}

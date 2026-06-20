@@ -101,6 +101,12 @@ html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
 .lenis.lenis-stopped { overflow: hidden; }
 
+/* Mobile/tablet: Lenis is disabled, so use native smooth scroll with a nav-sized
+   offset so anchor links don't land under the fixed navbar. */
+@media (max-width: 1023px) {
+  html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+}
+
 /* ── Display font (Bricolage Grotesque) ── */
 .font-display {
   font-family: var(--font-display), "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
@@ -187,6 +193,11 @@ em.font-display,
 @keyframes sheen {
   0%, 100% { transform: translateX(-30%); opacity: 0; }
   50%       { transform: translateX(30%); opacity: 0.4; }
+}
+/* The sweep overshoots ±30% horizontally; on narrow screens its edge becomes
+   visible. Keep it on laptop/desktop, hide on mobile & tablet. */
+@media (max-width: 1023px) {
+  .sheen { display: none !important; }
 }
 
 /* ── Gold line draw (matches loader's draw animation) ── */

@@ -93,7 +93,7 @@ export default function Hero() {
               className="font-mono text-[11px] sm:text-[12px] uppercase tracking-[0.32em] text-[var(--gold-deep)] mb-4 font-semibold"
               style={rise(100)}
             >
-              AI-Native Private Wallet Across 15+ Chains
+              A Private crypto wallet Across 15+ Chains
             </div>
 
             {/* WTTU headline */}
@@ -116,8 +116,8 @@ export default function Hero() {
               className="mx-auto lg:mx-0 mb-10 max-w-2xl text-[16px] leading-relaxed text-[var(--ink-soft)]"
               style={rise(320)}
             >
-              Menoid is an AI-native private wallet built for absolute privacy across 15+ chains.
-              Shield your assets and transact completely unseen along with hidden swaps, hidden bridges on Monad, Ethereum, Solana, Sui, and more, all in one place. And meet{" "}
+              Menoid is a Private crypto wallet built for absolute privacy across 15+ chains.
+              Shield your assets and transact completely unseen along with hidden swaps, hidden bridges on Monad, Ethereum, Solana, Sui, and more, all in one place. Along side privacy, meet{" "}
               <strong className="font-semibold text-[var(--gold-deep)]">Meno</strong> — your onchain co-pilot, guiding every move you make.
             </p>
 

@@ -141,7 +141,7 @@ function CardInner({ phase }: { phase: Phase }) {
       {/* footer */}
       <div className="rm-foot">
         <span className="rm-foot-icon">
-          <Image src="/meno/meno_logo.webp" alt="" fill sizes="26px" className="object-cover" />
+          <Image src="/anchor.png" alt="" fill sizes="26px" className="object-cover" />
         </span>
         <span className="rm-foot-name">Menoid {phase.version}</span>
         {current ? (

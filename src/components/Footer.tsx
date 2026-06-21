@@ -78,12 +78,12 @@ export default function Footer() {
                   className="relative h-10 w-10 overflow-hidden rounded-full ring-1 ring-[rgba(255,255,255,0.15)]"
                   style={{ background: "#171311", boxShadow: "var(--shadow-sm)" }}
                 >
-                  <Image src="/meno/meno_logo.webp" alt="" fill sizes="40px" className="object-cover" />
+                  <Image src="/anchor.png" alt="" fill sizes="40px" className="object-cover" />
                 </div>
                 <span className="font-display text-2xl font-bold tracking-tight text-[#FBF1D9]">Menoid</span>
               </div>
               <p className="max-w-xs text-[14px] leading-relaxed text-[rgba(251,241,217,0.7)]">
-                The AI-native private crypto wallet.
+                The Private crypto wallet.
               </p>
 
               <div className="mt-6 flex gap-2">
@@ -134,7 +134,7 @@ export default function Footer() {
 
         <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-[rgba(255,255,255,0.08)] pt-8 md:flex-row">
           <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-[rgba(251,241,217,0.4)]">
-            © {new Date().getFullYear()} Menoid · AI-native private crypto wallet
+            © {new Date().getFullYear()} Menoid · Private crypto wallet
           </p>
           <div className="flex gap-6 text-[12px] text-[rgba(251,241,217,0.7)]">
             <a href="#" onClick={soon} className="hover:text-[#FBF1D9] transition-colors">Privacy</a>

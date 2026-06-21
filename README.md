@@ -1,5 +1,5 @@
 # 🌑 Menoid Wallet
-An AI-native private crypto wallet.
+A Private crypto wallet.
 
 ## ✨ Introduction
 Menoid is an AI-native private smart wallet built for multi-chain privacy, supporting 15+ chains..

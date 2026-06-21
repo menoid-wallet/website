@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Reveal from "./Reveal";
-import WaitlistForm from "./WaitlistForm";
+// import WaitlistForm from "./WaitlistForm"; // re-enable when V1 beta registration opens
 
 const PERKS = ["🎁 Airdrop rewards", "📡 Early feature access", "🏆 Founding crew badge"];
 
@@ -91,7 +91,24 @@ export default function WaitlistCTA() {
 
             {/* Email + ship slider */}
             <Reveal delay={120}>
+              {/* Registration temporarily disabled — re-enable when V1 beta opens:
               <WaitlistForm inputId="cta-email-input" />
+              */}
+              <div
+                className="max-w-md rounded-2xl px-5 py-4"
+                style={{
+                  background: "#FAF5E8",
+                  border: "1px solid rgba(163,110,20,0.28)",
+                  boxShadow: "0 1px 0 rgba(255,255,255,0.9) inset, var(--shadow-md)",
+                }}
+              >
+                <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--gold-deep)]">
+                  ⚓ Coming Soon
+                </p>
+                <p className="mt-1.5 font-display text-[17px] font-bold text-[var(--ink)]">
+                  V1 Private Beta registration coming soon…
+                </p>
+              </div>
             </Reveal>
 
             {/* Perks */}

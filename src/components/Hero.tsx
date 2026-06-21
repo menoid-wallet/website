@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import CursorParticles from "./CursorParticles";
-import WaitlistForm from "./WaitlistForm";
+// import WaitlistForm from "./WaitlistForm"; // re-enable when V1 beta registration opens
 
 export default function Hero() {
   // Hold the hero entrance until the loader has finished, then rise in.
@@ -126,7 +126,24 @@ export default function Hero() {
               className="mx-auto lg:mx-0 max-w-md w-full"
               style={rise(440)}
             >
+              {/* Registration temporarily disabled — re-enable when V1 beta opens:
               <WaitlistForm inputId="hero-email-input" />
+              */}
+              <div
+                className="rounded-2xl px-5 py-4 text-center lg:text-left"
+                style={{
+                  background: "#FAF5E8",
+                  border: "1px solid rgba(163,110,20,0.28)",
+                  boxShadow: "0 1px 0 rgba(255,255,255,0.9) inset, var(--shadow-md)",
+                }}
+              >
+                <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--gold-deep)]">
+                  ⚓ Coming Soon
+                </p>
+                <p className="mt-1.5 font-display text-[17px] font-bold text-[var(--ink)]">
+                  V1 Private Beta registration coming soon…
+                </p>
+              </div>
             </div>
 
           </div>

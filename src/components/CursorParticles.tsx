@@ -30,8 +30,7 @@ export default function CursorParticles({ zIndexClass = "z-[2]", isLoader = fals
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const mouseRef = useRef({ x: 0, y: 0 });
   const targetMouseRef = useRef({ x: 0, y: 0 });
-  const isHoveringRef = useRef(false);
-  const isFallingRef = useRef(false); // Default to swarming hover state
+  const isFallingRef = useRef(false);
   const hasMovedRef = useRef(false);
   
   // Cache the last screen client X/Y coordinates to track scrolling updates
@@ -179,29 +178,12 @@ export default function CursorParticles({ zIndexClass = "z-[2]", isLoader = fals
       }
     };
 
-    // Track when hovering over clickable elements
-    const handleMouseOver = (e: MouseEvent) => {
-      const target = e.target as HTMLElement | null;
-      if (!target) return;
-
-      const isClickable =
-        target.tagName === "A" ||
-        target.tagName === "BUTTON" ||
-        !!target.closest("a") ||
-        !!target.closest("button") ||
-        target.getAttribute("role") === "button" ||
-        window.getComputedStyle(target).cursor === "pointer";
-
-      isHoveringRef.current = isClickable;
-    };
-
     const handlePointerLeave = () => {
       isFallingRef.current = true; // Fall to bottom if mouse leaves the page/viewport
     };
 
     window.addEventListener("pointermove", handlePointerMove);
     window.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("mouseover", handleMouseOver);
     window.addEventListener("pointerleave", handlePointerLeave);
 
     // Physics + Render loop
@@ -240,9 +222,9 @@ export default function CursorParticles({ zIndexClass = "z-[2]", isLoader = fals
           f.y += f.vy;
         } else {
           // standard spring swarm physics
-          const activeRadius = isHoveringRef.current ? f.orbitRadius * 0.16 : f.orbitRadius;
-          const activeSpring = isHoveringRef.current ? f.baseSpring * 3.2 : f.baseSpring;
-          const activeFriction = isHoveringRef.current ? f.baseFriction * 0.95 : f.baseFriction;
+          const activeRadius = f.orbitRadius;
+          const activeSpring = f.baseSpring;
+          const activeFriction = f.baseFriction;
 
           // Calculate specific orbital target position around the cursor
           // Adding sinusoidal scale fluctuations to make it feel spongy, fluid, and breathing
@@ -301,7 +283,6 @@ export default function CursorParticles({ zIndexClass = "z-[2]", isLoader = fals
       window.removeEventListener("resize", resizeCanvas);
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("mouseover", handleMouseOver);
       window.removeEventListener("pointerleave", handlePointerLeave);
       cancelAnimationFrame(animationFrameId);
     };

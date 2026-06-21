@@ -201,11 +201,7 @@ export default function Loader() {
           </svg>
         </div>
 
-        {/* ── AI-NATIVE PRIVATE WALLET (smaller, tight below the line) ── */}
-        <div style={{ ...anchor("clamp(74px, 9vw, 96px)"), width: "min(54vw, 420px)", animation: "ld-in 800ms var(--ease-out-quart) both" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/texts/ai-text.webp" alt="AI-Native Private Wallet" style={{ display: "block", width: "100%", height: "auto" }} />
-        </div>
+
       </div>
 
       <style>{`

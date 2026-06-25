@@ -42,7 +42,7 @@ export default function Nav() {
   const links = [
     { href: "#wallet-modes", label: "Modes" },
     { href: "#chains", label: "Chains" },
-    { href: "#meno", label: "Meno" },
+    // { href: "#meno", label: "Meno" },
     { href: "#roadmap", label: "Roadmap" },
   ];
 

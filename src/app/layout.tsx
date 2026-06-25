@@ -29,7 +29,7 @@ const serif = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "Menoid — A private crypto wallet·",
+  title: "Menoid — A private crypto wallet",
   description:
     "Menoid is a Private crypto wallet. Shield your assets, transact completely unseen, and unmask safely — with one click. Join the V1 private beta waitlist for early access.",
 };

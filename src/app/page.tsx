@@ -18,10 +18,10 @@ export default function Home() {
         <Hero />
         <WalletModes />
         <Chains />
-        <div className="relative">
+        {/* <div className="relative">
           <CursorParticles zIndexClass="z-[2]" />
           <MenoSection />
-        </div>
+        </div> */}
         <Roadmap />
         <div className="relative">
           <CursorParticles zIndexClass="z-[2]" />

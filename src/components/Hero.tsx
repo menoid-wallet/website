@@ -117,10 +117,10 @@ export default function Hero() {
               style={rise(320)}
             >
               Menoid is a Private crypto wallet built for absolute privacy across 15+ chains.
-              Shield your assets and transact completely unseen along with hidden swaps, hidden bridges on Monad, Ethereum, Solana, Sui, and more, all in one place. Along side privacy, meet{" "}
-              <strong className="font-semibold text-[var(--gold-deep)]">Meno</strong> — your onchain co-pilot, guiding every move you make.
+              Shield your assets and transact completely unseen along with hidden swaps, hidden bridges on Monad, Ethereum, Solana, Sui, and more, all in one place. 
             </p>
-
+              {/* Along side privacy, meet{" "}
+              <strong className="font-semibold text-[var(--gold-deep)]">Meno</strong> — your onchain co-pilot, guiding every move you make.*/}
             {/* ── Waitlist form ── */}
             <div
               className="mx-auto lg:mx-0 max-w-md w-full"

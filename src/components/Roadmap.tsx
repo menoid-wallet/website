@@ -22,7 +22,7 @@ const PHASES: Phase[] = [
     tagline: "Private Beta · Stay Tuned",
     bullets: [
       { icon: "🌐", text: "6 testnets — Monad, Sepolia, Base, Solana, Sui & Aptos." },
-      { icon: "🤖", text: "Minimalistic Meno — Meno Chat + Co-Pilot mode for a single dApp." },
+      // { icon: "🤖", text: "Minimalistic Meno — Meno Chat + Co-Pilot mode for a single dApp." },
       { icon: "🎯", text: "Target: 1,000 crypto user reviews." },
       { icon: "🎁", text: "Rewards distributed to the 1,000 reviewers after the stable launch." },
     ],

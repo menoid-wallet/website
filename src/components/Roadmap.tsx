@@ -19,7 +19,7 @@ interface Phase {
 const PHASES: Phase[] = [
   {
     version: "V1",
-    tagline: "Private Beta · Stay Tuned",
+    tagline: " · Stay Tuned",
     bullets: [
       { icon: "🌐", text: "6 testnets — Monad, Sepolia, Base, Solana, Sui & Aptos." },
       // { icon: "🤖", text: "Minimalistic Meno — Meno Chat + Co-Pilot mode for a single dApp." },
@@ -27,8 +27,7 @@ const PHASES: Phase[] = [
       { icon: "🎁", text: "Rewards distributed to the 1,000 reviewers after the stable launch." },
     ],
     cohorts: [
-      "V1 Private Beta (Extension)",
-      "V1 Open Beta (Extension)",
+      "V1 Early Access (Extension)",
       "V1 Mobile Beta (iOS & Android)",
     ],
   },

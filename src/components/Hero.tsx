@@ -84,7 +84,7 @@ export default function Hero() {
             >
               <span className="h-1.5 w-1.5 rounded-full bg-[var(--gold)] pulse-dot" />
               <span className="font-mono text-[11px] uppercase tracking-[0.28em] text-[var(--gold-deep)]">
-                V1 Private Beta
+                V1 Early Access
               </span>
             </div>
 
@@ -93,7 +93,7 @@ export default function Hero() {
               className="font-mono text-[11px] sm:text-[12px] uppercase tracking-[0.32em] text-[var(--gold-deep)] mb-4 font-semibold"
               style={rise(100)}
             >
-              A Private crypto wallet Across 15+ Chains
+              A Private crypto wallet for the Multi-Chain world.
             </div>
 
             {/* WTTU headline */}
@@ -141,7 +141,7 @@ export default function Hero() {
                   ⚓ Coming Soon
                 </p>
                 <p className="mt-1.5 font-display text-[17px] font-bold text-[var(--ink)]">
-                  V1 Private Beta registration coming soon…
+                  V1 Early Access registration coming soon…
                 </p>
               </div>
             </div>

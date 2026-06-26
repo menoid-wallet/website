@@ -70,7 +70,7 @@ export default function WaitlistCTA() {
               >
                 <span className="h-1.5 w-1.5 rounded-full bg-[var(--gold)] pulse-dot" />
                 <span className="font-mono text-[11px] uppercase tracking-[0.28em] text-[var(--gold-deep)]">
-                  V1 Private beta
+                  V1 Early access
                 </span>
               </div>
 
@@ -84,7 +84,7 @@ export default function WaitlistCTA() {
               </h2>
 
               <p className="text-[14.5px] sm:text-[15px] leading-relaxed text-[var(--ink-soft)] mb-8">
-                The Menoid private beta filling fast. Secure your spot and get priority access before
+                The Menoid early access filling fast. Secure your spot and get priority access before
                 public launch — plus exclusive early crew perks.
               </p>
             </Reveal>

@@ -4,7 +4,7 @@ A Private crypto wallet.
 ## ✨ Introduction
 Menoid is a Private crypto wallet built for multi-chain privacy, supporting 15+ chains..
 
-Unlike traditional wallets that publicly expose every interaction and require users to manually understand complex onchain actions, Menoid combines privacy infrastructure, smart accounts, and AI-assisted execution into a seamless wallet experience..
+Unlike traditional wallets that publicly expose every interaction and require users to manually understand complex onchain actions, Menoid combines privacy infrastructure, smart accounts, and AI-assisted execution into a seamless wallet experience.
 
 Menoid enables users to:
 

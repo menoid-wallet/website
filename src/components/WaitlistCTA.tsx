@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Reveal from "./Reveal";
-// import WaitlistForm from "./WaitlistForm"; // re-enable when V1 beta registration opens
+// import WaitlistForm from "./WaitlistForm"; // re-enable when V1 registration opens
 
 const PERKS = ["🎁 Airdrop rewards", "📡 Early feature access", "🏆 Founding crew badge"];
 
@@ -91,7 +91,7 @@ export default function WaitlistCTA() {
 
             {/* Email + ship slider */}
             <Reveal delay={120}>
-              {/* Registration temporarily disabled — re-enable when V1 beta opens:
+              {/* Registration temporarily disabled — re-enable when V1 registration opens:
               <WaitlistForm inputId="cta-email-input" />
               */}
               <div

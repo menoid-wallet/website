@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import CursorParticles from "./CursorParticles";
-// import WaitlistForm from "./WaitlistForm"; // re-enable when V1 beta registration opens
+// import WaitlistForm from "./WaitlistForm"; // re-enable when V1 registration opens
 
 export default function Hero() {
   // Hold the hero entrance until the loader has finished, then rise in.
@@ -126,7 +126,7 @@ export default function Hero() {
               className="mx-auto lg:mx-0 max-w-md w-full"
               style={rise(440)}
             >
-              {/* Registration temporarily disabled — re-enable when V1 beta opens:
+              {/* Registration temporarily disabled — re-enable when V1 registration opens:
               <WaitlistForm inputId="hero-email-input" />
               */}
               <div

@@ -29,8 +29,13 @@ app.use(
 app.use(express.json());
 
 // ───────────────────────── Model ─────────────────────────
-const emailSchema = new mongoose.Schema(
+const registrationSchema = new mongoose.Schema(
   {
+    fullName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     email: {
       type: String,
       required: true,
@@ -38,29 +43,50 @@ const emailSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
+    // Optional social handles
+    x: { type: String, trim: true, default: "" },
+    telegram: { type: String, trim: true, default: "" },
+    discord: { type: String, trim: true, default: "" },
   },
   { timestamps: true }
 );
 
-const Email = mongoose.model("Email", emailSchema);
+// Keep the model name "Email" so it maps to the existing `emails` collection.
+const Email = mongoose.model("Email", registrationSchema);
 
 // ───────────────────────── Routes ─────────────────────────
 
-// Get all emails on the waitlist
+// Get all registrations on the waitlist
 app.get("/api/emails", async (_req, res) => {
   try {
     const docs = await Email.find().sort({ createdAt: -1 });
-    res.json({ count: docs.length, emails: docs.map((d) => d.email) });
+    res.json({
+      count: docs.length,
+      // Kept for backwards compatibility (the frontend uses this to flag duplicates)
+      emails: docs.map((d) => d.email),
+      registrations: docs.map((d) => ({
+        fullName: d.fullName || "",
+        email: d.email,
+        x: d.x || "",
+        telegram: d.telegram || "",
+        discord: d.discord || "",
+        createdAt: d.createdAt,
+      })),
+    });
   } catch (err) {
     console.error("[GET /api/emails]", err);
-    res.status(500).json({ error: "Failed to fetch emails." });
+    res.status(500).json({ error: "Failed to fetch registrations." });
   }
 });
 
 // Join the waitlist
 app.post("/api/joinwaitlist", async (req, res) => {
   try {
-    const { email } = req.body ?? {};
+    const { fullName, email, x, telegram, discord } = req.body ?? {};
+
+    if (!fullName || typeof fullName !== "string" || !fullName.trim()) {
+      return res.status(400).json({ error: "Please enter your full name." });
+    }
     if (!email || typeof email !== "string" || !email.includes("@")) {
       return res.status(400).json({ error: "Please enter a valid email address." });
     }
@@ -73,7 +99,16 @@ app.post("/api/joinwaitlist", async (req, res) => {
         .json({ joined: false, message: "You're already on the crew! We'll be in touch soon." });
     }
 
-    await Email.create({ email: normalized });
+    // Optional fields — store trimmed strings (empty when not provided)
+    const clean = (v) => (typeof v === "string" ? v.trim() : "");
+
+    await Email.create({
+      fullName: fullName.trim(),
+      email: normalized,
+      x: clean(x),
+      telegram: clean(telegram),
+      discord: clean(discord),
+    });
     return res
       .status(201)
       .json({ joined: true, message: "Welcome aboard! You're on the waitlist." });

@@ -1,5 +1,5 @@
 # 🌑 Menoid Wallet
-A Private crypto wallet.
+A Private crypto wallet..
 
 ## ✨ Introduction
 Menoid is a Private crypto wallet built for multi-chain privacy, supporting 15+ chains..

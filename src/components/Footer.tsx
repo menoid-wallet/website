@@ -93,12 +93,12 @@ export default function Footer() {
                 <a href="https://x.com/MenoidWallet" target="_blank" rel="noopener noreferrer" aria-label="Twitter / X" className={socialClass}>
                   {xIcon}
                 </a>
-                <button type="button" onClick={showToast} aria-label="Discord (coming soon)" className={socialClass}>
+                <a href="https://discord.gg/JbPMSttDUY" target="_blank" rel="noopener noreferrer" aria-label="Discord" className={socialClass}>
                   {discordIcon}
-                </button>
-                <button type="button" onClick={showToast} aria-label="Telegram (coming soon)" className={socialClass}>
+                </a>
+                <a href="https://t.me/+2y9XpEDOr-k4MzQ0" target="_blank" rel="noopener noreferrer" aria-label="Telegram" className={socialClass}>
                   {telegramIcon}
-                </button>
+                </a>
               </div>
             </div>
 

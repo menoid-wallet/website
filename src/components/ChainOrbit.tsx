@@ -87,9 +87,30 @@ const CHAINS: Chain[] = [
 
 const RADIUS = 41; // % of the box, centre to badge
 
+/* The puffs that make a chain badge read as a little cloud instead of a disc.
+   [left%, top%, size%] of the badge's square box — opaque and all one colour,
+   so they fuse with the body into a single silhouette. The shadow goes on their
+   wrapper, so it traces that silhouette rather than ringing each puff. */
+const BADGE_LOBES: [number, number, number][] = [
+  [61, 8, 44], [31, 10, 40], [90, 31, 36], [72, 88, 40], [28, 88, 42], [8, 42, 38],
+];
+const BADGE_CLOUD = "#F8F3FF";
+
+/* The three chains along the bottom stand on the bank, so their labels land on
+   white and have to be inked in violet — the white-on-purple treatment the
+   others use disappears there. Indices into CHAINS: Sui, Monad, Polygon. */
+const LABEL_ON_CLOUD = new Set([3, 4, 5]);
+
+/* Twinkles scattered through the ring — [x%, y%, size px, delay s] */
+const TWINKLES: [number, number, number, number][] = [
+  [16, 24, 9, 0], [82, 20, 11, 1.3], [50, 8, 7, 2.2], [90, 62, 8, 0.6],
+  [10, 66, 10, 1.8], [30, 88, 7, 2.6], [70, 92, 9, 0.9], [4, 44, 7, 1.5],
+  [62, 34, 6, 2.9], [38, 58, 6, 0.4],
+];
+
 export default function ChainOrbit() {
   return (
-    <div className="relative mx-auto aspect-square w-full max-w-[268px] sm:max-w-[380px] lg:max-w-[500px]">
+    <div className="relative mx-auto aspect-square w-full max-w-[304px] sm:max-w-[400px] lg:max-w-[500px]">
       {/* the bloom the mark sits in */}
       <div
         className="halo-pulse pointer-events-none absolute left-1/2 top-1/2 -z-10 -translate-x-1/2 -translate-y-1/2"
@@ -101,18 +122,78 @@ export default function ChainOrbit() {
         }}
       />
 
-      {/* the ring the chains ride on */}
-      <svg viewBox="0 0 200 200" className="orbit-spin absolute inset-0 h-full w-full" aria-hidden focusable="false">
+      {/* the ring the chains ride on: a lit line threading every badge, with
+          a handful of sparks travelling slowly around it */}
+      <svg viewBox="0 0 200 200" className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden focusable="false">
+        <defs>
+          <filter id="orbit-glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="1.6" />
+          </filter>
+        </defs>
+        {/* the glow under the line */}
         <circle
-          cx="100"
-          cy="100"
-          r={RADIUS * 2}
-          fill="none"
-          stroke="rgba(255,255,255,0.42)"
-          strokeWidth="0.6"
-          strokeDasharray="0.5 5"
-          strokeLinecap="round"
+          cx="100" cy="100" r={RADIUS * 2}
+          fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="1.4"
+          filter="url(#orbit-glow)"
         />
+        {/* the line itself */}
+        <circle cx="100" cy="100" r={RADIUS * 2} fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="0.4" />
+        {/* sparks riding the wire, offset to sit between the badges */}
+        <g className="orbit-spin" style={{ transformBox: "view-box", transformOrigin: "100px 100px" }}>
+          {Array.from({ length: 16 }).map((_, i) => {
+            const a = (-90 + 11.25 + i * 22.5) * (Math.PI / 180);
+            const cx = 100 + RADIUS * 2 * Math.cos(a);
+            const cy = 100 + RADIUS * 2 * Math.sin(a);
+            return (
+              <g key={i}>
+                <circle cx={cx} cy={cy} r="1.4" fill="rgba(255,255,255,0.65)" filter="url(#orbit-glow)" />
+                <circle cx={cx} cy={cy} r="0.7" fill="#fff" />
+              </g>
+            );
+          })}
+        </g>
+      </svg>
+
+      {/* twinkles over the whole orbit */}
+      {TWINKLES.map(([x, y, s, d], i) => (
+        <svg
+          key={i}
+          className="spark pointer-events-none absolute"
+          style={{ left: `${x}%`, top: `${y}%`, width: s, height: s, animationDelay: `${d}s` }}
+          viewBox="0 0 24 24"
+          fill="#fff"
+          aria-hidden
+          focusable="false"
+        >
+          <path d="M12 0c0 6.6 5.4 12 12 12-6.6 0-12 5.4-12 12 0-6.6-5.4-12-12-12 6.6 0 12-5.4 12-12z" />
+        </svg>
+      ))}
+
+      {/* The bank the whole thing rests on. It sits here — behind the badges and
+          behind the mark — so it never covers them; only its top shows, and the
+          mark and the bottom three chains stand in front of it. */}
+      <svg
+        viewBox="0 0 600 200"
+        // wide enough to run under the bottom three chains and deep enough that
+        // their labels sit on it rather than straddling its edge
+        className="pointer-events-none absolute bottom-[-2%] left-1/2 w-[126%] -translate-x-1/2"
+        aria-hidden
+        focusable="false"
+      >
+        <g fill="url(#cloud-near)" filter="url(#hero-cloudy)">
+          <circle cx="300" cy="96" r="66" />
+          <circle cx="212" cy="112" r="56" />
+          <circle cx="388" cy="112" r="54" />
+          <circle cx="140" cy="130" r="46" />
+          <circle cx="460" cy="130" r="44" />
+          <circle cx="82" cy="148" r="38" />
+          <circle cx="518" cy="148" r="36" />
+          <circle cx="44" cy="160" r="28" />
+          <circle cx="556" cy="160" r="26" />
+          <circle cx="300" cy="148" r="44" />
+          <circle cx="200" cy="152" r="38" />
+          <circle cx="400" cy="152" r="38" />
+        </g>
       </svg>
 
       {/* the chains */}
@@ -128,54 +209,75 @@ export default function ChainOrbit() {
             }}
           >
             <div
-              className="chain-bob grid place-items-center rounded-full"
+              className="chain-bob relative"
               style={{
-                width: "clamp(32px, 8.2vw, 54px)",
-                height: "clamp(32px, 8.2vw, 54px)",
-                background: "linear-gradient(160deg, #FFFFFF 0%, #F4EBFF 100%)",
-                boxShadow: "0 6px 18px rgba(64,36,122,0.28), 0 1px 0 rgba(255,255,255,0.9) inset",
-                color: "var(--logo-ink)",
+                width: "clamp(36px, 9vw, 54px)",
+                height: "clamp(36px, 9vw, 54px)",
                 animationDelay: `${i * 0.45}s`,
               }}
               title={chain.name}
             >
-              <span className="block h-[58%] w-[58%]">{chain.icon}</span>
+              {/* a little cloud rather than a disc: the badge is square, so a
+                  percentage width and height give perfectly round lobes */}
+              <span
+                aria-hidden
+                className="absolute inset-0"
+                style={{ filter: "drop-shadow(0 6px 14px rgba(64,36,122,0.34))" }}
+              >
+                {BADGE_LOBES.map(([left, top, size], j) => (
+                  <span
+                    key={j}
+                    className="absolute rounded-full"
+                    style={{
+                      left: `${left}%`,
+                      top: `${top}%`,
+                      width: `${size}%`,
+                      height: `${size}%`,
+                      background: BADGE_CLOUD,
+                      transform: "translate(-50%, -50%)",
+                    }}
+                  />
+                ))}
+                <span className="absolute inset-0 rounded-full" style={{ background: BADGE_CLOUD }} />
+              </span>
+              <span className="relative grid h-full w-full place-items-center" style={{ color: "var(--logo-ink)" }}>
+                <span className="block h-[52%] w-[52%]">{chain.icon}</span>
+              </span>
             </div>
-            <span className="mt-1.5 hidden text-[10px] font-medium tracking-wide text-white/75 sm:block">
+            <span
+              className="font-round mt-1.5 hidden text-[11px] font-medium tracking-wide sm:block"
+              style={
+                LABEL_ON_CLOUD.has(i)
+                  ? { color: "var(--violet-deep)", textShadow: "0 1px 6px rgba(255,255,255,0.8)" }
+                  : { color: "rgba(255,255,255,0.9)", textShadow: "0 2px 8px rgba(64,36,122,0.5)" }
+              }
+            >
               {chain.name}
             </span>
           </div>
         );
       })}
 
-      {/* the mark, on its cloud */}
-      <div className="absolute left-1/2 top-1/2 flex w-[46%] -translate-x-1/2 -translate-y-1/2 flex-col items-center">
+      {/* The mark. This box is exactly the mark's box, so centring it centres the
+          *mark* in the ring — centring the mark and its cloud together instead
+          pushes the mark above the middle and reads as hung too high. The cloud
+          it stands on is drawn earlier, behind everything. */}
+      <div className="absolute left-1/2 top-1/2 w-[48%] -translate-x-1/2 -translate-y-1/2 lg:w-[42%]">
+        {/* the shine it gives off */}
+        <div
+          className="halo-pulse pointer-events-none absolute left-1/2 top-1/2 -z-10 -translate-x-1/2 -translate-y-1/2"
+          style={{
+            width: "190%",
+            height: "190%",
+            background: "radial-gradient(circle, rgba(255,252,255,0.5) 0%, rgba(240,222,255,0.22) 40%, rgba(240,222,255,0) 70%)",
+          }}
+        />
         {/* the shadow sits on the floating element, not on the image inside it:
             a filter under an animating transform has to be re-rastered every
             frame, and the layer can end up not painting at all */}
-        <div
-          className="logo-float relative w-full"
-          style={{ filter: "drop-shadow(0 22px 30px rgba(72,42,132,0.45))" }}
-        >
+        <div className="logo-float relative" style={{ filter: "drop-shadow(0 22px 30px rgba(72,42,132,0.45))" }}>
           <Image src="/menoid-logo.png" alt="Menoid" width={768} height={768} priority className="h-auto w-full" />
         </div>
-        {/* the cloud it rests on — one puff, same paint as the sky's clouds */}
-        <svg
-          viewBox="0 0 400 150"
-          className="pointer-events-none -mt-[14%] w-[128%]"
-          aria-hidden
-          focusable="false"
-        >
-          <g fill="url(#cloud-near)" filter="url(#hero-cloudy)">
-            <circle cx="96" cy="86" r="42" />
-            <circle cx="170" cy="62" r="54" />
-            <circle cx="248" cy="70" r="46" />
-            <circle cx="310" cy="92" r="36" />
-            <circle cx="150" cy="108" r="40" />
-            <circle cx="240" cy="110" r="38" />
-            <rect x="90" y="86" width="228" height="60" />
-          </g>
-        </svg>
       </div>
     </div>
   );

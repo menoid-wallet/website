@@ -136,8 +136,9 @@ export default function Hero() {
     <section
       id="top"
       // the bottom padding is the cloud zone: the banks live there, so the copy
-      // never lands on top of a cloud
-      className="bg-menoid relative isolate flex min-h-dvh flex-col overflow-hidden pt-24 pb-[130px] sm:pb-[170px] lg:pb-[210px]"
+      // never lands on top of a cloud. It is tighter on a phone, where the
+      // strip — and so the bank — is proportionally shorter.
+      className="bg-menoid relative isolate flex min-h-dvh flex-col overflow-hidden pt-20 pb-[104px] sm:pt-24 sm:pb-[170px] lg:pb-[210px]"
     >
       {/* ── printed grid ── */}
       <div className="menoid-grid absolute inset-0 z-0" />
@@ -200,7 +201,9 @@ export default function Hero() {
         <div className="flex w-full flex-col items-center text-center lg:w-[48%] lg:items-start lg:text-left">
           <h1
             className="font-round mb-4 font-semibold leading-[1.08] text-white"
-            style={{ fontSize: "clamp(34px, 4.6vw, 60px)", ...rise(180) }}
+            // the floor is what a phone gets: at 375px the vw term is tiny, so
+            // without it the headline would sit at its minimum and read small
+            style={{ fontSize: "clamp(40px, 4.6vw, 60px)", ...rise(180) }}
           >
             <span style={{ textShadow: "0 14px 30px rgba(64,36,122,0.38)" }}>Your Crypto.</span>
             <br />
@@ -220,17 +223,17 @@ export default function Hero() {
             </span>
           </h1>
 
-          <p className="mb-5 max-w-md text-[16px] leading-relaxed text-white/85 sm:text-[17px]" style={rise(280)}>
+          <p className="mb-5 max-w-md text-[17px] leading-relaxed text-white/85" style={rise(280)}>
             A wallet that keeps your on-chain activity private.
           </p>
 
           {/* the multichain line */}
-          <div className="mb-7 flex items-center gap-3" style={rise(360)}>
+          <div className="mb-6 flex items-center gap-3 sm:mb-7" style={rise(360)}>
             <span className="h-px w-8 bg-white/30 sm:w-12 lg:hidden" />
             <svg className="h-2.5 w-2.5 shrink-0 fill-white/70" viewBox="0 0 24 24" aria-hidden focusable="false">
               <path d="M12 0c0 6.6 5.4 12 12 12-6.6 0-12 5.4-12 12 0-6.6-5.4-12-12-12 6.6 0 12-5.4 12-12z" />
             </svg>
-            <span className="font-round text-[13px] tracking-[0.02em] text-white/75 sm:text-[15px]">
+            <span className="font-round text-[14px] tracking-[0.02em] text-white/75 sm:text-[15px]">
               built for the multichain world
             </span>
             <svg className="h-2.5 w-2.5 shrink-0 fill-white/70" viewBox="0 0 24 24" aria-hidden focusable="false">

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist_Mono, Bricolage_Grotesque, Fraunces, Plus_Jakarta_Sans } from "next/font/google";
+import { Geist_Mono, Bricolage_Grotesque, Fraunces, Plus_Jakarta_Sans, Fredoka } from "next/font/google";
 import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
 
@@ -18,6 +18,13 @@ const geistMono = Geist_Mono({
 const display = Bricolage_Grotesque({
   variable: "--font-display",
   subsets: ["latin"],
+});
+
+// Rounded display — the soft, bubbly voice of the logo and wordmark
+const round = Fredoka({
+  variable: "--font-round",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 // Serif — used for the elegant italic accent words
@@ -42,7 +49,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${display.variable} ${serif.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${display.variable} ${serif.variable} ${round.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         {/* Background layer placed at -z-50 so it sits behind the negative z-index particles */}

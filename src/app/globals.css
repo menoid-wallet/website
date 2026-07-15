@@ -36,6 +36,31 @@
   /* ── Ember ── */
   --ember: #c0381a;
 
+  /* ── Menoid purple — the new brand palette.
+       Surfaces are sampled from the backdrop artwork, the mark colours
+       from the logo itself. Loader, hero and nav all draw from here. ── */
+  --violet-deep:  #4E2F8E;
+  --violet-dark:  #7F63C7;
+  --violet:       #8D6DCC;
+  --violet-mid:   #AE8FE2;
+  --violet-soft:  #C3B1F1;
+  --lilac:        #D9BEF4;
+  --lilac-pale:   #EDC8FD;
+  --cream:        #F0E9FE;
+
+  /* mark colours */
+  --logo-face:    #DFCBFF;
+  --logo-mid:     #CDB3FF;
+  --logo-line:    #9F7DF9;
+  --logo-ink:     #835FE6;
+
+  /* text on purple */
+  --on-violet:        #FFFFFF;
+  --on-violet-soft:   rgba(255,255,255,0.82);
+  --on-violet-muted:  rgba(255,255,255,0.62);
+  --violet-glass:     rgba(90, 62, 160, 0.42);
+  --violet-glass-line: rgba(255,255,255,0.22);
+
   /* ── Easing ── */
   --ease-out-quart: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-spring:    cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -78,10 +103,18 @@
   --color-gold-soft:  var(--gold-soft);
   --color-gold-pale:  var(--gold-pale);
   --color-ember:      var(--ember);
+  --color-violet:      var(--violet);
+  --color-violet-deep: var(--violet-deep);
+  --color-violet-mid:  var(--violet-mid);
+  --color-violet-soft: var(--violet-soft);
+  --color-lilac:       var(--lilac);
+  --color-lilac-pale:  var(--lilac-pale);
+  --color-cream:       var(--cream);
   --font-sans:        var(--font-geist-sans);
   --font-mono:        var(--font-geist-mono);
   --font-display:     var(--font-display);
   --font-serif:       var(--font-fraunces);
+  --font-round:       var(--font-round);
 }
 
 /* ── Base ── */
@@ -455,12 +488,122 @@ em.font-display,
   transition: all 300ms var(--ease-out-quart);
 }
 .nav-link-hero-hover:hover {
-  background: rgba(255, 255, 255, 0.96) !important;
-  border-color: rgba(163, 110, 20, 0.22) !important;
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset, var(--shadow-xs) !important;
+  background: rgba(255, 255, 255, 0.18) !important;
+  border-color: rgba(255, 255, 255, 0.28) !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25) inset !important;
   backdrop-filter: blur(12px) !important;
-  color: var(--ink) !important;
+  color: #fff !important;
 }
+
+/* ════════════════════════════════════════════
+   MENOID PURPLE — surfaces, clouds, mark
+   Shared by the loader, the hero and the nav.
+   ════════════════════════════════════════════ */
+
+/* Rounded display face — pairs with the bubbly wordmark */
+.font-round {
+  font-family: var(--font-round), var(--font-display), ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
+  letter-spacing: -0.005em;
+}
+
+/* The backdrop artwork, rebuilt in CSS: a lilac→violet diagonal with a
+   bright bloom in the top-right and a deep pool in the bottom-left. */
+.bg-menoid {
+  background:
+    radial-gradient(135% 115% at 100% 0%, rgba(246, 229, 253, 0.92) 0%, rgba(246, 229, 253, 0) 52%),
+    radial-gradient(110% 85% at 0% 100%, rgba(78, 47, 142, 0.30) 0%, rgba(78, 47, 142, 0) 55%),
+    linear-gradient(225deg, #d9bef4 0%, #b197e9 48%, #9a7fdd 100%);
+}
+
+/* The fine square grid printed over the backdrop */
+.menoid-grid {
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.13) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.13) 1px, transparent 1px);
+  background-size: 58px 58px;
+}
+
+/* ── Cloud bands ──
+   Each band holds two identical strips side by side and slides one full
+   strip width, so the drift loops with no visible seam. Each strip is
+   exactly as wide as the section and takes its height from the viewBox
+   aspect, so nothing is ever scaled or cropped. */
+.cloud-band {
+  position: absolute;
+  display: flex;
+  align-items: flex-end;
+  /* Narrow screens get strips two viewports wide, otherwise a strip would be
+     375px across, the clouds would shrink to a ripple and the whole bank
+     would collapse to ~90px. The drift is a percentage, so it still loops. */
+  width: 400%;
+  pointer-events: none;
+  will-change: transform;
+}
+@media (min-width: 768px) {
+  .cloud-band { width: 200%; }
+}
+.cloud-band > svg {
+  display: block;
+  width: 50%;
+  height: auto;
+  flex: none;
+}
+.cloud-drift { animation: cloud-drift 90s linear infinite; }
+.cloud-drift-slow { animation: cloud-drift 150s linear infinite; }
+.cloud-drift-rev { animation: cloud-drift-rev 120s linear infinite; }
+
+@keyframes cloud-drift {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@keyframes cloud-drift-rev {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0); }
+}
+
+/* ── The mark: floats, with a shadow that breathes against it ── */
+@keyframes logo-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-16px); }
+}
+.logo-float { animation: logo-float 6.5s ease-in-out infinite; }
+
+@keyframes logo-shadow {
+  0%, 100% { transform: scaleX(1);    opacity: 0.5; }
+  50%      { transform: scaleX(0.86); opacity: 0.32; }
+}
+.logo-shadow { animation: logo-shadow 6.5s ease-in-out infinite; }
+
+/* Halo bloom behind the mark */
+@keyframes halo-pulse {
+  0%, 100% { transform: scale(1);    opacity: 0.85; }
+  50%      { transform: scale(1.09); opacity: 1; }
+}
+.halo-pulse { animation: halo-pulse 7s ease-in-out infinite; }
+
+/* ── Sparkles ── */
+@keyframes spark {
+  0%, 100% { opacity: 0.1; transform: scale(0.5); }
+  50%      { opacity: 1;   transform: scale(1); }
+}
+.spark { animation: spark 3.2s ease-in-out infinite; }
+
+/* ── The chain ring around the mark ── */
+@keyframes orbit-spin {
+  to { transform: rotate(360deg); }
+}
+.orbit-spin { animation: orbit-spin 80s linear infinite; }
+
+/* Each chain badge breathes on its own offset (staggered by index) */
+@keyframes chain-bob {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50%      { transform: translateY(-7px) scale(1.07); }
+}
+.chain-bob { animation: chain-bob 5.5s ease-in-out infinite; }
+
+/* ── Purple-theme selection ── */
+.bg-menoid ::selection { background: rgba(255, 255, 255, 0.35); color: #fff; }
 
 
 

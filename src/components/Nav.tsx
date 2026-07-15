@@ -1,42 +1,37 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import MenoidWordmark from "./MenoidWordmark";
+
+/* The nav rides on the purple sky: bare over the hero, then it condenses
+   into a cloud once you scroll. One identity the whole way down — the
+   cloud reads cleanly over both the light and dark sections below. */
+
+/* The lobes that turn the bar into a cloud: [left%, width%, height px, edge].
+   Width is a percentage so they keep their proportions at any nav width —
+   round lobes on a bar this wide read as a cog, wide overlapping ones read
+   as cloud. They are opaque and share the body's colour, so they merge into
+   one silhouette with no seams; the drop-shadow on the wrapper then traces
+   the union rather than any single piece. Sizes are deliberately uneven. */
+const LOBES: [number, number, number, "top" | "bottom"][] = [
+  [7, 15, 52, "top"], [21, 18, 64, "top"], [36, 14, 48, "top"], [50, 17, 60, "top"],
+  [64, 14, 50, "top"], [78, 18, 62, "top"], [92, 14, 46, "top"],
+  [10, 16, 50, "bottom"], [25, 14, 44, "bottom"], [40, 17, 56, "bottom"],
+  [55, 14, 46, "bottom"], [69, 17, 54, "bottom"], [84, 15, 48, "bottom"], [95, 12, 40, "bottom"],
+];
+
+const CLOUD = "#F4ECFF";
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
-  const [theme, setTheme] = useState<"light" | "dark">("dark");
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 32);
-
-      const walletModes = document.getElementById("wallet-modes");
-      const chains = document.getElementById("chains");
-      const roadmap = document.getElementById("roadmap");
-      const navY = 40;
-
-      const isOver = (el: HTMLElement | null) => {
-        if (!el) return false;
-        const rect = el.getBoundingClientRect();
-        return rect.top <= navY && rect.bottom >= navY;
-      };
-
-      if (isOver(walletModes) || isOver(chains) || isOver(roadmap)) {
-        setTheme("light");
-      } else {
-        setTheme("dark");
-      }
-    };
-
+    const handleScroll = () => setScrolled(window.scrollY > 32);
     handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("resize", handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", handleScroll);
-    };
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const links = [
@@ -46,86 +41,59 @@ export default function Nav() {
     { href: "#roadmap", label: "Roadmap" },
   ];
 
-  // Colors based on theme & scroll
-  const isLight = theme === "light";
-  
-  const navBg = isLight
-    ? (scrolled ? "#FBEECB" : "transparent")
-    : (scrolled ? "#171311" : "transparent");
-    
-  const navBorder = isLight
-    ? (scrolled ? "1px solid rgba(163,110,20,0.18)" : "1px solid transparent")
-    : (scrolled ? "1px solid rgba(255,255,255,0.12)" : "1px solid transparent");
-    
-  const navShadow = isLight
-    ? (scrolled ? "0 2px 20px rgba(163,110,20,0.10), 0 1px 0 rgba(255,255,255,0.6) inset" : "none")
-    : (scrolled ? "0 2px 20px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.05) inset" : "none");
-
-  const brandText = (isLight || !scrolled) ? "text-[var(--ink)]" : "text-[#FBF1D9]";
-  // Mobile menu link colour must follow the menu background (which is theme-based),
-  // not the scroll state — otherwise dark text lands on the dark top-of-page menu.
-  const linkText = isLight
-    ? "text-[var(--ink-soft)] hover:text-[var(--ink)] hover:bg-[rgba(163,110,20,0.08)]"
-    : "text-[rgba(251,241,217,0.75)] hover:text-[#FBF1D9] hover:bg-[rgba(255,255,255,0.08)]";
-
-  const btnBg = (isLight || !scrolled) ? "var(--ink)" : "var(--bg)";
-  const btnColor = (isLight || !scrolled) ? "var(--bg)" : "var(--ink)";
-  const btnShadow = isLight
-    ? "0 0 0 1px rgba(23,19,17,0.15), 0 4px 14px rgba(23,19,17,0.2), 0 1px 0 rgba(255,255,255,0.15) inset"
-    : (scrolled 
-        ? "0 0 0 1px rgba(255,255,255,0.2), 0 4px 14px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.3) inset"
-        : "0 0 0 1px rgba(23,19,17,0.15), 0 4px 14px rgba(23,19,17,0.2), 0 1px 0 rgba(255,255,255,0.15) inset"
-      );
-
-  const menuToggleBg = (isLight || !scrolled) ? "rgba(251,241,217,0.6)" : "rgba(23,19,17,0.6)";
-  const menuToggleBorder = (isLight || !scrolled) ? "1px solid var(--line-md)" : "1px solid rgba(255,255,255,0.15)";
-  const menuToggleBarBg = (isLight || !scrolled) ? "bg-[var(--ink)]" : "bg-[#FBF1D9]";
-
-  const mobileMenuBg = isLight ? "rgba(251,241,217,0.95)" : "rgba(23,19,17,0.95)";
-  const mobileMenuBorder = isLight ? "1px solid rgba(163,110,20,0.18)" : "1px solid rgba(255,255,255,0.15)";
-  const mobileBtnBg = isLight ? "var(--ink)" : "var(--bg)";
-  const mobileBtnColor = isLight ? "var(--bg)" : "var(--ink)";
-
   return (
     <header className="fixed inset-x-0 top-0 z-50">
-      <div className="mx-auto max-w-6xl px-4 py-3">
-        <div
-          className="relative flex items-center justify-between rounded-2xl px-4 py-2.5 transition-all duration-300 overflow-hidden"
-          style={{
-            background: navBg,
-            backdropFilter: scrolled ? "blur(20px) saturate(1.4)" : "none",
-            border: navBorder,
-            boxShadow: navShadow,
-          }}
-        >
-          {/* Capsule Grid Blueprint */}
-          {scrolled && (
-            <div 
-              className="absolute inset-0 pointer-events-none z-0"
-              style={{
-                opacity: isLight ? 0.35 : 0.04,
-                backgroundImage: isLight
-                  ? "linear-gradient(to right, rgba(163,110,20,0.15) 1px, transparent 1px), linear-gradient(to bottom, rgba(163,110,20,0.15) 1px, transparent 1px)"
-                  : "linear-gradient(to right, #FBF1D9 1px, transparent 1px), linear-gradient(to bottom, #FBF1D9 1px, transparent 1px)",
-                backgroundSize: "28px 28px",
-              }}
-            />
-          )}
+      {/* the top padding has to clear the cloud's tallest lobe, or it gets
+          sheared off against the top of the viewport */}
+      <div className="mx-auto max-w-6xl px-4 pb-4 pt-8">
+        <div className="relative flex items-center justify-between px-4 py-2.5 sm:px-6">
+          {/* ── the cloud the bar sits in ── */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 transition-opacity duration-500"
+            style={{
+              opacity: scrolled ? 1 : 0,
+              filter: "drop-shadow(0 10px 22px rgba(64,36,122,0.30))",
+            }}
+          >
+            {LOBES.map(([left, width, height, edge], i) => (
+              <span
+                key={i}
+                className="absolute rounded-[50%]"
+                style={{
+                  left: `${left}%`,
+                  width: `${width}%`,
+                  height,
+                  background: CLOUD,
+                  [edge]: -height * 0.4,
+                  transform: "translateX(-50%)",
+                }}
+              />
+            ))}
+            {/* the body goes last so it covers where the lobes meet it */}
+            <div className="absolute inset-0 rounded-full" style={{ background: CLOUD }} />
+          </div>
 
           {/* Logo */}
           <a href="#top" className="relative z-10 flex items-center gap-2.5">
-            <div
-              className="relative h-8 w-8 overflow-hidden rounded-full"
+            <Image
+              src="/menoid-logo.png"
+              alt=""
+              width={64}
+              height={64}
+              className="h-8 w-8"
+              style={{ filter: "drop-shadow(0 3px 6px rgba(64,36,122,0.35))" }}
+            />
+            {/* over the hero the wordmark is pale ink on a pale corner of the
+                sky, so it needs a shadow to hold its edge; on the cloud it
+                doesn't */}
+            <MenoidWordmark
+              tone={scrolled ? "violet" : "light"}
+              className="h-[19px] w-auto"
               style={{
-                background: "#171311",
-                boxShadow: "0 0 0 1px rgba(163,110,20,0.25), var(--shadow-xs)",
+                filter: scrolled ? "none" : "drop-shadow(0 2px 8px rgba(64,36,122,0.45))",
               }}
-            >
-              <Image src="/anchor.png" alt="" fill sizes="32px" className="object-cover" />
-            </div>
-            <span className={`font-display text-xl font-bold tracking-tight transition-colors duration-300 ${brandText}`}>
-              Menoid
-            </span>
+            />
           </a>
 
           {/* Desktop nav */}
@@ -134,13 +102,10 @@ export default function Nav() {
               <a
                 key={l.href}
                 href={l.href}
-                className={`px-3.5 py-1.5 text-sm font-medium transition-all duration-300 ${
+                className={`rounded-full px-3.5 py-1.5 text-sm font-semibold transition-all duration-300 ${
                   scrolled
-                    ? (isLight
-                        ? "rounded-xl text-[var(--ink-soft)] hover:text-[var(--ink)] hover:bg-[rgba(163,110,20,0.08)] border border-transparent"
-                        : "rounded-xl text-[rgba(251,241,217,0.75)] hover:text-[#FBF1D9] hover:bg-[rgba(255,255,255,0.08)] border border-transparent"
-                      )
-                    : "rounded-full text-[var(--ink)] font-semibold nav-link-hero-hover"
+                    ? "text-[var(--violet-deep)] hover:bg-[rgba(94,64,168,0.10)]"
+                    : "nav-link-hero-hover text-white/80 hover:text-white"
                 }`}
               >
                 {l.label}
@@ -152,12 +117,20 @@ export default function Nav() {
           <div className="relative z-10 flex items-center gap-2">
             <a
               href="#waitlist"
-              className="btn-spring hidden items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold md:inline-flex transition-all duration-300"
-              style={{
-                background: btnBg,
-                color: btnColor,
-                boxShadow: btnShadow,
-              }}
+              className="btn-spring hidden items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-all duration-300 md:inline-flex"
+              style={
+                scrolled
+                  ? {
+                      background: "var(--violet-deep)",
+                      color: "#FFFFFF",
+                      boxShadow: "0 4px 14px rgba(64,36,122,0.32), 0 1px 0 rgba(255,255,255,0.25) inset",
+                    }
+                  : {
+                      background: "#FFFFFF",
+                      color: "var(--violet-deep)",
+                      boxShadow: "0 4px 14px rgba(64,36,122,0.28), 0 1px 0 rgba(255,255,255,0.9) inset",
+                    }
+              }
             >
               Join Waitlist
             </a>
@@ -166,17 +139,27 @@ export default function Nav() {
               onClick={() => setOpen(!open)}
               aria-label="Toggle menu"
               id="mobile-menu-btn"
-              className="grid h-9 w-9 place-items-center rounded-xl md:hidden transition-all duration-300"
-              style={{ 
-                background: menuToggleBg,
-                border: menuToggleBorder,
+              className="grid h-9 w-9 place-items-center rounded-full transition-all duration-300 md:hidden"
+              style={{
+                background: scrolled ? "rgba(94,64,168,0.12)" : "rgba(255,255,255,0.16)",
+                border: `1px solid ${scrolled ? "rgba(94,64,168,0.22)" : "rgba(255,255,255,0.28)"}`,
               }}
             >
               <span className="space-y-[5px]">
-                <span className={`block h-[1.5px] w-4 transition-all duration-300 ${menuToggleBarBg}`}
-                  style={open ? { transform: "translateY(3.25px) rotate(45deg)" } : {}} />
-                <span className={`block h-[1.5px] w-4 transition-all duration-300 ${menuToggleBarBg}`}
-                  style={open ? { transform: "translateY(-3.25px) rotate(-45deg)" } : {}} />
+                <span
+                  className="block h-[1.5px] w-4 transition-all duration-300"
+                  style={{
+                    background: scrolled ? "var(--violet-deep)" : "#fff",
+                    ...(open ? { transform: "translateY(3.25px) rotate(45deg)" } : {}),
+                  }}
+                />
+                <span
+                  className="block h-[1.5px] w-4 transition-all duration-300"
+                  style={{
+                    background: scrolled ? "var(--violet-deep)" : "#fff",
+                    ...(open ? { transform: "translateY(-3.25px) rotate(-45deg)" } : {}),
+                  }}
+                />
               </span>
             </button>
           </div>
@@ -185,27 +168,34 @@ export default function Nav() {
         {/* Mobile menu */}
         {open && (
           <div
-            className="mt-2 rounded-2xl p-3 md:hidden transition-all duration-300"
+            className="mt-3 rounded-3xl p-3 transition-all duration-300 md:hidden"
             style={{
-              background: mobileMenuBg,
+              background: "rgba(94, 64, 168, 0.92)",
               backdropFilter: "blur(24px)",
-              border: mobileMenuBorder,
-              boxShadow: "var(--shadow-md)",
+              border: "1px solid rgba(255,255,255,0.20)",
+              boxShadow: "0 18px 40px rgba(64,36,122,0.34)",
             }}
           >
             {links.map((l) => (
-              <a key={l.href} href={l.href} onClick={() => setOpen(false)}
-                className={`block rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${linkText}`}>
+              <a
+                key={l.href}
+                href={l.href}
+                onClick={() => setOpen(false)}
+                className="block rounded-xl px-4 py-2.5 text-sm font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+              >
                 {l.label}
               </a>
             ))}
-            <a href="#waitlist" onClick={() => setOpen(false)}
+            <a
+              href="#waitlist"
+              onClick={() => setOpen(false)}
               className="mt-1.5 block rounded-xl px-4 py-2.5 text-center text-sm font-semibold transition-all duration-300"
               style={{
-                background: mobileBtnBg,
-                color: mobileBtnColor,
-                boxShadow: "0 0 0 1px rgba(23,19,17,0.1), 0 1px 0 rgba(255,255,255,0.1) inset",
-              }}>
+                background: "#FFFFFF",
+                color: "var(--violet-deep)",
+                boxShadow: "0 1px 0 rgba(255,255,255,0.9) inset",
+              }}
+            >
               Join Waitlist
             </a>
           </div>

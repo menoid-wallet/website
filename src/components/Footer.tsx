@@ -1,13 +1,16 @@
 "use client";
 
-import Image from "next/image";
 import Reveal from "./Reveal";
+import AnimatedLogo from "./AnimatedLogo";
+import { ROADMAP_SEAM } from "./seams";
 import { useRef, useState } from "react";
 
 const PRODUCT_LINKS = [
   { label: "Wallet", href: "#top" },
-  { label: "Open Mode", href: "#wallet-modes" },
-  { label: "Noid Mode", href: "#wallet-modes" },
+  // both of these used to point at #wallet-modes, which is the section wrapper
+  // — so "Noid Mode" scrolled you to the Open Mode intro
+  { label: "Open Mode", href: "#open-mode" },
+  { label: "Noid Mode", href: "#noid-mode" },
   { label: "Roadmap", href: "#roadmap" },
 ];
 
@@ -49,40 +52,30 @@ export default function Footer() {
   };
 
   const socialClass =
-    "grid h-9 w-9 place-items-center rounded-xl border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.05)] font-mono text-[10px] font-bold text-[rgba(251,241,217,0.7)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--gold)] hover:text-[var(--gold-bright)] hover:bg-[rgba(255,255,255,0.08)]";
+    "grid h-9 w-9 place-items-center rounded-xl border border-[rgba(255,255,255,0.16)] bg-[rgba(255,255,255,0.07)] font-mono text-[10px] font-bold text-white/70 transition-all duration-300 hover:-translate-y-0.5 hover:border-[rgba(255,255,255,0.5)] hover:bg-[rgba(255,255,255,0.14)] hover:text-white";
 
   return (
     <footer
       id="learn"
-      className="relative mt-0 border-t border-[rgba(255,255,255,0.08)] py-16 overflow-hidden"
-      style={{ background: "#171311" }}
+      // opens on the violet the roadmap bottoms out on, then sinks from there
+      className="relative mt-0 overflow-hidden py-16"
+      style={{ background: `linear-gradient(180deg, ${ROADMAP_SEAM} 0%, #34205F 100%)` }}
     >
-      {/* Subtle Grid Blueprint */}
-      <div
-        className="absolute inset-0 pointer-events-none z-0"
-        style={{
-          opacity: 0.04,
-          backgroundImage:
-            "linear-gradient(to right,#FBF1D9 1px,transparent 1px),linear-gradient(to bottom,#FBF1D9 1px,transparent 1px)",
-          backgroundSize: "28px 28px",
-        }}
-      />
+      <div className="menoid-grid pointer-events-none absolute inset-0 z-0 opacity-40" />
 
       <div className="relative z-10 mx-auto max-w-6xl px-6">
         <Reveal>
           <div className="grid grid-cols-2 gap-10 md:grid-cols-[1.8fr_1fr_1fr]">
             {/* Brand */}
             <div className="col-span-2 md:col-span-1">
-              <div className="flex items-center gap-2.5 mb-4">
-                <div
-                  className="relative h-10 w-10 overflow-hidden rounded-full ring-1 ring-[rgba(255,255,255,0.15)]"
-                  style={{ background: "#171311", boxShadow: "var(--shadow-sm)" }}
-                >
-                  <Image src="/anchor.png" alt="" fill sizes="40px" className="object-cover" />
-                </div>
-                <span className="font-display text-2xl font-bold tracking-tight text-[#FBF1D9]">Menoid</span>
+              <div className="mb-4 flex items-center gap-1.5">
+                <AnimatedLogo
+                  className="h-11 w-11 shrink-0"
+                  style={{ filter: "drop-shadow(0 3px 8px rgba(20,8,50,0.4))" }}
+                />
+                <span className="font-round text-2xl font-semibold tracking-tight text-white">Menoid</span>
               </div>
-              <p className="max-w-xs text-[14px] leading-relaxed text-[rgba(251,241,217,0.7)]">
+              <p className="max-w-xs text-[14px] leading-relaxed text-white/70">
                 The Private crypto wallet.
               </p>
 
@@ -104,11 +97,11 @@ export default function Footer() {
 
             {/* Product */}
             <div>
-              <h4 className="font-mono text-[10px] uppercase tracking-[0.32em] text-[rgba(251,241,217,0.4)] mb-4">Product</h4>
+              <h4 className="mb-4 font-mono text-[10px] uppercase tracking-[0.32em] text-white/45">Product</h4>
               <ul className="space-y-2.5">
                 {PRODUCT_LINKS.map((l) => (
                   <li key={l.label}>
-                    <a href={l.href} className="text-[14px] text-[rgba(251,241,217,0.7)] transition-colors duration-200 hover:text-[#FBF1D9] link-underline">
+                    <a href={l.href} className="link-underline text-[14px] text-white/70 transition-colors duration-200 hover:text-white">
                       {l.label}
                     </a>
                   </li>
@@ -118,11 +111,11 @@ export default function Footer() {
 
             {/* Developers */}
             <div>
-              <h4 className="font-mono text-[10px] uppercase tracking-[0.32em] text-[rgba(251,241,217,0.4)] mb-4">Developers</h4>
+              <h4 className="mb-4 font-mono text-[10px] uppercase tracking-[0.32em] text-white/45">Developers</h4>
               <ul className="space-y-2.5">
                 {DEV_LINKS.map((label) => (
                   <li key={label}>
-                    <a href="#" onClick={soon} className="text-[14px] text-[rgba(251,241,217,0.7)] transition-colors duration-200 hover:text-[#FBF1D9] link-underline">
+                    <a href="#" onClick={soon} className="link-underline text-[14px] text-white/70 transition-colors duration-200 hover:text-white">
                       {label}
                     </a>
                   </li>
@@ -132,14 +125,14 @@ export default function Footer() {
           </div>
         </Reveal>
 
-        <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-[rgba(255,255,255,0.08)] pt-8 md:flex-row">
-          <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-[rgba(251,241,217,0.4)]">
+        <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-[rgba(255,255,255,0.14)] pt-8 md:flex-row">
+          <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-white/45">
             © {new Date().getFullYear()} Menoid · Private crypto wallet
           </p>
-          <div className="flex gap-6 text-[12px] text-[rgba(251,241,217,0.7)]">
-            <a href="#" onClick={soon} className="hover:text-[#FBF1D9] transition-colors">Privacy</a>
-            <a href="#" onClick={soon} className="hover:text-[#FBF1D9] transition-colors">Terms</a>
-            <a href="#" onClick={soon} className="hover:text-[#FBF1D9] transition-colors">Disclosures</a>
+          <div className="flex gap-6 text-[12px] text-white/70">
+            <a href="#" onClick={soon} className="transition-colors hover:text-white">Privacy</a>
+            <a href="#" onClick={soon} className="transition-colors hover:text-white">Terms</a>
+            <a href="#" onClick={soon} className="transition-colors hover:text-white">Disclosures</a>
           </div>
         </div>
       </div>
@@ -154,14 +147,14 @@ export default function Footer() {
           style={{
             opacity: toast ? 1 : 0,
             transform: toast ? "translateY(0)" : "translateY(12px)",
-            background: "rgba(251,241,217,0.97)",
-            border: "1px solid rgba(163,110,20,0.3)",
-            boxShadow: "0 10px 30px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.8) inset",
-            color: "var(--ink)",
+            background: "rgba(255,255,255,0.96)",
+            border: "1px solid rgba(141,109,204,0.3)",
+            boxShadow: "0 10px 30px rgba(38,18,80,0.35), 0 1px 0 rgba(255,255,255,0.8) inset",
+            color: "var(--violet-deep)",
             backdropFilter: "blur(8px)",
           }}
         >
-          <span className="text-[var(--gold-deep)]">⚓</span> Coming soon
+          <span className="text-[var(--violet)]">✦</span> Coming soon
         </div>
       </div>
     </footer>

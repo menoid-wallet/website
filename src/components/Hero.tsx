@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import ChainOrbit from "./ChainOrbit";
+import { HERO_SEAM } from "./seams";
 
 /* ────────────────────────────────────────────────────────────
    MENOID — hero.
@@ -153,15 +154,21 @@ export default function Hero() {
             <feColorMatrix in="b" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -8" result="goo" />
             <feGaussianBlur in="goo" stdDeviation="1.6" />
           </filter>
-          <linearGradient id="cloud-near" x1="0" y1="0" x2="0" y2="1">
+          {/* userSpaceOnUse, not the default bounding box: the deck runs far
+              below the viewBox, so a bbox gradient would only reach ~45% of the
+              way through its stops by the time it hits the bottom edge — and
+              where the ramp lands would shift with every cloud we add. Pinned to
+              the viewBox instead, the last stop *is* the colour of the section's
+              bottom row, which is what the next section starts on. */}
+          <linearGradient id="cloud-near" gradientUnits="userSpaceOnUse" x1="0" y1="30" x2="0" y2="220">
             <stop offset="0" stopColor="#FFFFFF" />
-            <stop offset="0.45" stopColor="#F2E7FF" />
-            <stop offset="1" stopColor="#C9ABF0" />
+            <stop offset="0.5" stopColor="#F4EAFF" />
+            <stop offset="1" stopColor={HERO_SEAM} />
           </linearGradient>
-          <linearGradient id="cloud-mid" x1="0" y1="0" x2="0" y2="1">
+          <linearGradient id="cloud-mid" gradientUnits="userSpaceOnUse" x1="0" y1="30" x2="0" y2="220">
             <stop offset="0" stopColor="#FFFFFF" stopOpacity="0.85" />
             <stop offset="0.5" stopColor="#E7D8FB" stopOpacity="0.7" />
-            <stop offset="1" stopColor="#B99BE6" stopOpacity="0.55" />
+            <stop offset="1" stopColor="#CDB4F2" stopOpacity="0.55" />
           </linearGradient>
           <linearGradient id="cloud-far" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0" stopColor="#FFFFFF" stopOpacity="0.5" />

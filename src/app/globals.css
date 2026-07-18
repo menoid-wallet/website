@@ -117,11 +117,20 @@
   --font-round:       var(--font-round);
 }
 
-/* ── Base ── */
-html, body {
-  background: var(--bg);
+/* ── Base ──
+   Every section paints its own opaque background, so this only ever shows on
+   an overscroll bounce. The gradient is pinned to the viewport and runs
+   light-at-top to deep-at-bottom to match the sky at either end — but the
+   rubber band itself is painted with the root's background *colour*, not its
+   image, so that has to be set separately or the bounce flashes the default
+   canvas. One colour has to serve both ends, hence a mid violet. */
+html {
+  background-color: #5A3BA3;
+  background-image: linear-gradient(180deg, #A98CE6 0%, #34205F 100%);
+  background-attachment: fixed;
   color: var(--ink);
 }
+body { background: transparent; }
 body {
   font-family: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -368,13 +377,13 @@ em.font-display,
 .btn-spring:active { transform: scale(0.95); }
 .btn-spring:hover  { transform: translateY(-2px); }
 
-/* ── Glow underline link ── */
+/* ── Glow underline link (footer sits on violet, so this draws in light) ── */
 .link-underline { position: relative; }
 .link-underline::after {
   content: ""; position: absolute;
   left: 0; right: 0; bottom: -4px;
   height: 1.5px;
-  background: linear-gradient(90deg, var(--gold-deep), var(--gold-bright), var(--gold-soft));
+  background: linear-gradient(90deg, rgba(255,255,255,0.35), #FFFFFF, var(--lilac-pale));
   transform: scaleX(0); transform-origin: left;
   transition: transform 360ms var(--ease-out-quart);
 }
@@ -463,12 +472,13 @@ em.font-display,
   filter: drop-shadow(0 20px 40px rgba(163,110,20,0.15));
 }
 
-/* Selection */
-::selection { background: var(--gold-soft); color: var(--ink); }
+/* Selection — a light lilac wash reads on the pale sections and the deep
+   violet ones alike, which one tuned for either end would not */
+::selection { background: #D9BEF4; color: #2E1A5C; }
 
 /* Focus */
 :focus-visible {
-  outline: 2px solid var(--gold);
+  outline: 2px solid var(--logo-line);
   outline-offset: 3px;
   border-radius: 4px;
 }
@@ -605,7 +615,24 @@ em.font-display,
 /* ── Purple-theme selection ── */
 .bg-menoid ::selection { background: rgba(255, 255, 255, 0.35); color: #fff; }
 
+/* ── Animated Logo Blinking ── */
+@keyframes logo-blink {
+  0%, 2%, 6%, 10%, 100% {
+    transform: scaleY(1);
+  }
+  4%, 8% {
+    transform: scaleY(0.12);
+  }
+}
 
+.logo-eye-left {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: logo-blink 3s infinite;
+}
 
-
-
+.logo-eye-right {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: logo-blink 3s infinite;
+}

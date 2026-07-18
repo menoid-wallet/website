@@ -52,8 +52,6 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${display.variable} ${serif.variable} ${round.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        {/* Background layer placed at -z-50 so it sits behind the negative z-index particles */}
-        <div className="fixed inset-0 -z-50 bg-parchment pointer-events-none" />
         <SmoothScroll />
         {children}
       </body>

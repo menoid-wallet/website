@@ -11,8 +11,18 @@ import { useEffect, useRef, useState } from "react";
    ──────────────────────────────────────────────────────────── */
 
 const T0 = 650; // background alone before anything happens
-const PRE = 330; // first bubbles lead the drawing
+const PRE = 330; // lead-in before the first stroke draws
 const STAG = 135; // per-letter stagger
+
+/* Nothing may be on screen before this.
+
+   The bubbles used to lead the drawing by PRE, on the theory that liquid
+   gathers before the word forms. On an empty background it does not read that
+   way at all: you get a scatter of dots that appear, flash and vanish, and
+   only then does the word start — which looks like a rendering bug, because
+   nothing connects the two. Every droplet and bubble is now floored here, so
+   the first thing painted is the first stroke and the liquid arrives with it. */
+const FIRST_DRAW = T0 + PRE;
 
 const TOTAL_MS = 3650; // pour + crossfade + jelly settle, then leave
 const REDUCED_MS = 700;
@@ -80,7 +90,7 @@ export default function Loader() {
       const sx = tx + rand(-150, 150);
       const sy = rand(330, 470);
       let start = arriveAt - rand(520, 900);
-      if (start < T0 + 30) start = T0 + 30;
+      if (start < FIRST_DRAW) start = FIRST_DRAW;
       const dur = Math.max(240, arriveAt - start);
       const mx = (sx + tx) / 2 + rand(-45, 45);
       const my = sy * 0.45 + ty * 0.55;
@@ -196,7 +206,7 @@ export default function Loader() {
         tEnd = Math.max(tEnd, start + dur);
       });
 
-      for (let k = 0; k < 16; k++) bubble(rand(T0, T0 + 1500));
+      for (let k = 0; k < 16; k++) bubble(rand(FIRST_DRAW, FIRST_DRAW + 1200));
 
       // swap the gooey word for the crisp copy once the pour is done
       track(solidG.animate([{ opacity: 0 }, { opacity: 1 }], { delay: tEnd, duration: 300, easing: "linear", fill: "both" }));

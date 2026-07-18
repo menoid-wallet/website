@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 import MenoidWordmark from "./MenoidWordmark";
 import CloudChip from "./CloudChip";
+import AnimatedLogo from "./AnimatedLogo";
 
 /* No bar — the nav is a row of little clouds floating in the hero's sky:
    one for the mark, one per link, one for the call to action. On a phone
@@ -29,12 +29,8 @@ export default function Nav() {
         {/* the mark */}
         <a href="#top" className="shrink-0">
           <CloudChip className="gap-2 px-3.5 py-1.5 transition-transform duration-300 hover:-translate-y-0.5">
-            <Image
-              src="/menoid-logo.png"
-              alt=""
-              width={64}
-              height={64}
-              className="h-6 w-6 sm:h-7 sm:w-7"
+            <AnimatedLogo
+              className="h-10 w-10 sm:h-10 sm:w-10"
               style={{ filter: "drop-shadow(0 2px 4px rgba(64,36,122,0.28))" }}
             />
             <MenoidWordmark tone="violet" className="h-[15px] w-auto sm:h-[17px]" />

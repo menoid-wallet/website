@@ -1,6 +1,7 @@
 "use client";
 
-import Image from "next/image";
+import AnimatedLogo from "./AnimatedLogo";
+import { q } from "./quantise";
 
 /* ────────────────────────────────────────────────────────────
    The mark, resting on a cloud, ringed by the chains it covers.
@@ -87,13 +88,6 @@ const CHAINS: Chain[] = [
 
 const RADIUS = 41; // % of the box, centre to badge
 
-/* The puffs that make a chain badge read as a little cloud instead of a disc.
-   [left%, top%, size%] of the badge's square box — opaque and all one colour,
-   so they fuse with the body into a single silhouette. The shadow goes on their
-   wrapper, so it traces that silhouette rather than ringing each puff. */
-const BADGE_LOBES: [number, number, number][] = [
-  [61, 8, 44], [31, 10, 40], [90, 31, 36], [72, 88, 40], [28, 88, 42], [8, 42, 38],
-];
 const BADGE_CLOUD = "#F8F3FF";
 
 /* The three chains along the bottom stand on the bank, so their labels land on
@@ -124,7 +118,7 @@ export default function ChainOrbit() {
 
       {/* the ring the chains ride on: a lit line threading every badge, with
           a handful of sparks travelling slowly around it */}
-      <svg viewBox="0 0 200 200" className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden focusable="false">
+      <svg viewBox="0 0 200 200" className="pointer-events-none z-0 absolute inset-0 h-full w-full" aria-hidden focusable="false">
         <defs>
           <filter id="orbit-glow" x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur stdDeviation="1.6" />
@@ -142,8 +136,9 @@ export default function ChainOrbit() {
         <g className="orbit-spin" style={{ transformBox: "view-box", transformOrigin: "100px 100px" }}>
           {Array.from({ length: 16 }).map((_, i) => {
             const a = (-90 + 11.25 + i * 22.5) * (Math.PI / 180);
-            const cx = 100 + RADIUS * 2 * Math.cos(a);
-            const cy = 100 + RADIUS * 2 * Math.sin(a);
+            // q(): trig straight into an SSR-ed attribute — see quantise.ts
+            const cx = q(100 + RADIUS * 2 * Math.cos(a));
+            const cy = q(100 + RADIUS * 2 * Math.sin(a));
             return (
               <g key={i}>
                 <circle cx={cx} cy={cy} r="1.4" fill="rgba(255,255,255,0.65)" filter="url(#orbit-glow)" />
@@ -204,8 +199,9 @@ export default function ChainOrbit() {
             key={chain.name}
             className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center"
             style={{
-              left: `${50 + RADIUS * Math.cos(angle)}%`,
-              top: `${50 + RADIUS * Math.sin(angle)}%`,
+              // q(): trig straight into an SSR-ed inline style — see quantise.ts
+              left: `${q(50 + RADIUS * Math.cos(angle))}%`,
+              top: `${q(50 + RADIUS * Math.sin(angle))}%`,
             }}
           >
             <div
@@ -217,29 +213,20 @@ export default function ChainOrbit() {
               }}
               title={chain.name}
             >
-              {/* a little cloud rather than a disc: the badge is square, so a
-                  percentage width and height give perfectly round lobes */}
-              <span
+              {/* a beautiful small fluffy cloud background */}
+              <svg
+                viewBox="0 0 24 24"
+                className="absolute left-1/2 top-1/2 h-[125%] w-[125%] -translate-x-1/2 -translate-y-1/2"
                 aria-hidden
-                className="absolute inset-0"
-                style={{ filter: "drop-shadow(0 6px 14px rgba(64,36,122,0.34))" }}
+                style={{
+                  filter: "drop-shadow(0 6px 14px rgba(64,36,122,0.34))",
+                }}
               >
-                {BADGE_LOBES.map(([left, top, size], j) => (
-                  <span
-                    key={j}
-                    className="absolute rounded-full"
-                    style={{
-                      left: `${left}%`,
-                      top: `${top}%`,
-                      width: `${size}%`,
-                      height: `${size}%`,
-                      background: BADGE_CLOUD,
-                      transform: "translate(-50%, -50%)",
-                    }}
-                  />
-                ))}
-                <span className="absolute inset-0 rounded-full" style={{ background: BADGE_CLOUD }} />
-              </span>
+                <path
+                  d="M19.35 10.04C18.67 6.59 15.64 4 12 4C9.11 4 6.6 5.64 5.35 8.04C2.34 8.36 0 10.91 0 14C0 17.31 2.69 20 6 20H19C21.76 20 24 17.76 24 15C24 12.36 21.95 10.22 19.35 10.04Z"
+                  fill={BADGE_CLOUD}
+                />
+              </svg>
               <span className="relative grid h-full w-full place-items-center" style={{ color: "var(--logo-ink)" }}>
                 <span className="block h-[52%] w-[52%]">{chain.icon}</span>
               </span>
@@ -262,7 +249,7 @@ export default function ChainOrbit() {
           *mark* in the ring — centring the mark and its cloud together instead
           pushes the mark above the middle and reads as hung too high. The cloud
           it stands on is drawn earlier, behind everything. */}
-      <div className="absolute left-1/2 top-1/2 w-[48%] -translate-x-1/2 -translate-y-1/2 lg:w-[42%]">
+      <div className="absolute left-1/2 top-1/2 w-[75%] -translate-x-1/2 -translate-y-1/2 lg:w-[75%]">
         {/* the shine it gives off */}
         <div
           className="halo-pulse pointer-events-none absolute left-1/2 top-1/2 -z-10 -translate-x-1/2 -translate-y-1/2"
@@ -276,7 +263,7 @@ export default function ChainOrbit() {
             a filter under an animating transform has to be re-rastered every
             frame, and the layer can end up not painting at all */}
         <div className="logo-float relative" style={{ filter: "drop-shadow(0 22px 30px rgba(72,42,132,0.45))" }}>
-          <Image src="/menoid-logo.png" alt="Menoid" width={768} height={768} priority className="h-auto w-full" />
+          <AnimatedLogo priority className="h-auto w-full" />
         </div>
       </div>
     </div>

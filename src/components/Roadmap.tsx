@@ -141,7 +141,6 @@ function ceilingPuffs(y: number, r: number, spread: number): [number, number, nu
 }
 
 const CEILING = ceilingPuffs(150, 92, 22);
-/* hangs a little lower and drifts slower, so a second edge shows through */
 const CEILING_BACK = ceilingPuffs(124, 72, 16);
 
 function CeilingStrip({ puffs, gradient, deck }: { puffs: [number, number, number][]; gradient: string; deck?: boolean }) {
@@ -167,9 +166,7 @@ function CardInner({ phase }: { phase: Phase }) {
         <span className="rm-corner" aria-hidden />
       </div>
 
-      <div className="rm-divider" />
-
-      {/* collapsible body */}
+      {/* body */}
       <div className="rm-bodywrap">
         <div className="rm-body">
           <div className="rm-body-inner">
@@ -220,8 +217,6 @@ function CardInner({ phase }: { phase: Phase }) {
         </div>
       </div>
 
-      <div className="rm-divider" />
-
       <div className="rm-foot">
         <AnimatedLogo
           className="h-8 w-8 shrink-0"
@@ -270,8 +265,6 @@ function TimelineRow({ phase, index }: { phase: Phase; index: number }) {
 
   return (
     <div ref={rowRef} className={`rm-row rm-${side} ${open ? "is-open" : ""}`}>
-      <span className="rm-node" aria-hidden />
-      <span className="rm-conn" aria-hidden />
       <div className="rm-card">
         <CardInner phase={phase} />
       </div>
@@ -280,99 +273,21 @@ function TimelineRow({ phase, index }: { phase: Phase; index: number }) {
 }
 
 export default function Roadmap() {
-  const trackRef = useRef<HTMLDivElement | null>(null);
-  const fillRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    /* Coalesced into one frame.
-
-       This measures the track and then writes a height — a layout read
-       immediately followed by a layout invalidation. Lenis dispatches scroll
-       every frame, so doing it in the handler means a forced synchronous
-       relayout per event. That is affordable while the page is static, and it
-       is not while a card is opening: the accordion animates
-       grid-template-rows, so layout is already dirty every frame, and each
-       read flushes a full relayout of a section thousands of pixels tall.
-       That is the "scrolling goes slow, but only while the cards open" case.
-
-       Deferring to rAF collapses any number of events into a single read and
-       write, at the point in the frame where the browser is laying out
-       anyway. */
-    let frame = 0;
-
-    const measure = () => {
-      frame = 0;
-      const track = trackRef.current;
-      const fill = fillRef.current;
-      if (!track || !fill) return;
-      const r = track.getBoundingClientRect();
-      const centerY = window.innerHeight * 0.5;
-      const h = Math.max(0, Math.min(r.height, centerY - r.top));
-      fill.style.height = `${h}px`;
-    };
-
-    const schedule = () => {
-      if (frame) return;
-      frame = requestAnimationFrame(measure);
-    };
-
-    measure();
-    window.addEventListener("scroll", schedule, { passive: true });
-    window.addEventListener("resize", schedule, { passive: true });
-    return () => {
-      if (frame) cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", schedule);
-      window.removeEventListener("resize", schedule);
-    };
-  }, []);
-
   return (
     <section
       id="roadmap"
       className="relative isolate overflow-hidden"
       style={{
-        // Under the weather. The band immediately below the ceiling is the
-        // lightest part of the sky — the cloud bellies need *something* to
-        // stand against — and everything below sinks steadily until it arrives
-        // at roughly the bellies' own tone at the footer, which is what makes
-        // the clouds read as part of this sky rather than laid on top of it.
-        // Keep it all light and the ceiling reads as a dark stripe; take it
-        // all the way down to the bellies and the whole page bottom goes flat.
         background: `linear-gradient(180deg, ${CHAINS_SEAM} 0%, #8A6BD4 14%, #7B58C8 36%, #6342A4 68%, ${ROADMAP_SEAM} 100%)`,
       }}
     >
       <svg className="absolute h-0 w-0" aria-hidden focusable="false">
         <defs>
-          {/* a touch more blur than the other banks use: these puffs are much
-              larger, and 10 leaves the joins between them visibly pointed */}
           <filter id="rm-cloudy" x="-20%" y="-40%" width="140%" height="200%" colorInterpolationFilters="sRGB">
             <feGaussianBlur in="SourceGraphic" stdDeviation="14" result="b" />
             <feColorMatrix in="b" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -8" result="goo" />
             <feGaussianBlur in="goo" stdDeviation="1.6" />
           </filter>
-          {/* Read bottom-up: the strip is flipped, so the last stop lands on
-              the section's top edge — which is why it has to be CHAINS_SEAM —
-              and the first stop on the undersides hanging into the sky.
-
-              The ramp is short on purpose. Run it across the whole cloud and
-              every part of the silhouette is a different tone, so the bank
-              reads as a soft shadow rather than as a mass; confined to the
-              deck at the top, the hanging part is one flat colour and the
-              handover to the section above still happens in the 50px nobody
-              reads as cloud.
-
-              The range is deliberately narrow — a handful of steps off the sky
-              it hangs in, no more. Anything darker stops being weather and
-              becomes a band ruled across the page, which is the failure mode
-              this section keeps falling into. The silhouette only has to be
-              *perceptible*; the rain emerging from under it does the rest. Lit along
-              the top where it meets Multichain, heavy and dark underneath:
-              that is a raincloud, and it is what the rain below falls out of.
-
-              It ends at y=168 — where the deck starts — so the deck is flat
-              CHAINS_SEAM the whole way across. Running the ramp on to 220 puts
-              a fast colour change in the deck and a slow one in Multichain
-              above it, and the eye reads that change in *rate* as an edge. */}
           <linearGradient id="rm-cloud-near" gradientUnits="userSpaceOnUse" x1="0" y1="106" x2="0" y2="168">
             <stop offset="0" stopColor="#7654C0" />
             <stop offset="0.45" stopColor="#7D5CC7" />
@@ -387,7 +302,6 @@ export default function Roadmap() {
 
       <div className="menoid-grid pointer-events-none absolute inset-0 z-0 opacity-40" />
 
-      {/* the ceiling the rain comes out of */}
       <div className="cloud-band cloud-drift-slow left-0 top-0 z-[1]">
         <CeilingStrip puffs={CEILING_BACK} gradient="rm-cloud-back" />
         <CeilingStrip puffs={CEILING_BACK} gradient="rm-cloud-back" />
@@ -399,11 +313,6 @@ export default function Roadmap() {
 
       <RainFar />
 
-      {/* The top padding clears the ceiling — white copy on a white cloud is
-          unreadable. The strip is as wide as the section and keeps its 1400:220
-          aspect, so it is 15.7vw tall (31.4vw below 768px, where .cloud-band
-          doubles its width); the puffs hang through roughly 90% of that. The
-          rest is breathing room. */}
       <div className="relative z-10 mx-auto max-w-5xl px-4 pb-20 pt-[calc(28vw+72px)] sm:px-6 md:pt-[calc(14vw+104px)]">
         <Reveal className="mb-16 text-center">
           <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.34em] text-white/70">
@@ -423,100 +332,43 @@ export default function Roadmap() {
         </Reveal>
 
         {/* timeline */}
-        <div ref={trackRef} className="rm-tl">
-
+        <div className="rm-tl">
           {PHASES.map((phase, i) => (
             <TimelineRow key={phase.version} phase={phase} index={i} />
           ))}
         </div>
       </div>
 
-      {/* the waitlist closes the section — same sky, same rain */}
       <WaitlistCTA />
 
       <RainNear />
       <RainStyles />
 
       <style>{`
-        .rm-tl { position: relative; padding-top: 18vh; }
-
-        /* the thread down the middle, and the light that runs down it as you scroll */
-        .rm-line {
-          position: absolute; top: 0; bottom: 0; left: 50%; transform: translateX(-50%);
-          width: 0; border-left: 1px dashed rgba(255,255,255,0.28);
-        }
-        .rm-fill {
-          position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-          width: 2px; height: 0; border-radius: 2px;
-          background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(226,206,255,0.5));
-          box-shadow: 0 0 16px rgba(232,216,255,0.75);
-        }
-        .rm-drop {
-          position: absolute; left: 50%; bottom: -16px; transform: translateX(-50%);
-          color: #fff; z-index: 5; pointer-events: none; line-height: 0;
-          filter: drop-shadow(0 0 9px rgba(233,219,255,0.85));
-          animation: rmDropShine 2.6s ease-in-out infinite;
-        }
-        @keyframes rmDropShine {
-          0%, 100% { filter: drop-shadow(0 0 5px rgba(233,219,255,0.5)); }
-          50%      { filter: drop-shadow(0 0 16px rgba(255,255,255,1)); }
-        }
+        .rm-tl { position: relative; padding-top: 10vh; }
 
         .rm-row { position: relative; display: flex; padding: 26px 0; }
         .rm-right { justify-content: flex-end; }
         .rm-left { justify-content: flex-start; }
-
-        /* node on the thread + its connector */
-        .rm-node {
-          position: absolute; top: 30px; left: 50%; transform: translate(-50%, -50%);
-          width: 13px; height: 13px; border-radius: 50%; z-index: 3;
-          background: rgba(78,47,142,0.75); border: 1px solid rgba(255,255,255,0.5);
-          transition: background .5s var(--ease-out-quart), border-color .5s, box-shadow .5s, transform .5s var(--ease-spring);
-        }
-        .rm-row.is-open .rm-node {
-          background: #fff; border-color: #fff;
-          box-shadow: 0 0 18px rgba(255,255,255,0.85); transform: translate(-50%, -50%) scale(1.15);
-        }
-        .rm-conn {
-          position: absolute; top: 30px; height: 1px; width: 5%;
-          border-top: 1px dashed rgba(255,255,255,0.35);
-          opacity: 0; transition: opacity .6s ease .1s;
-        }
-        .rm-row.is-open .rm-conn { opacity: 1; }
-        .rm-right .rm-conn { left: 50%; }
-        .rm-left .rm-conn { right: 50%; }
 
         /* card — violet glass, so the rain shows through it */
         .rm-card {
           position: relative; width: 45%; border-radius: 22px; overflow: hidden;
           border: 1px solid rgba(255,255,255,0.2);
           background: linear-gradient(160deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.07) 100%);
-          /* 10px, not 16: the card is resizing while it opens and there are 150
-             rain drops moving behind it, so the backdrop is re-sampled and
-             re-blurred every frame. Cost scales with the radius and the
-             difference at this opacity is not visible. */
           backdrop-filter: blur(10px) saturate(1.15); -webkit-backdrop-filter: blur(10px) saturate(1.15);
           box-shadow: 0 22px 50px rgba(35,16,74,0.34), 0 1px 0 rgba(255,255,255,0.28) inset;
-          opacity: 0; transform: translateY(26px) scale(0.985);
-          transition: opacity .7s var(--ease-out-quart), transform .8s var(--ease-out-quart),
+          opacity: 0; transform: translateY(20px);
+          transition: opacity .8s cubic-bezier(0.16, 1, 0.3, 1), transform .8s cubic-bezier(0.16, 1, 0.3, 1),
                       border-color .7s, box-shadow .7s;
           will-change: transform, opacity;
         }
         .rm-row.is-open .rm-card {
-          opacity: 1; transform: translateY(0) scale(1);
+          opacity: 1; transform: translateY(0);
           border-color: rgba(255,255,255,0.38);
           box-shadow: 0 30px 70px rgba(35,16,74,0.42), 0 0 0 1px rgba(255,255,255,0.12),
                       0 0 46px rgba(196,166,255,0.22), 0 1px 0 rgba(255,255,255,0.34) inset;
         }
-
-        /* light sweeping down the glass as it opens */
-        .rm-card::after {
-          content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 4;
-          background: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%);
-          transform: translateY(-110%); opacity: 0;
-        }
-        .rm-row.is-open .rm-card::after { animation: rmScan 1s var(--ease-out-quart) .15s 1; }
-        @keyframes rmScan { 0% { transform: translateY(-110%); opacity: 0; } 30% { opacity: 1; } 100% { transform: translateY(110%); opacity: 0; } }
 
         .rm-head { display: flex; align-items: center; gap: 12px; padding: 15px 18px; }
         .rm-num {
@@ -530,17 +382,10 @@ export default function Roadmap() {
         }
         .rm-corner { margin-left: auto; width: 7px; height: 7px; border-top: 1px solid rgba(255,255,255,0.45); border-right: 1px solid rgba(255,255,255,0.45); }
 
-        .rm-divider { height: 1px; background: rgba(255,255,255,0.16); }
-
         .rm-bodywrap {
-          display: grid; grid-template-rows: 0fr; opacity: 0;
-          transition: grid-template-rows .72s var(--ease-out-quart), opacity .55s ease .1s;
+          display: block;
         }
-        .rm-row.is-open .rm-bodywrap { grid-template-rows: 1fr; opacity: 1; }
-        /* contain: paint — the overflow is already clipped here, and saying so
-           lets the browser skip painting the part of the body still hidden
-           while the row animates open. */
-        .rm-body { overflow: hidden; min-height: 0; contain: paint; }
+        .rm-body { overflow: hidden; }
         .rm-body-inner { padding: 16px 18px 18px; }
 
         .rm-bullets { display: flex; flex-direction: column; gap: 11px; }
@@ -568,17 +413,14 @@ export default function Roadmap() {
         .rm-status-here .rm-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--violet-deep); }
         .rm-status-lock { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: rgba(255,255,255,0.75); }
 
-        /* ---- mobile: thread on the left, all cards to the right ---- */
+        /* ---- mobile: all cards full width ---- */
         @media (max-width: 767px) {
-          .rm-line, .rm-fill { left: 16px; }
           .rm-row, .rm-right, .rm-left { justify-content: flex-end; }
-          .rm-card { width: calc(100% - 44px); }
-          .rm-node { left: 16px; }
-          .rm-conn, .rm-right .rm-conn, .rm-left .rm-conn { left: 16px; right: auto; width: 28px; }
+          .rm-card { width: 100%; }
         }
 
         @media (prefers-reduced-motion: reduce) {
-          .rm-card, .rm-bodywrap, .rm-node { transition: none; }
+          .rm-card, .rm-bodywrap { transition: none; }
           .rm-row.is-open .rm-card::after { animation: none; }
         }
       `}</style>

@@ -424,12 +424,7 @@ export default function Roadmap() {
 
         {/* timeline */}
         <div ref={trackRef} className="rm-tl">
-          <div className="rm-line" aria-hidden />
-          <div ref={fillRef} className="rm-fill" aria-hidden>
-            <span className="rm-drop">
-              <Droplet size={20} />
-            </span>
-          </div>
+
           {PHASES.map((phase, i) => (
             <TimelineRow key={phase.version} phase={phase} index={i} />
           ))}

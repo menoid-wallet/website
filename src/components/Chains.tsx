@@ -240,7 +240,7 @@ export default function Chains() {
 
       <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6">
         <Reveal className="text-center">
-          <p className="font-mono text-[11px] uppercase tracking-[0.34em] text-[var(--violet)]">
+          <p className="font-mono text-[11px] text-white uppercase tracking-[0.34em] text-[var(--violet)]">
             ✦ Supported Networks ✦
           </p>
         </Reveal>

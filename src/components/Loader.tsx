@@ -51,6 +51,15 @@ export default function Loader() {
     const solidLettersG = solidLettersRef.current;
     if (!svg || !lettersG || !dropsG || !overlayG || !solidG || !solidLettersG) return;
 
+    // The FIRST_DRAW floor on each droplet's delay relies on the browser
+    // holding a pending animation at its first keyframe (scale 0) through the
+    // delay. That is what fill:"both" specifies — but it is exactly the kind
+    // of guarantee that slips in a dev double-invoked effect or a hydration
+    // replay, and one slipped frame here paints a scatter of loose bubbles on
+    // an empty sky. So the whole layer is opacity-gated on the same instant:
+    // even a droplet at full scale cannot paint before the first stroke does.
+    dropsG.style.opacity = "0";
+
     const NS = "http://www.w3.org/2000/svg";
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -208,6 +217,17 @@ export default function Loader() {
 
       for (let k = 0; k < 16; k++) bubble(rand(FIRST_DRAW, FIRST_DRAW + 1200));
 
+      // open the drops layer only once there is ink for the liquid to belong
+      // to; by then every droplet is still at scale ~0, so the fade is unseen
+      track(
+        dropsG.animate([{ opacity: 0 }, { opacity: 1 }], {
+          delay: FIRST_DRAW,
+          duration: 120,
+          easing: "linear",
+          fill: "both",
+        })
+      );
+
       // swap the gooey word for the crisp copy once the pour is done
       track(solidG.animate([{ opacity: 0 }, { opacity: 1 }], { delay: tEnd, duration: 300, easing: "linear", fill: "both" }));
       track(lettersG.animate([{ opacity: 1 }, { opacity: 0 }], { delay: tEnd, duration: 300, easing: "linear", fill: "both" }));
@@ -234,7 +254,14 @@ export default function Loader() {
       picked.forEach((s, i) => drip(s.x, s.y, tEnd + 420 + i * 300));
     }
 
+    // Arm the svg only now, with every stroke carrying its real dash metrics
+    // (or the reduced-motion state). Until this class lands, the strokes are
+    // visibility-hidden by CSS — see the note on .menoid-loader path.stroke.
+    // Same synchronous block, so no frame exists between the two states.
+    svg.classList.add("ldr-armed");
+
     return () => {
+      svg.classList.remove("ldr-armed");
       anims.forEach((a) => a.cancel());
       temps.forEach((c) => c.remove());
       [...clones, ...solidClones].forEach((c) => c.remove());
@@ -391,9 +418,19 @@ export default function Loader() {
           fill: none;
           stroke-linecap: round;
           stroke-linejoin: round;
-          /* hidden until the draw animation takes over */
+          /* Hidden by VISIBILITY until the effect arms the svg — the dasharray
+             trick alone cannot hide these. A zero-length dash with a round
+             linecap still paints its caps: one full-stroke-width dot at the
+             start of every subpath, nine of them across the word, on the very
+             first server-rendered frame before hydration replaces the
+             dasharray. (Drawing dotted lines is exactly this technique used on
+             purpose.) The effect swaps in real dash metrics and adds
+             .ldr-armed in one synchronous block, so no frame paints between
+             the two states. */
+          visibility: hidden;
           stroke-dasharray: 0 99999;
         }
+        .menoid-loader #ldr-logo.ldr-armed path.stroke { visibility: visible; }
 
         .menoid-loader #ldr-letters path.stroke { stroke: url(#ldr-ink); stroke-width: 60; }
         /* the e keeps a slightly thinner ring and crossbar so its counters

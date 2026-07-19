@@ -43,7 +43,7 @@ export default function WaitlistCTA() {
         >
           <span className="flex items-center gap-2.5">
             <span className="pulse-dot h-1.5 w-1.5 shrink-0 rounded-full bg-white" />
-            <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-white/75">V1 Early Access</span>
+            <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-white/75">V1 Early Beta</span>
           </span>
           <span className="hidden h-3 w-px bg-white/25 sm:block" />
           <span className="font-round text-[14px] font-medium text-white sm:text-[15px]">

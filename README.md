@@ -17,9 +17,6 @@ Menoid enables users to:
 - Groth16
 - Poseidon commitments
 
-### 🤖 AI Infrastructure
-- AI Wallet Companion (Meno)
-- AI Transaction Simulation & Risk Analysis
 
 ### ⛓️ Smart Contracts
 - Solidity

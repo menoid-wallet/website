@@ -91,7 +91,7 @@ Menoid enables users to:
 ## 🌌 Vision
 Menoid expands beyond private transfers into a complete AI-native private smart wallet ecosystem for 15+ chains.
 
-The goal is not only to hide balances — but to give users full control over how they exist and interact onchain, with an integrated AI companion that helps users navigate crypto, understand risks, discover opportunities, and interact smarter across the entire wallet experience.
+
 
 Users should be able to:
 - 🌍 Switch seamlessly between Public Mode and Noid Mode

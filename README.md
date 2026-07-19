@@ -8,14 +8,6 @@ Menoid enables users to:
 
 🌍 Use both Public Mode and Noid Mode depending on how visible they want to be onchain.
 🕶️ Transfer assets privately through Noid Mode
-🔐 Interact with onchain protocols privately through Noid Smart Accounts
-⚡ Let Meno simulate transactions before execution and explain what could happen
-🚨 Receive warnings from Meno about suspicious or dangerous onchain activities
-🔎 Explore and discover protocols, NFT collections, DeFi platforms, and new onchain opportunities through Meno
-🚀 Receive live market-style suggestions from Meno — for example, notifying users when a token suddenly surges in activity, volume, or price movement and suggesting possible actions like buy, sell, or swap
-⏰ Schedule secure transfers, swaps, purchases, and automated actions — even in Noid Mode
-📰 Stay updated with crypto and ecosystem news through Menews
-💬 Chat with Meno about crypto, protocols, wallet activity, and the Menoid ecosystem
 🛡️ Maintain privacy while remaining fully composable with multi-chain protocols
 
 ## ⚙️ Tech Stack

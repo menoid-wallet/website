@@ -1,5 +1,5 @@
 import Reveal from "./Reveal";
-// import WaitlistForm from "./WaitlistForm"; // re-enable when V1 registration opens
+import WaitlistForm from "./WaitlistForm";
 
 /* ────────────────────────────────────────────────────────────
    WAITLIST — the last beat of the roadmap, not a page of its own.
@@ -28,10 +28,12 @@ export default function WaitlistCTA() {
           Be first through the door.
         </h3>
 
-        {/* the hero's badge, unchanged — one line wide, two lines on a phone */}
-        {/* Registration temporarily disabled — re-enable when V1 registration opens:
-        <WaitlistForm inputId="cta-email-input" />
-        */}
+        {/* V1 registration is open — the form. */}
+        <div className="mt-6">
+          <WaitlistForm inputId="cta-email-input" />
+        </div>
+
+        {/* Registration coming-soon badge — restore this (and remove the form above) if registration closes again:
         <div
           className="mt-6 inline-flex max-w-full flex-col items-center gap-1.5 rounded-2xl px-5 py-3 sm:flex-row sm:gap-2.5 sm:rounded-full sm:py-2.5"
           style={{
@@ -50,6 +52,7 @@ export default function WaitlistCTA() {
             registration coming soon…
           </span>
         </div>
+        */}
       </Reveal>
     </div>
   );

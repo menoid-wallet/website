@@ -39,8 +39,10 @@ const PHASES: Phase[] = [
       { icon: "🎁", text: "Rewards distributed to the 1,000 reviewers after the stable launch." },
     ],
     cohorts: [
-      "V1 Early Beta (Web & Extension)",
-      "V1 Mobile Beta (iOS & Android)",
+      "V1 Web",
+      "V1 Extension",
+      "V1 Android",
+      "V1 iOS",
     ],
   },
   {

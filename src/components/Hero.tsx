@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import ChainOrbit from "./ChainOrbit";
+import WaitlistForm from "./WaitlistForm";
 import { HERO_SEAM } from "./seams";
 
 /* ────────────────────────────────────────────────────────────
@@ -249,25 +250,9 @@ export default function Hero() {
             <span className="h-px w-8 bg-white/30 sm:w-12" />
           </div>
 
-          {/* coming soon — one line on a wide screen, two stacked on a narrow one */}
-          <div
-            className="inline-flex max-w-full flex-col items-center gap-1.5 rounded-2xl px-5 py-3 sm:flex-row sm:gap-2.5 sm:rounded-full sm:py-2.5"
-            style={{
-              ...rise(450),
-              background: "rgba(255,255,255,0.14)",
-              border: "1px solid rgba(255,255,255,0.26)",
-              boxShadow: "0 1px 0 rgba(255,255,255,0.3) inset, 0 14px 32px rgba(64,36,122,0.22)",
-              backdropFilter: "blur(14px)",
-            }}
-          >
-            <span className="flex items-center gap-2.5">
-              <span className="pulse-dot h-1.5 w-1.5 shrink-0 rounded-full bg-white" />
-              <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-white/75">V1 Early Beta</span>
-            </span>
-            <span className="hidden h-3 w-px bg-white/25 sm:block" />
-            <span className="font-round text-[14px] font-medium text-white sm:text-[15px]">
-              registration coming soon…
-            </span>
+          {/* V1 registration is open — the form (was a "coming soon" badge) */}
+          <div className="w-full max-w-md" style={rise(450)}>
+            <WaitlistForm inputId="hero-email-input" />
           </div>
         </div>
 

@@ -98,10 +98,6 @@ Users should be able to:
 - 👻 Become ghosts onchain when privacy is needed
 - 🔐 Interact with protocols privately through Noid infrastructure
 - 🧠 Execute interactions through zk-authorized smart accounts
-- 🤖 Use an integrated AI companion called Meno across the wallet experience
-- ⚡ Understand transactions, risks, and protocol behavior before execution
-- 🔎 Discover new protocols, NFTs, tokens, and ecosystem opportunities through Meno
-- 📰 Stay updated with crypto ecosystem activity through Menews
 - 🔐 Hold assets privately while remaining fully composable with multi-chain protocols
 
 ## 🌐 Private Execution Layer

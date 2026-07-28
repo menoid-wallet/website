@@ -88,9 +88,6 @@ Menoid enables users to:
 - 📚 Wallet integration libraries (dev SDKs)
 - 🔗 Multi-chain wallet provider injection
 
-## 🌌 Vision
-Menoid expands beyond private transfers into a complete AI-native private smart wallet ecosystem for 15+ chains.
-
 
 
 Users should be able to:

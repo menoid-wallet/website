@@ -211,20 +211,30 @@ export default function WaitlistForm({ inputId = "wl" }: { inputId?: string }) {
     onClick,
     disabled,
     tone = "light",
+    fit = false,
   }: {
     label: React.ReactNode;
     onClick?: () => void;
     disabled?: boolean;
     tone?: "violet" | "light";
+    // `fit` hugs the label on mobile (so a short button isn't a huge cloud) and
+    // only stretches to full width from `sm` up. Left off, the button is always
+    // full width — right for the modal's submit/done buttons.
+    fit?: boolean;
   }) => (
     /* white cloud by default, with violet ink */
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="btn-spring group relative block w-full outline-none disabled:cursor-not-allowed disabled:opacity-50"
+      className={`btn-spring group relative outline-none disabled:cursor-not-allowed disabled:opacity-50 ${
+        fit ? "inline-block w-auto sm:block sm:w-full" : "block w-full"
+      }`}
     >
-      <CloudChip tone={tone} className="w-full justify-center px-6 py-3">
+      <CloudChip
+        tone={tone}
+        className={fit ? "px-6 py-3 sm:w-full sm:justify-center" : "w-full justify-center px-6 py-3"}
+      >
         <span
           className="flex items-center gap-2 font-mono text-[12px] font-bold uppercase tracking-[0.22em]"
           style={{ color: tone === "violet" ? "#F6EFFF" : "var(--violet-deep)" }}
@@ -371,8 +381,8 @@ export default function WaitlistForm({ inputId = "wl" }: { inputId?: string }) {
       {/* ── Trigger ── */}
       {registered ? (
         // Session-only "already registered" state — reverts to the active button on reload.
-        <div className="inline-flex w-full max-w-md">
-          <CloudChip tone="light" className="w-full justify-center px-6 py-3.5">
+        <div className="inline-flex max-w-md sm:w-full">
+          <CloudChip tone="light" className="px-6 py-3.5 sm:w-full sm:justify-center">
             <span
               className="flex items-center gap-2 font-mono text-[12px] font-bold uppercase tracking-[0.22em]"
               style={{ color: "var(--violet-deep)" }}
@@ -384,8 +394,8 @@ export default function WaitlistForm({ inputId = "wl" }: { inputId?: string }) {
           </CloudChip>
         </div>
       ) : (
-        <div className="inline-flex w-full max-w-md">
-          <CloudButton label={<><span className="text-[13px] leading-none">✦</span> V1 Register</>} onClick={() => setOpen(true)} />
+        <div className="inline-flex max-w-md sm:w-full">
+          <CloudButton fit label={<><span className="text-[13px] leading-none">✦</span> V1 Register</>} onClick={() => setOpen(true)} />
         </div>
       )}
 

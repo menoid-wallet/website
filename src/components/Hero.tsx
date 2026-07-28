@@ -140,7 +140,12 @@ export default function Hero() {
       // the bottom padding is the cloud zone: the banks live there, so the copy
       // never lands on top of a cloud. It is tighter on a phone, where the
       // strip — and so the bank — is proportionally shorter.
-      className="bg-menoid relative isolate flex min-h-dvh flex-col overflow-hidden pt-20 pb-[104px] sm:pt-24 sm:pb-[170px] lg:pb-[210px]"
+      // svh, not dvh: dvh tracks the mobile address bar as it collapses on
+      // scroll, so the section would grow mid-scroll and shove the bottom cloud
+      // bank (pinned to bottom-0) down while the centred content re-centres — a
+      // visible jump on real phones. svh is locked to the address-bar-visible
+      // height, so the hero stays put and nothing reflows. (No effect on desktop.)
+      className="bg-menoid relative isolate flex min-h-svh flex-col overflow-hidden pt-20 pb-[104px] sm:pt-24 sm:pb-[170px] lg:pb-[210px]"
     >
       {/* ── printed grid ── */}
       <div className="menoid-grid absolute inset-0 z-0" />

@@ -4,6 +4,7 @@ import { useState } from "react";
 import MenoidWordmark from "./MenoidWordmark";
 import CloudChip from "./CloudChip";
 import AnimatedLogo from "./AnimatedLogo";
+import { openDownload } from "./DownloadModal";
 
 /* No bar — the nav is a row of little clouds floating in the hero's sky:
    one for the mark, one per link, one for the call to action. On a phone
@@ -51,11 +52,14 @@ export default function Nav() {
 
         {/* the call to action, in a cloud of its own */}
         <div className="flex shrink-0 items-center gap-2.5">
-          <a href="#waitlist" className="hidden md:inline-flex">
+          {/* opens the sheet in place — it used to scroll to the closing
+              section, which meant a whole page of travel to reach the same
+              two builds */}
+          <button type="button" onClick={openDownload} className="hidden md:inline-flex">
             <CloudChip tone="violet" className="px-4 py-1.5 transition-transform duration-300 hover:-translate-y-0.5">
-              <span className="font-round text-[13px] font-semibold text-white">Join Waitlist</span>
+              <span className="font-round text-[13px] font-semibold text-white">Download</span>
             </CloudChip>
-          </a>
+          </button>
 
           {/* the opener */}
           <button onClick={() => setOpen(!open)} aria-label="Toggle menu" id="mobile-menu-btn" className="md:hidden">
@@ -91,11 +95,17 @@ export default function Nav() {
               </CloudChip>
             </a>
           ))}
-          <a href="#waitlist" onClick={() => setOpen(false)}>
+          <button
+            type="button"
+            onClick={() => {
+              setOpen(false);
+              openDownload();
+            }}
+          >
             <CloudChip tone="violet" className="px-4 py-1.5">
-              <span className="font-round text-[13px] font-semibold text-white">Join Waitlist</span>
+              <span className="font-round text-[13px] font-semibold text-white">Download</span>
             </CloudChip>
-          </a>
+          </button>
         </div>
       )}
     </header>

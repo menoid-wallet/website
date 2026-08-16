@@ -162,7 +162,7 @@ export default function HowItWorks() {
         {/* CTA nudge */}
         <Reveal className="mt-14 text-center">
           <a
-            href="#waitlist"
+            href="#download"
             id="how-it-works-cta"
             className="btn-spring inline-flex items-center gap-2.5 rounded-full px-7 py-3.5 text-[14px] font-semibold text-[#08070a]"
             style={{

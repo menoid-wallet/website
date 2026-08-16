@@ -2,7 +2,7 @@
 
 import Reveal from "./Reveal";
 import AnimatedLogo from "./AnimatedLogo";
-import WaitlistCTA from "./WaitlistCTA";
+import DownloadCTA from "./DownloadCTA";
 import { RainFar, RainNear, RainStyles } from "./Rain";
 import { CHAINS_SEAM, ROADMAP_SEAM } from "./seams";
 import { q } from "./quantise";
@@ -13,7 +13,7 @@ import { useEffect, useRef, useState } from "react";
    The sky the page has been climbing through finally closes over:
    an overcast ceiling hangs from the top of the section, rain
    falls out of it, and the three phases hang off a lit thread
-   running down the middle. The waitlist closes the same section,
+   running down the middle. The download CTA closes the same section,
    in the same rain, rather than starting a page of its own.
    ──────────────────────────────────────────────────────────── */
 
@@ -21,28 +21,33 @@ interface Bullet {
   icon: string;
   text: string;
 }
+/* A cohort is either out ("shipped") or still weather ahead. Shipped ones get
+   the green tick; the one that isn't says so in its own words. */
+interface Cohort {
+  label: string;
+  shipped?: boolean;
+}
 interface Phase {
   version: string;
   tagline: string;
   bullets: Bullet[];
-  cohorts?: string[];
+  cohorts?: Cohort[];
   locked?: boolean;
 }
 
 const PHASES: Phase[] = [
   {
     version: "V1",
-    tagline: " · Stay Tuned",
+    tagline: "Live",
     bullets: [
       { icon: "🌐", text: "6 testnets — Monad, Sepolia, Base, Solana, Sui & Aptos." },
       { icon: "🎯", text: "Target: 1,000 crypto user reviews." },
       { icon: "🎁", text: "Rewards distributed to the 1,000 reviewers after the stable launch." },
     ],
     cohorts: [
-      "V1 Web",
-      "V1 Extension",
-      "V1 Android",
-      "V1 iOS",
+      { label: "V1 Extension", shipped: true },
+      { label: "V1 Android", shipped: true },
+      { label: "V1 iOS" },
     ],
   },
   {
@@ -82,6 +87,15 @@ const Lock = ({ size = 22 }: { size?: number }) => (
   >
     <rect x="3" y="11" width="18" height="11" rx="2" />
     <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+  </svg>
+);
+
+/* a shipped cohort — green disc, violet check, so it reads at 19px against
+   the card's glass the way the numbered discs used to */
+const CohortTick = () => (
+  <svg className="rm-cohort-tick" viewBox="0 0 24 24" aria-hidden focusable="false">
+    <circle cx="12" cy="12" r="12" />
+    <path d="m6.6 12.3 3.6 3.5L17.4 8.6" />
   </svg>
 );
 
@@ -164,7 +178,10 @@ function CardInner({ phase }: { phase: Phase }) {
     <>
       <div className="rm-head">
         <span className="rm-num">{phase.version}</span>
-        <span className="rm-htitle">{phase.tagline}</span>
+        <span className={`rm-htitle ${current ? "rm-htitle-live" : ""}`}>
+          {current && <span className="rm-live-dot" aria-hidden />}
+          {phase.tagline}
+        </span>
         <span className="rm-corner" aria-hidden />
       </div>
 
@@ -186,10 +203,11 @@ function CardInner({ phase }: { phase: Phase }) {
                   <div className="rm-cohorts">
                     <p className="rm-cohorts-label">Rollout Cohorts</p>
                     <ul>
-                      {phase.cohorts.map((c, i) => (
-                        <li key={c}>
-                          <span className="rm-cohort-num">{i + 1}</span>
-                          <span>{c}</span>
+                      {phase.cohorts.map((c) => (
+                        <li key={c.label}>
+                          {c.shipped ? <CohortTick /> : <span className="rm-cohort-wait" aria-hidden />}
+                          <span>{c.label}</span>
+                          {!c.shipped && <span className="rm-cohort-soon">Stay Tuned</span>}
                         </li>
                       ))}
                     </ul>
@@ -328,8 +346,8 @@ export default function Roadmap() {
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-[14px] leading-relaxed text-white/70 sm:text-[15px]">
             Three chapters chart the journey.{" "}
-            <span className="font-semibold text-white">Stay tuned</span> for the V1 private beta —
-            the rest stay sealed above the clouds.
+            <span className="font-semibold text-white">V1 is live</span> — the rest stay sealed
+            above the clouds.
           </p>
         </Reveal>
 
@@ -341,7 +359,7 @@ export default function Roadmap() {
         </div>
       </div>
 
-      <WaitlistCTA />
+      <DownloadCTA />
 
       <RainNear />
       <RainStyles />
@@ -382,6 +400,16 @@ export default function Roadmap() {
           font-family: var(--font-geist-mono), monospace; font-size: 11px; font-weight: 600;
           letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.62); white-space: nowrap;
         }
+        /* V1 has shipped, so its tagline is a status rather than a subtitle */
+        .rm-htitle-live { display: inline-flex; align-items: center; gap: 7px; color: #6FE8AC; }
+        .rm-live-dot {
+          width: 6px; height: 6px; border-radius: 50%; background: #6FE8AC;
+          animation: rm-live 2.2s ease-in-out infinite;
+        }
+        @keyframes rm-live {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(111,232,172,0.55); }
+          50%      { box-shadow: 0 0 0 5px rgba(111,232,172,0); }
+        }
         .rm-corner { margin-left: auto; width: 7px; height: 7px; border-top: 1px solid rgba(255,255,255,0.45); border-right: 1px solid rgba(255,255,255,0.45); }
 
         .rm-bodywrap {
@@ -398,7 +426,17 @@ export default function Roadmap() {
         .rm-cohorts-label { font-family: var(--font-geist-mono), monospace; font-size: 10px; letter-spacing: 0.26em; text-transform: uppercase; color: rgba(255,255,255,0.7); margin-bottom: 10px; }
         .rm-cohorts ul { display: flex; flex-direction: column; gap: 8px; }
         .rm-cohorts li { display: flex; align-items: center; gap: 10px; font-size: 12.5px; color: #fff; font-weight: 500; }
-        .rm-cohort-num { flex-shrink: 0; display: grid; place-items: center; width: 19px; height: 19px; border-radius: 50%; font-size: 10px; font-weight: 700; color: var(--violet-deep); background: #fff; }
+        .rm-cohort-tick { flex-shrink: 0; width: 19px; height: 19px; }
+        .rm-cohort-tick circle { fill: #6FE8AC; }
+        .rm-cohort-tick path { fill: none; stroke: #1F3F31; stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round; }
+        /* the one still ahead: an empty slot, so the ticks read as progress */
+        .rm-cohort-wait { flex-shrink: 0; width: 19px; height: 19px; border-radius: 50%; border: 1.5px dashed rgba(255,255,255,0.45); }
+        .rm-cohort-soon {
+          margin-left: auto; white-space: nowrap; padding: 3px 8px; border-radius: 999px;
+          font-family: var(--font-geist-mono), monospace; font-size: 8.5px; font-weight: 700;
+          letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.78);
+          background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.28);
+        }
 
         /* locked body */
         .rm-locked { position: relative; }

@@ -89,7 +89,7 @@ export default function Footer() {
                 <a href="https://discord.gg/JbPMSttDUY" target="_blank" rel="noopener noreferrer" aria-label="Discord" className={socialClass}>
                   {discordIcon}
                 </a>
-                <a href="https://t.me/+2y9XpEDOr-k4MzQ0" target="_blank" rel="noopener noreferrer" aria-label="Telegram" className={socialClass}>
+                <a href="https://t.me/+mTf2gEW_V4U4N2Ey" target="_blank" rel="noopener noreferrer" aria-label="Telegram" className={socialClass}>
                   {telegramIcon}
                 </a>
               </div>

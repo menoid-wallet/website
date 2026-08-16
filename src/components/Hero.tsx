@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import ChainOrbit from "./ChainOrbit";
-import WaitlistForm from "./WaitlistForm";
+import DownloadButton from "./DownloadButton";
 import { HERO_SEAM } from "./seams";
 
 /* ────────────────────────────────────────────────────────────
@@ -255,9 +255,9 @@ export default function Hero() {
             <span className="h-px w-8 bg-white/30 sm:w-12" />
           </div>
 
-          {/* V1 registration is open — the form (was a "coming soon" badge) */}
+          {/* V1 has shipped — the button opens the two builds (was the register form) */}
           <div className="w-full max-w-md" style={rise(450)}>
-            <WaitlistForm inputId="hero-email-input" />
+            <DownloadButton fluid />
           </div>
         </div>
 

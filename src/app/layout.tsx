@@ -35,10 +35,38 @@ const serif = Fraunces({
   axes: ["SOFT", "WONK", "opsz"],
 });
 
+/* Absolute URLs for the link-preview card. Vercel sets the production URL for
+   us; NEXT_PUBLIC_SITE_URL overrides it if the site ever moves to its own
+   domain. Without a metadataBase, Next falls back to localhost and every
+   scraper gets an image URL it cannot reach. */
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : "http://localhost:3000");
+
+const title = "Menoid — A private crypto wallet";
+const description =
+  "Menoid is a private crypto wallet. Shield your assets, transact completely unseen, and unmask safely — with one click. Download V1 Testnet: Android app or browser extension.";
+
 export const metadata: Metadata = {
-  title: "Menoid — A private crypto wallet",
-  description:
-    "Menoid is a Private crypto wallet. Shield your assets, transact completely unseen, and unmask safely — with one click. Join the V1 private beta waitlist for early access.",
+  metadataBase: new URL(siteUrl),
+  title,
+  description,
+  // og:image / twitter:image come from src/app/opengraph-image.png and
+  // twitter-image.png — Next emits the tags, sizes and type from the files.
+  openGraph: {
+    type: "website",
+    siteName: "Menoid",
+    url: siteUrl,
+    title,
+    description,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+  },
 };
 
 export default function RootLayout({

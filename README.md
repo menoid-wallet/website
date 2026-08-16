@@ -132,19 +132,3 @@ The ecosystem direction includes:
 - 🔎 AI-powered protocol, NFT, and token discovery infrastructure
 
 The goal is to provide a wallet experience where privacy and AI become integrated primitives — not additional tools.
-
-## ⚡ Direction
-Menoid aims to evolve into an AI-native private execution layer for 15+ chains.
-
-A smart wallet where users can:
-- 🌍 Interact publicly when desired
-- 👻 Disappear privately through Noid Mode when needed
-- 🤖 Navigate crypto with an integrated AI companion called Meno
-- ⚡ Understand transactions and protocol interactions before execution
-- 🔎 Discover opportunities, tokens, NFTs, and ecosystem activity in real time
-while maintaining:
-- ⚡ Fast UX
-- 🌐 Full protocol composability
-- 🔐 Strong privacy guarantees
-- 🧩 Seamless smart wallet interactions
-- 🛡️ Intelligent onchain safety and guidance

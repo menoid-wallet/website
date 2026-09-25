@@ -14,7 +14,14 @@ const PRODUCT_LINKS = [
   { label: "Roadmap", href: "#roadmap" },
 ];
 
-const DEV_LINKS = ["Docs", "SDK", "Audits", "GitHub"];
+// A link with an `href` goes somewhere; one without still raises the
+// "coming soon" toast, which is what all four used to do.
+const DEV_LINKS: { label: string; href?: string }[] = [
+  { label: "Docs", href: "https://github.com/menoid-wallet/Docs/blob/main/DOCS.md" },
+  { label: "SDK" },
+  { label: "Audits" },
+  { label: "GitHub", href: "https://github.com/menoid-wallet" },
+];
 
 const ghIcon = (
   <svg viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
@@ -113,9 +120,13 @@ export default function Footer() {
             <div>
               <h4 className="mb-4 font-mono text-[10px] uppercase tracking-[0.32em] text-white/45">Developers</h4>
               <ul className="space-y-2.5">
-                {DEV_LINKS.map((label) => (
+                {DEV_LINKS.map(({ label, href }) => (
                   <li key={label}>
-                    <a href="#" onClick={soon} className="link-underline text-[14px] text-white/70 transition-colors duration-200 hover:text-white">
+                    <a
+                      href={href ?? "#"}
+                      onClick={href ? undefined : soon}
+                      {...(href ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                      className="link-underline text-[14px] text-white/70 transition-colors duration-200 hover:text-white">
                       {label}
                     </a>
                   </li>

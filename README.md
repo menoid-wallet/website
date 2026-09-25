@@ -20,6 +20,8 @@ Menoid enables users to:
 
 ### ⛓️ Smart Contracts
 - Solidity
+- Anchor
+- Move
 - Hardhat
 - OpenZeppelin
 

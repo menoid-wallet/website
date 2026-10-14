@@ -361,3 +361,78 @@ export function hashSwapExtData(chainId: number, pool: string, ext: SwapExt): bi
   );
   return BigInt(ethers.keccak256(encoded)) % FIELD_SIZE;
 }
+
+/* ─── viewing keys you can hand to someone else ─────────────────────────
+   Same shape and string form as the protocol repo's wallets.js:
+   "menoid-vk1:<base64url(json)>.<checksum>", checksum = keccak(payload)[0..4]. */
+
+export type FullViewingKey = {
+  kind: "full";
+  address: string;
+  network: KeyNetwork;
+  keyIndex: number;
+  userCommitment: bigint;
+  incomingSecret: string;
+  outgoingSecret: string;
+  nullifierKey: bigint;
+};
+
+export function fullViewingKey(keys: PrivateKeys): FullViewingKey {
+  return {
+    kind: "full",
+    address: keys.address,
+    network: keys.network,
+    keyIndex: keys.keyIndex,
+    userCommitment: keys.userCommitment,
+    incomingSecret: keys.incomingSecret,
+    outgoingSecret: keys.outgoingSecret,
+    nullifierKey: keys.nullifierKey,
+  };
+}
+
+function base64url(text: string): string {
+  const bytes = new TextEncoder().encode(text);
+  let binary = "";
+  for (const b of bytes) binary += String.fromCharCode(b);
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+export function encodeViewingKey(key: FullViewingKey): string {
+  const json = JSON.stringify(key, (_, v) => (typeof v === "bigint" ? v.toString() : v));
+  const payload = base64url(json);
+  return `menoid-vk1:${payload}.${ethers.id(payload).slice(2, 10)}`;
+}
+
+function fromBase64url(text: string): string {
+  const b64 = text.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((text.length + 3) % 4);
+  const binary = atob(b64);
+  return new TextDecoder().decode(Uint8Array.from(binary, (c) => c.charCodeAt(0)));
+}
+
+/** Read a full viewing key someone shared; throws a readable error if it is not one. */
+export function decodeViewingKey(encoded: string): FullViewingKey {
+  const text = encoded.trim();
+  if (!text.startsWith("menoid-vk1:")) throw new Error("That is not a Menoid viewing key — it should start with menoid-vk1:");
+  const [payload, checksum] = text.slice("menoid-vk1:".length).split(".");
+  if (!payload || !checksum || ethers.id(payload).slice(2, 10) !== checksum) {
+    throw new Error("This viewing key is incomplete or mistyped (its checksum does not match).");
+  }
+  let key: Record<string, unknown>;
+  try {
+    key = JSON.parse(fromBase64url(payload));
+  } catch {
+    throw new Error("This viewing key could not be read.");
+  }
+  if (key.kind !== "full") throw new Error("This is not a FULL viewing key — an incoming or epoch key only shows part of the picture.");
+  if (!KEY_NETWORKS[key.network as KeyNetwork]) throw new Error("This viewing key does not name a Menoid network.");
+  return {
+    kind: "full",
+    address: ethers.getAddress(String(key.address)),
+    network: key.network as KeyNetwork,
+    keyIndex: Number(key.keyIndex ?? 0),
+    userCommitment: BigInt(String(key.userCommitment)),
+    incomingSecret: String(key.incomingSecret),
+    outgoingSecret: String(key.outgoingSecret),
+    nullifierKey: BigInt(String(key.nullifierKey)),
+  };
+}

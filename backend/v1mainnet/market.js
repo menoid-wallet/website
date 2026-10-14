@@ -93,31 +93,76 @@ export async function findBestRoute({ tokenIn, tokenOut, amountIn }) {
 }
 
 /* ─── prices ───────────────────────────────────────────────────────────────
-   Testnet tokens have no market price, so they are priced by the testnet's
-   own pools against mUSDC (= $1): what 1 token sells for there. */
+   MON at its REAL price: the mid price of Monad mainnet's deepest MON/USDC
+   Uniswap V3 pool (read from slot0 — no trade, no fee, no slippage). mUSDC is
+   $1. Other test tokens have no market, so the testnet's own pools price them
+   against mUSDC. */
 
 const PRICE_TTL = 30_000;
 let priceCache = { at: 0, prices: null };
+let lastMonUsd = null;
+
+const src = V1M.priceSource;
+const mainnetNetwork = ethers.Network.from(src.chainId);
+const mainnet = new ethers.JsonRpcProvider(src.rpcUrl, mainnetNetwork, { staticNetwork: mainnetNetwork, batchMaxCount: 1 });
+const mainnetFactory = new ethers.Contract(src.factory, FACTORY_ABI, mainnet);
+const POOL_STATE_ABI = [
+  "function slot0() view returns (uint160 sqrtPriceX96, int24 tick, uint16, uint16, uint16, uint8, bool)",
+  "function liquidity() view returns (uint128)",
+  "function token0() view returns (address)",
+];
+
+export async function monUsdPrice() {
+  try {
+    let best = null;
+    for (const fee of src.feeTiers) {
+      const address = await mainnetFactory.getPool(src.wmon, src.usdc, fee);
+      if (address === ethers.ZeroAddress) continue;
+      const pool = new ethers.Contract(address, POOL_STATE_ABI, mainnet);
+      const [slot0, liquidity, token0] = await Promise.all([pool.slot0(), pool.liquidity(), pool.token0()]);
+      if (!best || liquidity > best.liquidity) best = { slot0, liquidity, token0 };
+    }
+    if (!best) throw new Error("no MON/USDC pool on mainnet");
+    // raw token1 per raw token0, then to human units (WMON 18 decimals, USDC 6)
+    const sqrt = BigInt(best.slot0.sqrtPriceX96);
+    const raw = Number((sqrt * sqrt * 10n ** 18n) / (1n << 192n)) / 1e18;
+    const monIsToken0 = best.token0.toLowerCase() === src.wmon.toLowerCase();
+    const usd = monIsToken0 ? raw * 1e12 : 1 / (raw / 1e12);
+    if (!(usd > 0) || !Number.isFinite(usd)) throw new Error("bad MON price");
+    lastMonUsd = usd;
+    return usd;
+  } catch (error) {
+    if (lastMonUsd !== null) return lastMonUsd; // keep the last good price
+    throw error;
+  }
+}
 
 export async function tokenPrices() {
   if (priceCache.prices && Date.now() - priceCache.at < PRICE_TTL) return priceCache.prices;
   const stable = V1M.tokens.find((t) => t.stable);
   const prices = {};
   for (const token of V1M.tokens) {
-    if (token.stable) {
-      prices[token.address] = 1;
-      continue;
-    }
     try {
-      const unit = 10n ** BigInt(token.decimals);
-      const route = await findBestRoute({ tokenIn: token.address, tokenOut: stable.address, amountIn: unit / 100n });
-      prices[token.address] = (Number(route.amountOut) / 10 ** stable.decimals) * 100;
+      if (token.stable) prices[token.address] = 1;
+      else if (token.native) prices[token.address] = await monUsdPrice();
+      else {
+        const unit = 10n ** BigInt(token.decimals);
+        const route = await findBestRoute({ tokenIn: token.address, tokenOut: stable.address, amountIn: unit / 100n });
+        prices[token.address] = (Number(route.amountOut) / 10 ** stable.decimals) * 100;
+      }
     } catch {
       prices[token.address] = priceCache.prices?.[token.address] ?? 0;
     }
   }
   priceCache = { at: Date.now(), prices };
   return prices;
+}
+
+// keep the cache warm, so /prices answers at once
+export function startPriceRefresher() {
+  const refresh = () => tokenPrices().catch((e) => console.error("[v1m] prices:", e.message));
+  refresh();
+  setInterval(refresh, PRICE_TTL - 5_000).unref?.();
 }
 
 export function describeToken(address) {

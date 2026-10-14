@@ -24,7 +24,6 @@ import {
   deriveIncomingViewingKey,
   deriveOutgoingViewingKey,
   toBytes32,
-  type OutgoingRecord,
   type PrivateKeys,
 } from "./protocol.ts";
 import type { SyncResponse } from "./api.ts";
@@ -51,13 +50,27 @@ export class Mirror {
   indexedBlock = 0;
   cursor = -1;
   private trees = new Map<number, Tree>();
+  private noteKeys = new Set<string>();
+  private inflight: Promise<number> | null = null;
 
-  /** Pull everything new. Returns how many new notes arrived. */
-  async sync(fetchPage: (since: number) => Promise<SyncResponse>): Promise<number> {
+  /** Pull everything new; one pull at a time. Returns how many new notes arrived. */
+  sync(fetchPage: (since: number) => Promise<SyncResponse>): Promise<number> {
+    if (!this.inflight) {
+      this.inflight = this.pull(fetchPage).finally(() => {
+        this.inflight = null;
+      });
+    }
+    return this.inflight;
+  }
+
+  private async pull(fetchPage: (since: number) => Promise<SyncResponse>): Promise<number> {
     let added = 0;
     for (let page = 0; page < 200; page++) {
       const res = await fetchPage(this.cursor);
       for (const n of res.notes) {
+        const key = `${n.treeId}:${n.leafIndex}`;
+        if (this.noteKeys.has(key)) continue;
+        this.noteKeys.add(key);
         this.notes.push({ ...n, commitment: BigInt(n.commitment) });
         added += 1;
       }
@@ -146,9 +159,20 @@ export type OwnedNote = PoolNote & {
   spentTx?: string;
 };
 
-export type ActivityItem =
-  | { kind: "received"; token: string; amount: bigint; txHash: string; blockNumber: number; fromSwap: boolean; leafIndex: number }
-  | { kind: "sent" | "unmasked" | "swapped"; record: OutgoingRecord; txHash: string; blockNumber: number };
+export type ActivityKind = "masked" | "received" | "sent" | "unmasked" | "swapped";
+
+export type ActivityItem = {
+  kind: ActivityKind;
+  token: string;
+  amount: bigint;
+  fee?: bigint;
+  counterparty?: string; // who was paid (sent / unmasked)
+  tokenOut?: string; // swapped: what was bought …
+  amountOut?: bigint; // … and how much
+  fromSwap?: boolean;
+  txHash: string;
+  blockNumber: number;
+};
 
 export type WalletView = {
   notes: OwnedNote[];
@@ -157,7 +181,10 @@ export type WalletView = {
   activity: ActivityItem[];
 };
 
-export function scan(mirror: Mirror, keys: PrivateKeys): WalletView {
+/** What scanning needs: the viewing half of a key (a full viewing key is enough). */
+export type Viewer = Pick<PrivateKeys, "userCommitment" | "incomingSecret" | "outgoingSecret" | "nullifierKey" | "viewingEpoch">;
+
+export function scan(mirror: Mirror, keys: Viewer): WalletView {
   const epochs = Array.from({ length: keys.viewingEpoch + 1 }, (_, e) => e);
   const ivks = epochs.map((epoch) => ({ epoch, ivk: deriveIncomingViewingKey(keys.incomingSecret, epoch).ivk }));
   const ovks = epochs.map((epoch) => ({ epoch, ovk: deriveOutgoingViewingKey(keys.outgoingSecret, epoch) }));
@@ -205,21 +232,35 @@ export function scan(mirror: Mirror, keys: PrivateKeys): WalletView {
     if (!n.spent) continue;
     const entry = mirror.outgoing.get(n.nullifier.toString());
     if (!entry) continue;
-    for (const { epoch, ovk } of ovks) {
+    for (const { ovk } of ovks) {
       const record = tryDecryptOutgoingRecord(ovk, n.nullifier, entry.record);
       if (!record) continue;
-      void epoch;
       ownSpendTxs.add(entry.txHash);
-      const kind = record.action === ACTION.SWAP ? "swapped" : record.action === ACTION.WITHDRAW ? "unmasked" : "sent";
-      activity.push({ kind, record, txHash: entry.txHash, blockNumber: entry.blockNumber });
+      const base = { token: record.token, amount: record.amount, fee: record.fee, txHash: entry.txHash, blockNumber: entry.blockNumber };
+      if (record.action === ACTION.SWAP) {
+        const bought = [...mirror.swapOutputs.values()].find((s) => s.txHash === entry.txHash);
+        activity.push({ ...base, kind: "swapped", tokenOut: record.tokenOut, amountOut: bought?.amountOut });
+      } else {
+        activity.push({ ...base, kind: record.action === ACTION.WITHDRAW ? "unmasked" : "sent", counterparty: record.counterpartyAddress });
+      }
       break;
     }
   }
-  // what arrived — minus the change and bought notes of this wallet's own spends
+
+  // what arrived — minus the change and bought notes of this wallet's own spends.
+  // A note from a transaction that spent nothing came from a deposit.
+  const spendTxs = new Set<string>();
+  for (const { txHash } of mirror.nullifiers.values()) spendTxs.add(txHash);
   for (const n of notes) {
-    if (ownSpendTxs.has(n.txHash) && !n.fromSwap) continue;
-    if (n.fromSwap && ownSpendTxs.has(n.txHash)) continue;
-    activity.push({ kind: "received", token: n.token, amount: n.amount, txHash: n.txHash, blockNumber: n.blockNumber, fromSwap: n.fromSwap, leafIndex: n.leafIndex });
+    if (ownSpendTxs.has(n.txHash)) continue;
+    activity.push({
+      kind: spendTxs.has(n.txHash) ? "received" : "masked",
+      token: n.token,
+      amount: n.amount,
+      fromSwap: n.fromSwap,
+      txHash: n.txHash,
+      blockNumber: n.blockNumber,
+    });
   }
   activity.sort((a, b) => b.blockNumber - a.blockNumber);
 

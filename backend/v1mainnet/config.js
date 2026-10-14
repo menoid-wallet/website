@@ -44,13 +44,34 @@ export const V1M = Object.freeze({
     { symbol: "mTKN", name: "Menoid Test Token", address: MTKN, decimals: 18, faucet: true },
   ],
 
-  /* What the relayer asks for, per private transaction, in the token being
-     spent. It pays the gas in MON (~0.23 MON a proof on Monad) and is paid
-     with a private note. Testnet values: flat and small. */
-  relayerFees: {
-    [WMON]: "0.005",
-    [MUSDC]: "0.05",
-    [MTKN]: "0.05",
+  /* The relayer's fee (see fees.js): what a proof really costs it in MON —
+     the gas it pays now plus the later cost of cashing out the fee note — plus
+     a little profit, converted into the token being spent. */
+  fees: {
+    profitPct: 5, // the relayer's target profit
+    slackPct: 10, // room for gas price / route drift between quote and relay
+    notesPerSweep: 4, // fee notes the relayer cashes out per withdraw proof
+    quoteTtlSec: 60,
+    // gas per relayed transaction = fixed + perCall × proofs. Measured on Monad
+    // testnet (2026-10-14); replaced by live measurements as relays confirm.
+    defaults: {
+      transfer: { fixed: 112600, perCall: 1948000 },
+      withdraw: { fixed: 112600, perCall: 1967000 },
+      swap1: { fixed: 112600, perCall: 2295500 },
+      swap2: { fixed: 112600, perCall: 2456400 },
+    },
+  },
+
+  /* Prices: MON at its real market price — Monad MAINNET's deepest MON/USDC
+     Uniswap V3 pool — even on testnet; mUSDC = $1; other test tokens by the
+     testnet's own pools against mUSDC. */
+  priceSource: {
+    rpcUrl: env("V1M_PRICE_RPC_URL", "https://rpc.monad.xyz"),
+    chainId: 143,
+    factory: "0x204FAca1764B154221e35c0d20aBb3c525710498",
+    wmon: "0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A",
+    usdc: "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
+    feeTiers: [500, 3000, 10000],
   },
 
   indexer: {

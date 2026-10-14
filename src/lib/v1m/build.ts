@@ -267,13 +267,77 @@ export function pickNotes(unspent: OwnedNote[], token: string, needed: bigint): 
   throw new Error("Your private notes cannot cover this in one transaction yet");
 }
 
-/** The most one proof can move: the 4 largest notes of a token, minus the fee. */
-export function maxSpendable(unspent: OwnedNote[], token: string, fee: bigint): bigint {
-  const top = unspent
+/* ─── batches: more than 4 notes, several proofs, one transaction ───────
+   A proof spends at most 4 notes. A bigger payment is split into several
+   proofs relayed together; each pays the relayer its own fee note. */
+
+export const MAX_CALLS = 4;
+
+export type Batch = { notes: OwnedNote[]; amount: bigint };
+
+const ofToken = (unspent: OwnedNote[], token: string) =>
+  unspent
     .filter((n) => ethers.getAddress(n.token) === ethers.getAddress(token))
-    .map((n) => n.amount)
-    .sort((a, b) => (b > a ? 1 : b < a ? -1 : 0))
-    .slice(0, N_INS)
-    .reduce((s, a) => s + a, 0n);
-  return top > fee ? top - fee : 0n;
+    .sort((a, b) => (b.amount > a.amount ? 1 : b.amount < a.amount ? -1 : 0));
+
+/** How many proofs a payment needs at `feePerCall` each (largest notes first). */
+export function callsNeeded(unspent: OwnedNote[], token: string, amount: bigint, feePerCall: bigint, maxCalls = MAX_CALLS): number | null {
+  const notes = ofToken(unspent, token);
+  let total = 0n;
+  for (let i = 0; i < notes.length && i < maxCalls * N_INS; i++) {
+    total += notes[i].amount;
+    const calls = Math.ceil((i + 1) / N_INS);
+    if (total >= amount + feePerCall * BigInt(calls)) return calls;
+  }
+  return null;
+}
+
+/** Split `amount` into proofs of up to 4 notes; every proof can pay its fee. */
+export function planBatches(unspent: OwnedNote[], token: string, amount: bigint, feePerCall: bigint, maxCalls = MAX_CALLS): Batch[] {
+  const notes = ofToken(unspent, token);
+  let picked: OwnedNote[] | null = null;
+  let total = 0n;
+  for (let i = 0; i < notes.length && i < maxCalls * N_INS; i++) {
+    total += notes[i].amount;
+    if (total >= amount + feePerCall * BigInt(Math.ceil((i + 1) / N_INS))) {
+      picked = notes.slice(0, i + 1);
+      break;
+    }
+  }
+  if (!picked) throw new Error("Your private notes cannot cover this yet");
+  const calls = Math.ceil(picked.length / N_INS);
+
+  // deal the notes out, biggest first to the lightest proof, so each can pay its fee
+  const groups = Array.from({ length: calls }, () => ({ notes: [] as OwnedNote[], total: 0n }));
+  for (const note of picked) {
+    const open = groups.filter((g) => g.notes.length < N_INS).sort((a, b) => (a.total < b.total ? -1 : a.total > b.total ? 1 : 0));
+    open[0].notes.push(note);
+    open[0].total += note.amount;
+  }
+  // each proof carries a share of the amount in proportion to what it can carry after its fee
+  const capacity = groups.map((g) => g.total - feePerCall);
+  if (capacity.some((c) => c <= 0n)) throw new Error("Your private notes cannot cover this yet");
+  const totalCapacity = capacity.reduce((s, c) => s + c, 0n);
+  const shares = capacity.map((c) => (amount * c) / totalCapacity);
+  let left = amount - shares.reduce((s, a) => s + a, 0n);
+  for (let i = 0; left > 0n && i < shares.length; i++) {
+    const room = capacity[i] - shares[i];
+    const add = room < left ? room : left;
+    shares[i] += add;
+    left -= add;
+  }
+  return groups.map((g, i) => ({ notes: g.notes, amount: shares[i] })).filter((b) => b.amount > 0n);
+}
+
+/** The most one transaction can move: up to MAX_CALLS proofs of 4 notes, minus their fees. */
+export function maxSpendable(unspent: OwnedNote[], token: string, feePerCall: bigint, maxCalls = MAX_CALLS): bigint {
+  const notes = ofToken(unspent, token);
+  let best = 0n;
+  let total = 0n;
+  for (let i = 0; i < notes.length && i < maxCalls * N_INS; i++) {
+    total += notes[i].amount;
+    const net = total - feePerCall * BigInt(Math.ceil((i + 1) / N_INS));
+    if (net > best) best = net;
+  }
+  return best;
 }

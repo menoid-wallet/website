@@ -6,7 +6,8 @@ import { pool, provider } from "./chain.js";
 import { indexerStatus, applyReceipt } from "./indexer.js";
 import { relay, publicRelayerInfo, relayerBalance, RelayError } from "./relayer.js";
 import { findBestRoute, tokenPrices } from "./market.js";
-import { V1mNote, V1mNullifier, V1mOutgoing, V1mSwap, V1mRegistration } from "./models.js";
+import { feeQuote, feeTable } from "./fees.js";
+import { V1mNote, V1mNullifier, V1mOutgoing, V1mSwap, V1mRegistration, seqOf } from "./models.js";
 
 /**
  * /api/v1m — what the website's private app talks to.
@@ -17,7 +18,9 @@ import { V1mNote, V1mNullifier, V1mOutgoing, V1mSwap, V1mRegistration } from "./
  *                             after a cursor (one cursor for all of them)
  *   GET  /registration/:addr  registrationOf(addr), from the chain
  *   GET  /quote               best Uniswap V3 route for a private swap
- *   GET  /prices              USD price per token
+ *   GET  /prices              USD price per token (MON: Monad mainnet's market)
+ *   GET  /fee                 the relayer's fee for an action (see fees.js)
+ *   GET  /fees                the fee table, the gas model, the gas price
  *   POST /relay/:kind         submit proven calls (transfer | withdraw | swap)
  *   POST /notify              index a transaction the user just sent
  *
@@ -58,7 +61,7 @@ router.get(
       swapAdapter: V1M.swapAdapter,
       uniswap: { factory: V1M.uniswap.factory, swapRouter02: V1M.uniswap.swapRouter02, quoterV2: V1M.uniswap.quoterV2 },
       tokens: V1M.tokens,
-      relayerFees: V1M.relayerFees,
+      feePolicy: { profitPct: V1M.fees.profitPct, slackPct: V1M.fees.slackPct, notesPerSweep: V1M.fees.notesPerSweep },
       relayer,
       gasBufferPct: V1M.gasBufferPct,
       reserveDelayBlocks: V1M.reserveDelayBlocks,
@@ -79,20 +82,22 @@ router.get(
     const since = Number(req.query.since ?? -1);
     const limit = Math.min(Math.max(Number(req.query.limit ?? 5000), 1), 20000);
     if (!Number.isFinite(since)) return res.status(400).json({ error: "since must be a number" });
-    const query = { chainId, seq: { $gt: since } };
+    /* Only blocks the indexer has FULLY processed. A relayed receipt is
+       indexed early, but the cursor must never pass a block before all of its
+       events are stored, or a late nullifier would be skipped for good. */
+    const status = await indexerStatus();
+    const ceiling = seqOf(status.indexedBlock, 99999);
+    const query = { chainId, seq: { $gt: since, $lte: ceiling } };
     const projection = { _id: 0, chainId: 0 };
-    const [notes, nullifiers, outgoing, swaps, status] = await Promise.all([
+    const [notes, nullifiers, outgoing, swaps] = await Promise.all([
       V1mNote.find(query, projection).sort({ seq: 1 }).limit(limit).lean(),
       V1mNullifier.find(query, projection).sort({ seq: 1 }).limit(limit).lean(),
       V1mOutgoing.find(query, projection).sort({ seq: 1 }).limit(limit).lean(),
       V1mSwap.find(query, projection).sort({ seq: 1 }).limit(limit).lean(),
-      indexerStatus(),
     ]);
     // the cursor only moves past what every list has fully returned
     const truncated = [notes, nullifiers, outgoing, swaps].filter((list) => list.length === limit);
-    const cursor = truncated.length
-      ? Math.min(...truncated.map((list) => list[list.length - 1].seq))
-      : Math.max(since, ...[notes, nullifiers, outgoing, swaps].map((l) => (l.length ? l[l.length - 1].seq : -1)));
+    const cursor = truncated.length ? Math.min(...truncated.map((list) => list[list.length - 1].seq)) : Math.max(since, ceiling);
     res.json({
       chainId,
       indexedBlock: status.indexedBlock,
@@ -144,10 +149,30 @@ router.get(
   })
 );
 
+// the relayer's fee for `calls` proofs of `kind` paid in `token` (swaps: `hops`)
+router.get(
+  "/fee",
+  wrap(async (req, res) => {
+    const { kind, token, calls, hops } = req.query;
+    try {
+      res.json(await feeQuote({ kind, token, calls: Number(calls || 1), hops: Number(hops || 1) }));
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  })
+);
+
+router.get(
+  "/fees",
+  wrap(async (_req, res) => {
+    res.json(await feeTable());
+  })
+);
+
 router.get(
   "/prices",
   wrap(async (_req, res) => {
-    res.json({ prices: await tokenPrices(), source: "testnet pools, priced in mUSDC" });
+    res.json({ prices: await tokenPrices(), source: "MON: Monad mainnet WMON/USDC pool · mUSDC: $1 · others: testnet pools vs mUSDC" });
   })
 );
 

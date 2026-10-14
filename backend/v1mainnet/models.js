@@ -134,10 +134,14 @@ const relaySchema = new Schema(
     chainId: { type: Number, required: true },
     kind: { type: String, enum: ["transfer", "withdraw", "swap"], required: true },
     calls: { type: Number, default: 1 },
-    status: { type: String, enum: ["submitted", "confirmed", "reverted", "rejected"], required: true },
+    status: { type: String, enum: ["submitted", "confirmed", "reverted", "rejected", "underpaid"], required: true },
     txHash: { type: String },
+    hops: { type: Number }, // swaps: route length
     gasEstimate: { type: String },
     gasLimit: { type: String },
+    gasPriceGwei: { type: Number },
+    costMON: { type: String }, // what the relayer paid: gas limit × price (+ the later sweep of the fee notes)
+    paidMON: { type: String }, // what the fee notes were worth in MON
     feeToken: { type: String },
     feeAmount: { type: String },
     reason: { type: String },

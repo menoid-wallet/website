@@ -5,6 +5,7 @@ import { provider, pool, getRelayerSigner, revertReason, hex32 } from "./chain.j
 import { initCrypto, keyMessage, deriveKeysFromSignature, tryDecryptNote, notePublicKey, noteCommitment } from "./crypto.js";
 import { applyReceipt } from "./indexer.js";
 import { V1mRelay } from "./models.js";
+import { coversCost, feeQuote } from "./fees.js";
 
 /**
  * The relayer: submits private transactions the browser has already proven,
@@ -93,12 +94,11 @@ function checkFee(kind, call, id) {
   if (lower(spent) !== lower(note.token)) throw new RelayError(400, "the fee must be paid in the token being spent");
   const token = tokenInfo(note.token);
   if (!token) throw new RelayError(400, "this relayer does not accept that token");
-  const minimum = ethers.parseUnits(V1M.relayerFees[token.address], token.decimals);
-  if (note.amount < minimum) {
-    throw new RelayError(400, `relayer fee too low: at least ${V1M.relayerFees[token.address]} ${token.symbol}`);
-  }
   return { token, amount: note.amount };
 }
+
+// a Uniswap V3 path: token (20) | fee (3) | token (20) | …
+const hopsOf = (routeData) => Math.max(1, Math.round((ethers.dataLength(routeData) - 20) / 23));
 
 function checkShape(kind, calls) {
   if (!Object.hasOwn(FEE_OUTPUT, kind)) throw new RelayError(404, `unknown action "${kind}"`);
@@ -121,6 +121,7 @@ export async function relay(kind, calls) {
   const fees = calls.map((call) => checkFee(kind, call, id));
   const feeToken = fees[0].token.address;
   const feeAmount = fees.reduce((sum, f) => sum + f.amount, 0n).toString();
+  const hops = kind === "swap" ? Math.max(...calls.map((c) => hopsOf(c.ext.routeData))) : undefined;
 
   let data;
   try {
@@ -135,8 +136,20 @@ export async function relay(kind, calls) {
       estimate = await provider.estimateGas({ from: id.address, to: V1M.pool, data });
     } catch (error) {
       const reason = revertReason(error);
-      await V1mRelay.create({ chainId: V1M.chainId, kind, calls: calls.length, status: "rejected", reason, feeToken, feeAmount, durationMs: Date.now() - started }).catch(() => {});
+      await V1mRelay.create({ chainId: V1M.chainId, kind, calls: calls.length, hops, status: "rejected", reason, feeToken, feeAmount, durationMs: Date.now() - started }).catch(() => {});
       throw new RelayError(400, reason);
+    }
+
+    // break-even on THIS transaction: the fee notes must cover its real cost
+    const cover = await coversCost({ gasEstimate: estimate, calls: calls.length, fees });
+    if (!cover.ok) {
+      const required = await feeQuote({ kind, token: feeToken, calls: calls.length, hops });
+      await V1mRelay.create({
+        chainId: V1M.chainId, kind, calls: calls.length, hops, status: "underpaid", feeToken, feeAmount,
+        gasEstimate: estimate.toString(), costMON: ethers.formatEther(cover.costWei), paidMON: ethers.formatEther(cover.paidWei),
+        durationMs: Date.now() - started,
+      }).catch(() => {});
+      throw new RelayError(409, "Network fees moved since your quote — a fresh fee is needed", { code: "fee_too_low", required });
     }
 
     const gasLimit = (estimate * BigInt(V1M.gasBufferPct)) / 100n;
@@ -145,10 +158,14 @@ export async function relay(kind, calls) {
       chainId: V1M.chainId,
       kind,
       calls: calls.length,
+      hops,
       status: "submitted",
       txHash: tx.hash,
       gasEstimate: estimate.toString(),
       gasLimit: gasLimit.toString(),
+      gasPriceGwei: Number(ethers.formatUnits(cover.gasPriceWei, "gwei")),
+      costMON: ethers.formatEther(cover.costWei),
+      paidMON: ethers.formatEther(cover.paidWei),
       feeToken,
       feeAmount,
     }).catch(() => null);

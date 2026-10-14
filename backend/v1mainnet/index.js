@@ -1,6 +1,7 @@
 import router from "./routes.js";
 import { V1M } from "./config.js";
 import { startIndexer } from "./indexer.js";
+import { startPriceRefresher } from "./market.js";
 import { relayerIdentity, relayerBalance } from "./relayer.js";
 import { connectV1MDatabase } from "./models.js";
 
@@ -35,4 +36,5 @@ export async function startV1Mainnet() {
     console.error(`✗ v1-mainnet relayer: ${error.message}`);
   }
   startIndexer();
+  startPriceRefresher();
 }

@@ -32,7 +32,7 @@ export type AppConfig = {
   swapAdapter: string;
   uniswap: { factory: string; swapRouter02: string; quoterV2: string };
   tokens: TokenConfig[];
-  relayerFees: Record<string, string>;
+  feePolicy: { profitPct: number; slackPct: number; notesPerSweep: number };
   relayer: { address: string; userCommitment: string; viewingPublicKey: string; registered: boolean } | { error: string };
   gasBufferPct: number;
   reserveDelayBlocks: number;
@@ -70,6 +70,25 @@ export type Quote = {
   adapter: string;
 };
 
+/** The relayer's fee for `calls` proofs: its real gas + sweep cost and a small profit. */
+export type FeeQuote = {
+  kind: "transfer" | "withdraw" | "swap";
+  token: string;
+  symbol: string;
+  decimals: number;
+  calls: number;
+  hops: number;
+  feePerCall: string;
+  feeTotal: string;
+  feeUsd: number;
+  costMON: string;
+  feeMON: string;
+  monUsd: number;
+  gasPriceGwei: number;
+  breakdown: { gas: number; gasPerCall: number; executionMON: string; sweepMON: string; profitPct: number; slackPct: number };
+  validForSeconds: number;
+};
+
 export type RelayResult = {
   txHash: string;
   blockNumber: number;
@@ -81,9 +100,11 @@ export type RelayResult = {
 
 export class ApiError extends Error {
   status: number;
-  constructor(status: number, message: string) {
+  body: Record<string, unknown>;
+  constructor(status: number, message: string, body: Record<string, unknown> = {}) {
     super(message);
     this.status = status;
+    this.body = body;
   }
 }
 
@@ -100,7 +121,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     throw new ApiError(0, "The Menoid relayer is unreachable. Check your connection and try again.");
   }
   const body = await res.json().catch(() => ({}));
-  if (!res.ok) throw new ApiError(res.status, body?.error || `Request failed (${res.status})`);
+  if (!res.ok) throw new ApiError(res.status, body?.error || `Request failed (${res.status})`, body);
   return body as T;
 }
 
@@ -112,6 +133,8 @@ export const api = {
   quote: (tokenIn: string, tokenOut: string, amountIn: bigint) =>
     request<Quote>(`/quote?tokenIn=${tokenIn}&tokenOut=${tokenOut}&amountIn=${amountIn.toString()}`),
   prices: () => request<{ prices: Record<string, number> }>("/prices"),
+  fee: (kind: FeeQuote["kind"], token: string, calls = 1, hops = 1) =>
+    request<FeeQuote>(`/fee?kind=${kind}&token=${token}&calls=${calls}&hops=${hops}`),
   relay: (kind: "transfer" | "withdraw" | "swap", calls: unknown[]) =>
     request<RelayResult>(`/relay/${kind}`, { method: "POST", body: json({ calls }) }),
   notify: (txHash: string) => request<{ indexed: boolean }>("/notify", { method: "POST", body: json({ txHash }) }),

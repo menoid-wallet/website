@@ -24,11 +24,92 @@ export const MONAD_TESTNET = {
 };
 
 export const explorerTx = (hash: string) => `${MONAD_TESTNET.explorer}/tx/${hash}`;
-export const explorerAddress = (address: string) => `${MONAD_TESTNET.explorer}/address/${address}`;
 
-export function injectedWallet(): Eip1193 | null {
-  if (typeof window === "undefined") return null;
-  return ((window as unknown as { ethereum?: Eip1193 }).ethereum ?? null) as Eip1193 | null;
+/* ─── which wallet: EIP-6963 discovery ───────────────────────────────────
+   Several extensions fight over window.ethereum (Phantom usually wins).
+   EIP-6963 lets each installed wallet announce itself — name, icon,
+   provider — so the user picks the one to use. A wallet that only sets
+   window.ethereum still shows up, as a fallback. */
+
+export type WalletOption = { id: string; name: string; icon?: string; rdns?: string; provider: Eip1193 };
+
+type Announcement = { info?: { uuid: string; name: string; icon: string; rdns: string }; provider?: Eip1193 };
+type LegacyEthereum = Eip1193 & { isMetaMask?: boolean; isPhantom?: boolean; isRabby?: boolean; isCoinbaseWallet?: boolean; isOkxWallet?: boolean };
+
+function legacyName(eth: LegacyEthereum): string {
+  if (eth.isPhantom) return "Phantom";
+  if (eth.isRabby) return "Rabby";
+  if (eth.isCoinbaseWallet) return "Coinbase Wallet";
+  if (eth.isOkxWallet) return "OKX Wallet";
+  if (eth.isMetaMask) return "MetaMask";
+  return "Browser wallet";
+}
+
+/** Calls onChange with every wallet found so far; returns an unsubscribe. */
+export function watchWallets(onChange: (wallets: WalletOption[]) => void): () => void {
+  const found = new Map<string, WalletOption>();
+  const emit = () => onChange([...found.values()]);
+
+  // development only (compiled out of production builds): a test key set on
+  // window.__menoidDevKey shows up as a wallet, to test without an extension
+  if (process.env.NODE_ENV !== "production") {
+    const devKey = (window as unknown as { __menoidDevKey?: string }).__menoidDevKey;
+    if (devKey) found.set("dev", { id: "dev", name: "Test wallet (dev only)", provider: devWallet(devKey) });
+  }
+
+  const onAnnounce = (event: Event) => {
+    const { info, provider } = ((event as CustomEvent<Announcement>).detail ?? {}) as Announcement;
+    if (!info || !provider) return;
+    const id = info.rdns || info.uuid;
+    if (found.has(id)) return;
+    found.set(id, { id, name: info.name, icon: info.icon, rdns: info.rdns, provider });
+    emit();
+  };
+  window.addEventListener("eip6963:announceProvider", onAnnounce);
+  window.dispatchEvent(new Event("eip6963:requestProvider"));
+
+  const legacy = window.setTimeout(() => {
+    const eth = (window as unknown as { ethereum?: LegacyEthereum }).ethereum;
+    if (eth && ![...found.values()].some((w) => w.provider === eth)) {
+      found.set("injected", { id: "injected", name: legacyName(eth), provider: eth });
+    }
+    emit();
+  }, 350);
+  emit();
+
+  return () => {
+    window.removeEventListener("eip6963:announceProvider", onAnnounce);
+    window.clearTimeout(legacy);
+  };
+}
+
+/* A minimal EIP-1193 wallet around a private key, for local testing only. */
+function devWallet(privateKey: string): Eip1193 {
+  const wallet = new ethers.Wallet(privateKey, readProvider());
+  return {
+    async request({ method, params }) {
+      const args = (params ?? []) as unknown[];
+      switch (method) {
+        case "eth_requestAccounts":
+        case "eth_accounts":
+          return [wallet.address];
+        case "eth_chainId":
+          return MONAD_TESTNET.hex;
+        case "wallet_switchEthereumChain":
+        case "wallet_addEthereumChain":
+          return null;
+        case "personal_sign":
+          return wallet.signMessage(ethers.getBytes(args[0] as string));
+        case "eth_sendTransaction": {
+          const tx = args[0] as { to: string; data: string; value?: string; gas?: string };
+          const sent = await wallet.sendTransaction({ to: tx.to, data: tx.data, value: BigInt(tx.value ?? 0), gasLimit: tx.gas ? BigInt(tx.gas) : undefined });
+          return sent.hash;
+        }
+        default:
+          return readProvider().send(method, args);
+      }
+    },
+  };
 }
 
 export async function connectWallet(eth: Eip1193): Promise<string> {

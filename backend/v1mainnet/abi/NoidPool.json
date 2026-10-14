@@ -1,0 +1,1479 @@
+[
+ {
+  "inputs": [
+   {
+    "internalType": "address",
+    "name": "transferVerifier_",
+    "type": "address"
+   },
+   {
+    "internalType": "address",
+    "name": "withdrawVerifier_",
+    "type": "address"
+   },
+   {
+    "internalType": "address",
+    "name": "wrappedNative_",
+    "type": "address"
+   }
+  ],
+  "stateMutability": "nonpayable",
+  "type": "constructor"
+ },
+ {
+  "anonymous": false,
+  "inputs": [
+   {
+    "indexed": false,
+    "internalType": "address",
+    "name": "previousAdmin",
+    "type": "address"
+   },
+   {
+    "indexed": false,
+    "internalType": "address",
+    "name": "newAdmin",
+    "type": "address"
+   }
+  ],
+  "name": "AdminChanged",
+  "type": "event"
+ },
+ {
+  "anonymous": false,
+  "inputs": [
+   {
+    "indexed": true,
+    "internalType": "address",
+    "name": "beacon",
+    "type": "address"
+   }
+  ],
+  "name": "BeaconUpgraded",
+  "type": "event"
+ },
+ {
+  "anonymous": false,
+  "inputs": [
+   {
+    "indexed": true,
+    "internalType": "address",
+    "name": "depositor",
+    "type": "address"
+   },
+   {
+    "indexed": true,
+    "internalType": "address",
+    "name": "token",
+    "type": "address"
+   },
+   {
+    "indexed": false,
+    "internalType": "uint256",
+    "name": "amount",
+    "type": "uint256"
+   },
+   {
+    "indexed": false,
+    "internalType": "bytes32",
+    "name": "commitment",
+    "type": "bytes32"
+   }
+  ],
+  "name": "Deposited",
+  "type": "event"
+ },
+ {
+  "anonymous": false,
+  "inputs": [
+   {
+    "indexed": false,
+    "internalType": "bool",
+    "name": "paused",
+    "type": "bool"
+   }
+  ],
+  "name": "DepositsPausedSet",
+  "type": "event"
+ },
+ {
+  "anonymous": false,
+  "inputs": [
+   {
+    "indexed": false,
+    "internalType": "uint8",
+    "name": "version",
+    "type": "uint8"
+   }
+  ],
+  "name": "Initialized",
+  "type": "event"
+ },
+ {
+  "anonymous": false,
+  "inputs": [
+   {
+    "indexed": true,
+    "internalType": "address",
+    "name": "wallet",
+    "type": "address"
+   },
+   {
+    "indexed": false,
+    "internalType": "bytes32",
+    "name": "userCommitment",
+    "type": "bytes32"
+   },
+   {
+    "indexed": false,
+    "internalType": "bytes",
+    "name": "viewingPublicKey",
+    "type": "bytes"
+   },
+   {
+    "indexed": false,
+    "internalType": "uint32",
+    "name": "keyIndex",
+    "type": "uint32"
+   }
+  ],
+  "name": "KeysRotated",
+  "type": "event"
+ },
+ {
+  "anonymous": false,
+  "inputs": [
+   {
+    "indexed": true,
+    "internalType": "uint256",
+    "name": "treeId",
+    "type": "uint256"
+   }
+  ],
+  "name": "NewTree",
+  "type": "event"
+ },
+ {
+  "anonymous": false,
+  "inputs": [
+   {
+    "indexed": true,
+    "internalType": "uint256",
+    "name": "treeId",
+    "type": "uint256"
+   },
+   {
+    "indexed": false,
+    "internalType": "uint256",
+    "name": "leafIndex",
+    "type": "uint256"
+   },
+   {
+    "indexed": false,
+    "internalType": "bytes32",
+    "name": "commitment",
+    "type": "bytes32"
+   },
+   {
+    "indexed": false,
+    "internalType": "bytes",
+    "name": "encryptedNote",
+    "type": "bytes"
+   }
+  ],
+  "name": "NoteCreated",
+  "type": "event"
+ },
+ {
+  "anonymous": false,
+  "inputs": [
+   {
+    "indexed": true,
+    "internalType": "bytes32",
+    "name": "nullifier",
+    "type": "bytes32"
+   }
+  ],
+  "name": "NullifierSpent",
+  "type": "event"
+ },
+ {
+  "anonymous": false,
+  "inputs": [
+   {
+    "indexed": true,
+    "internalType": "bytes32",
+    "name": "firstNullifier",
+    "type": "bytes32"
+   },
+   {
+    "indexed": false,
+    "internalType": "bytes",
+    "name": "record",
+    "type": "bytes"
+   }
+  ],
+  "name": "OutgoingRecord",
+  "type": "event"
+ },
+ {
+  "anonymous": false,
+  "inputs": [
+   {
+    "indexed": true,
+    "internalType": "address",
+    "name": "previousOwner",
+    "type": "address"
+   },
+   {
+    "indexed": true,
+    "internalType": "address",
+    "name": "newOwner",
+    "type": "address"
+   }
+  ],
+  "name": "OwnershipTransferred",
+  "type": "event"
+ },
+ {
+  "anonymous": false,
+  "inputs": [
+   {
+    "indexed": true,
+    "internalType": "address",
+    "name": "wallet",
+    "type": "address"
+   },
+   {
+    "indexed": false,
+    "internalType": "bytes32",
+    "name": "userCommitment",
+    "type": "bytes32"
+   },
+   {
+    "indexed": false,
+    "internalType": "bytes",
+    "name": "viewingPublicKey",
+    "type": "bytes"
+   }
+  ],
+  "name": "Registered",
+  "type": "event"
+ },
+ {
+  "anonymous": false,
+  "inputs": [
+   {
+    "indexed": true,
+    "internalType": "address",
+    "name": "adapter",
+    "type": "address"
+   },
+   {
+    "indexed": false,
+    "internalType": "bool",
+    "name": "allowed",
+    "type": "bool"
+   }
+  ],
+  "name": "SwapAdapterSet",
+  "type": "event"
+ },
+ {
+  "anonymous": false,
+  "inputs": [
+   {
+    "indexed": true,
+    "internalType": "address",
+    "name": "tokenIn",
+    "type": "address"
+   },
+   {
+    "indexed": true,
+    "internalType": "address",
+    "name": "tokenOut",
+    "type": "address"
+   },
+   {
+    "indexed": false,
+    "internalType": "uint256",
+    "name": "amountIn",
+    "type": "uint256"
+   },
+   {
+    "indexed": false,
+    "internalType": "uint256",
+    "name": "amountOut",
+    "type": "uint256"
+   },
+   {
+    "indexed": false,
+    "internalType": "bytes32",
+    "name": "commitment",
+    "type": "bytes32"
+   },
+   {
+    "indexed": false,
+    "internalType": "address",
+    "name": "adapter",
+    "type": "address"
+   }
+  ],
+  "name": "Swapped",
+  "type": "event"
+ },
+ {
+  "anonymous": false,
+  "inputs": [
+   {
+    "indexed": false,
+    "internalType": "bool",
+    "name": "paused",
+    "type": "bool"
+   }
+  ],
+  "name": "SwapsPausedSet",
+  "type": "event"
+ },
+ {
+  "anonymous": false,
+  "inputs": [
+   {
+    "indexed": true,
+    "internalType": "address",
+    "name": "token",
+    "type": "address"
+   },
+   {
+    "indexed": false,
+    "internalType": "bool",
+    "name": "depositsEnabled",
+    "type": "bool"
+   },
+   {
+    "indexed": false,
+    "internalType": "uint256",
+    "name": "maxDeposit",
+    "type": "uint256"
+   }
+  ],
+  "name": "TokenConfigured",
+  "type": "event"
+ },
+ {
+  "anonymous": false,
+  "inputs": [
+   {
+    "indexed": true,
+    "internalType": "address",
+    "name": "implementation",
+    "type": "address"
+   }
+  ],
+  "name": "Upgraded",
+  "type": "event"
+ },
+ {
+  "anonymous": false,
+  "inputs": [
+   {
+    "indexed": true,
+    "internalType": "address",
+    "name": "wallet",
+    "type": "address"
+   },
+   {
+    "indexed": false,
+    "internalType": "bytes",
+    "name": "viewingPublicKey",
+    "type": "bytes"
+   },
+   {
+    "indexed": false,
+    "internalType": "uint32",
+    "name": "viewingEpoch",
+    "type": "uint32"
+   }
+  ],
+  "name": "ViewingKeyUpdated",
+  "type": "event"
+ },
+ {
+  "anonymous": false,
+  "inputs": [
+   {
+    "indexed": true,
+    "internalType": "address",
+    "name": "token",
+    "type": "address"
+   },
+   {
+    "indexed": true,
+    "internalType": "address",
+    "name": "recipient",
+    "type": "address"
+   },
+   {
+    "indexed": false,
+    "internalType": "uint256",
+    "name": "amount",
+    "type": "uint256"
+   }
+  ],
+  "name": "Withdrawn",
+  "type": "event"
+ },
+ {
+  "inputs": [],
+  "name": "FIELD_SIZE",
+  "outputs": [
+   {
+    "internalType": "uint256",
+    "name": "",
+    "type": "uint256"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ },
+ {
+  "inputs": [],
+  "name": "MAX_AMOUNT",
+  "outputs": [
+   {
+    "internalType": "uint256",
+    "name": "",
+    "type": "uint256"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ },
+ {
+  "inputs": [],
+  "name": "SWAP_EXT_DOMAIN",
+  "outputs": [
+   {
+    "internalType": "bytes32",
+    "name": "",
+    "type": "bytes32"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ },
+ {
+  "inputs": [],
+  "name": "TRANSFER_EXT_DOMAIN",
+  "outputs": [
+   {
+    "internalType": "bytes32",
+    "name": "",
+    "type": "bytes32"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ },
+ {
+  "inputs": [],
+  "name": "WITHDRAW_EXT_DOMAIN",
+  "outputs": [
+   {
+    "internalType": "bytes32",
+    "name": "",
+    "type": "bytes32"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "bytes32",
+    "name": "",
+    "type": "bytes32"
+   }
+  ],
+  "name": "commitmentExists",
+  "outputs": [
+   {
+    "internalType": "bool",
+    "name": "",
+    "type": "bool"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "address",
+    "name": "token",
+    "type": "address"
+   },
+   {
+    "internalType": "bool",
+    "name": "depositsEnabled",
+    "type": "bool"
+   },
+   {
+    "internalType": "uint256",
+    "name": "maxDeposit",
+    "type": "uint256"
+   }
+  ],
+  "name": "configureToken",
+  "outputs": [],
+  "stateMutability": "nonpayable",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "address",
+    "name": "token",
+    "type": "address"
+   },
+   {
+    "internalType": "uint256",
+    "name": "amount",
+    "type": "uint256"
+   },
+   {
+    "internalType": "bytes32",
+    "name": "npk",
+    "type": "bytes32"
+   },
+   {
+    "internalType": "bytes",
+    "name": "encryptedNote",
+    "type": "bytes"
+   }
+  ],
+  "name": "deposit",
+  "outputs": [],
+  "stateMutability": "nonpayable",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "bytes32",
+    "name": "npk",
+    "type": "bytes32"
+   },
+   {
+    "internalType": "bytes",
+    "name": "encryptedNote",
+    "type": "bytes"
+   }
+  ],
+  "name": "depositNative",
+  "outputs": [],
+  "stateMutability": "payable",
+  "type": "function"
+ },
+ {
+  "inputs": [],
+  "name": "depositsPaused",
+  "outputs": [
+   {
+    "internalType": "bool",
+    "name": "",
+    "type": "bool"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "components": [
+     {
+      "internalType": "address",
+      "name": "adapter",
+      "type": "address"
+     },
+     {
+      "internalType": "address",
+      "name": "tokenOut",
+      "type": "address"
+     },
+     {
+      "internalType": "uint256",
+      "name": "minAmountOut",
+      "type": "uint256"
+     },
+     {
+      "internalType": "uint256",
+      "name": "deadline",
+      "type": "uint256"
+     },
+     {
+      "internalType": "bytes32",
+      "name": "npkOut",
+      "type": "bytes32"
+     },
+     {
+      "internalType": "bytes",
+      "name": "routeData",
+      "type": "bytes"
+     },
+     {
+      "internalType": "bytes",
+      "name": "encryptedOutput",
+      "type": "bytes"
+     },
+     {
+      "internalType": "bytes[2]",
+      "name": "encryptedOutputs",
+      "type": "bytes[2]"
+     },
+     {
+      "internalType": "bytes",
+      "name": "outgoingRecord",
+      "type": "bytes"
+     }
+    ],
+    "internalType": "struct SwapExtData",
+    "name": "ext",
+    "type": "tuple"
+   }
+  ],
+  "name": "hashSwapExtData",
+  "outputs": [
+   {
+    "internalType": "uint256",
+    "name": "",
+    "type": "uint256"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "components": [
+     {
+      "internalType": "bytes[3]",
+      "name": "encryptedOutputs",
+      "type": "bytes[3]"
+     },
+     {
+      "internalType": "bytes",
+      "name": "outgoingRecord",
+      "type": "bytes"
+     }
+    ],
+    "internalType": "struct TransferExtData",
+    "name": "ext",
+    "type": "tuple"
+   }
+  ],
+  "name": "hashTransferExtData",
+  "outputs": [
+   {
+    "internalType": "uint256",
+    "name": "",
+    "type": "uint256"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "components": [
+     {
+      "internalType": "address",
+      "name": "recipient",
+      "type": "address"
+     },
+     {
+      "internalType": "bool",
+      "name": "unwrapNative",
+      "type": "bool"
+     },
+     {
+      "internalType": "bytes[2]",
+      "name": "encryptedOutputs",
+      "type": "bytes[2]"
+     },
+     {
+      "internalType": "bytes",
+      "name": "outgoingRecord",
+      "type": "bytes"
+     }
+    ],
+    "internalType": "struct WithdrawExtData",
+    "name": "ext",
+    "type": "tuple"
+   }
+  ],
+  "name": "hashWithdrawExtData",
+  "outputs": [
+   {
+    "internalType": "uint256",
+    "name": "",
+    "type": "uint256"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "address",
+    "name": "owner_",
+    "type": "address"
+   }
+  ],
+  "name": "initialize",
+  "outputs": [],
+  "stateMutability": "nonpayable",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "uint256",
+    "name": "treeId",
+    "type": "uint256"
+   },
+   {
+    "internalType": "bytes32",
+    "name": "root",
+    "type": "bytes32"
+   }
+  ],
+  "name": "isKnownRoot",
+  "outputs": [
+   {
+    "internalType": "bool",
+    "name": "",
+    "type": "bool"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "address",
+    "name": "wallet",
+    "type": "address"
+   }
+  ],
+  "name": "isRegistered",
+  "outputs": [
+   {
+    "internalType": "bool",
+    "name": "",
+    "type": "bool"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "bytes32",
+    "name": "",
+    "type": "bytes32"
+   }
+  ],
+  "name": "nullifierSpent",
+  "outputs": [
+   {
+    "internalType": "bool",
+    "name": "",
+    "type": "bool"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ },
+ {
+  "inputs": [],
+  "name": "owner",
+  "outputs": [
+   {
+    "internalType": "address",
+    "name": "",
+    "type": "address"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ },
+ {
+  "inputs": [],
+  "name": "proxiableUUID",
+  "outputs": [
+   {
+    "internalType": "bytes32",
+    "name": "",
+    "type": "bytes32"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "bytes32",
+    "name": "userCommitment",
+    "type": "bytes32"
+   },
+   {
+    "internalType": "bytes",
+    "name": "viewingPublicKey",
+    "type": "bytes"
+   }
+  ],
+  "name": "register",
+  "outputs": [],
+  "stateMutability": "nonpayable",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "address",
+    "name": "wallet",
+    "type": "address"
+   }
+  ],
+  "name": "registrationOf",
+  "outputs": [
+   {
+    "internalType": "bytes32",
+    "name": "userCommitment",
+    "type": "bytes32"
+   },
+   {
+    "internalType": "bytes",
+    "name": "viewingPublicKey",
+    "type": "bytes"
+   },
+   {
+    "internalType": "uint32",
+    "name": "keyIndex",
+    "type": "uint32"
+   },
+   {
+    "internalType": "uint32",
+    "name": "viewingEpoch",
+    "type": "uint32"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ },
+ {
+  "inputs": [],
+  "name": "renounceOwnership",
+  "outputs": [],
+  "stateMutability": "nonpayable",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "bytes32",
+    "name": "newUserCommitment",
+    "type": "bytes32"
+   },
+   {
+    "internalType": "bytes",
+    "name": "viewingPublicKey",
+    "type": "bytes"
+   }
+  ],
+  "name": "rotateKeys",
+  "outputs": [],
+  "stateMutability": "nonpayable",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "bool",
+    "name": "paused",
+    "type": "bool"
+   }
+  ],
+  "name": "setDepositsPaused",
+  "outputs": [],
+  "stateMutability": "nonpayable",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "address",
+    "name": "adapter",
+    "type": "address"
+   },
+   {
+    "internalType": "bool",
+    "name": "allowed",
+    "type": "bool"
+   }
+  ],
+  "name": "setSwapAdapter",
+  "outputs": [],
+  "stateMutability": "nonpayable",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "bool",
+    "name": "paused",
+    "type": "bool"
+   }
+  ],
+  "name": "setSwapsPaused",
+  "outputs": [],
+  "stateMutability": "nonpayable",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "components": [
+     {
+      "components": [
+       {
+        "internalType": "uint256[2]",
+        "name": "a",
+        "type": "uint256[2]"
+       },
+       {
+        "internalType": "uint256[2][2]",
+        "name": "b",
+        "type": "uint256[2][2]"
+       },
+       {
+        "internalType": "uint256[2]",
+        "name": "c",
+        "type": "uint256[2]"
+       }
+      ],
+      "internalType": "struct Proof",
+      "name": "proof",
+      "type": "tuple"
+     },
+     {
+      "internalType": "uint256",
+      "name": "treeId",
+      "type": "uint256"
+     },
+     {
+      "internalType": "bytes32",
+      "name": "root",
+      "type": "bytes32"
+     },
+     {
+      "internalType": "bytes32[4]",
+      "name": "nullifiers",
+      "type": "bytes32[4]"
+     },
+     {
+      "internalType": "bytes32[2]",
+      "name": "outCommitments",
+      "type": "bytes32[2]"
+     },
+     {
+      "internalType": "bytes32",
+      "name": "relayer",
+      "type": "bytes32"
+     },
+     {
+      "internalType": "address",
+      "name": "tokenIn",
+      "type": "address"
+     },
+     {
+      "internalType": "uint256",
+      "name": "amountIn",
+      "type": "uint256"
+     },
+     {
+      "components": [
+       {
+        "internalType": "address",
+        "name": "adapter",
+        "type": "address"
+       },
+       {
+        "internalType": "address",
+        "name": "tokenOut",
+        "type": "address"
+       },
+       {
+        "internalType": "uint256",
+        "name": "minAmountOut",
+        "type": "uint256"
+       },
+       {
+        "internalType": "uint256",
+        "name": "deadline",
+        "type": "uint256"
+       },
+       {
+        "internalType": "bytes32",
+        "name": "npkOut",
+        "type": "bytes32"
+       },
+       {
+        "internalType": "bytes",
+        "name": "routeData",
+        "type": "bytes"
+       },
+       {
+        "internalType": "bytes",
+        "name": "encryptedOutput",
+        "type": "bytes"
+       },
+       {
+        "internalType": "bytes[2]",
+        "name": "encryptedOutputs",
+        "type": "bytes[2]"
+       },
+       {
+        "internalType": "bytes",
+        "name": "outgoingRecord",
+        "type": "bytes"
+       }
+      ],
+      "internalType": "struct SwapExtData",
+      "name": "ext",
+      "type": "tuple"
+     }
+    ],
+    "internalType": "struct SwapCall[]",
+    "name": "calls",
+    "type": "tuple[]"
+   }
+  ],
+  "name": "swap",
+  "outputs": [],
+  "stateMutability": "nonpayable",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "address",
+    "name": "",
+    "type": "address"
+   }
+  ],
+  "name": "swapAdapters",
+  "outputs": [
+   {
+    "internalType": "bool",
+    "name": "",
+    "type": "bool"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ },
+ {
+  "inputs": [],
+  "name": "swapsPaused",
+  "outputs": [
+   {
+    "internalType": "bool",
+    "name": "",
+    "type": "bool"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "address",
+    "name": "",
+    "type": "address"
+   }
+  ],
+  "name": "tokenConfig",
+  "outputs": [
+   {
+    "internalType": "bool",
+    "name": "depositsEnabled",
+    "type": "bool"
+   },
+   {
+    "internalType": "uint256",
+    "name": "maxDeposit",
+    "type": "uint256"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "components": [
+     {
+      "components": [
+       {
+        "internalType": "uint256[2]",
+        "name": "a",
+        "type": "uint256[2]"
+       },
+       {
+        "internalType": "uint256[2][2]",
+        "name": "b",
+        "type": "uint256[2][2]"
+       },
+       {
+        "internalType": "uint256[2]",
+        "name": "c",
+        "type": "uint256[2]"
+       }
+      ],
+      "internalType": "struct Proof",
+      "name": "proof",
+      "type": "tuple"
+     },
+     {
+      "internalType": "uint256",
+      "name": "treeId",
+      "type": "uint256"
+     },
+     {
+      "internalType": "bytes32",
+      "name": "root",
+      "type": "bytes32"
+     },
+     {
+      "internalType": "bytes32[4]",
+      "name": "nullifiers",
+      "type": "bytes32[4]"
+     },
+     {
+      "internalType": "bytes32[3]",
+      "name": "outCommitments",
+      "type": "bytes32[3]"
+     },
+     {
+      "internalType": "bytes32",
+      "name": "relayer",
+      "type": "bytes32"
+     },
+     {
+      "components": [
+       {
+        "internalType": "bytes[3]",
+        "name": "encryptedOutputs",
+        "type": "bytes[3]"
+       },
+       {
+        "internalType": "bytes",
+        "name": "outgoingRecord",
+        "type": "bytes"
+       }
+      ],
+      "internalType": "struct TransferExtData",
+      "name": "ext",
+      "type": "tuple"
+     }
+    ],
+    "internalType": "struct TransferCall[]",
+    "name": "calls",
+    "type": "tuple[]"
+   }
+  ],
+  "name": "transfer",
+  "outputs": [],
+  "stateMutability": "nonpayable",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "address",
+    "name": "newOwner",
+    "type": "address"
+   }
+  ],
+  "name": "transferOwnership",
+  "outputs": [],
+  "stateMutability": "nonpayable",
+  "type": "function"
+ },
+ {
+  "inputs": [],
+  "name": "transferVerifier",
+  "outputs": [
+   {
+    "internalType": "contract ITransferVerifier",
+    "name": "",
+    "type": "address"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ },
+ {
+  "inputs": [],
+  "name": "treeCount",
+  "outputs": [
+   {
+    "internalType": "uint256",
+    "name": "",
+    "type": "uint256"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "uint256",
+    "name": "treeId",
+    "type": "uint256"
+   }
+  ],
+  "name": "treeInfo",
+  "outputs": [
+   {
+    "internalType": "bytes32",
+    "name": "root",
+    "type": "bytes32"
+   },
+   {
+    "internalType": "uint256",
+    "name": "nextIndex",
+    "type": "uint256"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "bytes",
+    "name": "viewingPublicKey",
+    "type": "bytes"
+   }
+  ],
+  "name": "updateViewingKey",
+  "outputs": [],
+  "stateMutability": "nonpayable",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "address",
+    "name": "newImplementation",
+    "type": "address"
+   }
+  ],
+  "name": "upgradeTo",
+  "outputs": [],
+  "stateMutability": "nonpayable",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "address",
+    "name": "newImplementation",
+    "type": "address"
+   },
+   {
+    "internalType": "bytes",
+    "name": "data",
+    "type": "bytes"
+   }
+  ],
+  "name": "upgradeToAndCall",
+  "outputs": [],
+  "stateMutability": "payable",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "bytes32",
+    "name": "",
+    "type": "bytes32"
+   }
+  ],
+  "name": "userCommitmentOwner",
+  "outputs": [
+   {
+    "internalType": "address",
+    "name": "",
+    "type": "address"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ },
+ {
+  "inputs": [],
+  "name": "version",
+  "outputs": [
+   {
+    "internalType": "string",
+    "name": "",
+    "type": "string"
+   }
+  ],
+  "stateMutability": "pure",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "components": [
+     {
+      "components": [
+       {
+        "internalType": "uint256[2]",
+        "name": "a",
+        "type": "uint256[2]"
+       },
+       {
+        "internalType": "uint256[2][2]",
+        "name": "b",
+        "type": "uint256[2][2]"
+       },
+       {
+        "internalType": "uint256[2]",
+        "name": "c",
+        "type": "uint256[2]"
+       }
+      ],
+      "internalType": "struct Proof",
+      "name": "proof",
+      "type": "tuple"
+     },
+     {
+      "internalType": "uint256",
+      "name": "treeId",
+      "type": "uint256"
+     },
+     {
+      "internalType": "bytes32",
+      "name": "root",
+      "type": "bytes32"
+     },
+     {
+      "internalType": "bytes32[4]",
+      "name": "nullifiers",
+      "type": "bytes32[4]"
+     },
+     {
+      "internalType": "bytes32[2]",
+      "name": "outCommitments",
+      "type": "bytes32[2]"
+     },
+     {
+      "internalType": "bytes32",
+      "name": "relayer",
+      "type": "bytes32"
+     },
+     {
+      "internalType": "address",
+      "name": "token",
+      "type": "address"
+     },
+     {
+      "internalType": "uint256",
+      "name": "amount",
+      "type": "uint256"
+     },
+     {
+      "components": [
+       {
+        "internalType": "address",
+        "name": "recipient",
+        "type": "address"
+       },
+       {
+        "internalType": "bool",
+        "name": "unwrapNative",
+        "type": "bool"
+       },
+       {
+        "internalType": "bytes[2]",
+        "name": "encryptedOutputs",
+        "type": "bytes[2]"
+       },
+       {
+        "internalType": "bytes",
+        "name": "outgoingRecord",
+        "type": "bytes"
+       }
+      ],
+      "internalType": "struct WithdrawExtData",
+      "name": "ext",
+      "type": "tuple"
+     }
+    ],
+    "internalType": "struct WithdrawCall[]",
+    "name": "calls",
+    "type": "tuple[]"
+   }
+  ],
+  "name": "withdraw",
+  "outputs": [],
+  "stateMutability": "nonpayable",
+  "type": "function"
+ },
+ {
+  "inputs": [],
+  "name": "withdrawVerifier",
+  "outputs": [
+   {
+    "internalType": "contract IWithdrawVerifier",
+    "name": "",
+    "type": "address"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ },
+ {
+  "inputs": [],
+  "name": "wrappedNative",
+  "outputs": [
+   {
+    "internalType": "contract IWrappedNative",
+    "name": "",
+    "type": "address"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ },
+ {
+  "stateMutability": "payable",
+  "type": "receive"
+ }
+]

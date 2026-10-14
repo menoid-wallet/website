@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import ChainOrbit from "./ChainOrbit";
 import DownloadButton from "./DownloadButton";
 import { HERO_SEAM } from "./seams";
@@ -258,6 +259,16 @@ export default function Hero() {
           {/* V1 has shipped — the button opens the two builds (was the register form) */}
           <div className="w-full max-w-md" style={rise(450)}>
             <DownloadButton fluid />
+            {/* the private web app (v1-mainnet, on Monad testnet for now) */}
+            <div className="mt-4 flex justify-center lg:justify-start">
+              <Link
+                href="/app"
+                className="btn-spring inline-flex items-center gap-2 rounded-full bg-white/20 px-5 py-2 font-round text-[13px] font-semibold text-white ring-1 ring-white/40 backdrop-blur-sm transition-colors hover:bg-white/30"
+              >
+                <span className="h-2 w-2 rounded-full bg-[#7CF2B4] shadow-[0_0_0_3px_rgba(124,242,180,0.25)]" />
+                V1 Live
+              </Link>
+            </div>
           </div>
         </div>
 

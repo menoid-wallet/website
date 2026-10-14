@@ -13,6 +13,7 @@ const ALLOWED_ORIGINS = [
   "http://localhost:3000",
   "https://menoid.xyz",
   "https://www.menoid.xyz",
+  "https://app.menoid.xyz",
 ];
 
 app.use(
@@ -126,14 +127,26 @@ app.post("/api/joinwaitlist", async (req, res) => {
 
 app.get("/", (_req, res) => res.json({ status: "Menoid waitlist API is running ⚓" }));
 
+// ───────────────────── Menoid v1-mainnet (/api/v1m) ─────────────────────
+// Private app backend: chain indexer + relayer. Loaded after dotenv so its
+// relayer key and RPC settings are in the environment.
+const { mountV1Mainnet, startV1Mainnet } = await import("./v1mainnet/index.js");
+mountV1Mainnet(app);
+
 // ───────────────────────── Start ─────────────────────────
-mongoose
+const waitlistDbOk = await mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => {
     console.log("✓ MongoDB connected");
-    app.listen(PORT, () => console.log(`✓ Menoid waitlist API on http://localhost:${PORT}`));
+    return true;
   })
   .catch((err) => {
     console.error("✗ MongoDB connection error:", err.message);
-    process.exit(1);
+    return false;
   });
+
+// Without its database the waitlist cannot work; keep serving only if the
+// v1-mainnet API has a database of its own.
+if (!waitlistDbOk && !process.env.V1M_MONGODB_URI) process.exit(1);
+app.listen(PORT, () => console.log(`✓ Menoid waitlist API on http://localhost:${PORT}`));
+startV1Mainnet();

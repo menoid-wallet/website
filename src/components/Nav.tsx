@@ -4,7 +4,7 @@ import { useState } from "react";
 import MenoidWordmark from "./MenoidWordmark";
 import CloudChip from "./CloudChip";
 import AnimatedLogo from "./AnimatedLogo";
-import { openDownload } from "./DownloadModal";
+import Link from "next/link";
 
 /* No bar — the nav is a row of little clouds floating in the hero's sky:
    one for the mark, one per link, one for the call to action. On a phone
@@ -20,6 +20,7 @@ export default function Nav() {
     { href: "#chains", label: "Chains" },
     // { href: "#meno", label: "Meno" },
     { href: "#roadmap", label: "Roadmap" },
+    { href: "/docs", label: "Docs" },
   ];
 
   return (
@@ -52,14 +53,12 @@ export default function Nav() {
 
         {/* the call to action, in a cloud of its own */}
         <div className="flex shrink-0 items-center gap-2.5">
-          {/* opens the sheet in place — it used to scroll to the closing
-              section, which meant a whole page of travel to reach the same
-              two builds */}
-          <button type="button" onClick={openDownload} className="hidden md:inline-flex">
+          {/* straight into the app (V1, mainnet) */}
+          <Link href="/app" className="hidden md:inline-flex">
             <CloudChip tone="violet" className="px-4 py-1.5 transition-transform duration-300 hover:-translate-y-0.5">
-              <span className="font-round text-[13px] font-semibold text-white">Download</span>
+              <span className="font-round text-[13px] font-semibold text-white">Launch</span>
             </CloudChip>
-          </button>
+          </Link>
 
           {/* the opener */}
           <button onClick={() => setOpen(!open)} aria-label="Toggle menu" id="mobile-menu-btn" className="md:hidden">
@@ -95,17 +94,11 @@ export default function Nav() {
               </CloudChip>
             </a>
           ))}
-          <button
-            type="button"
-            onClick={() => {
-              setOpen(false);
-              openDownload();
-            }}
-          >
+          <Link href="/app" onClick={() => setOpen(false)}>
             <CloudChip tone="violet" className="px-4 py-1.5">
-              <span className="font-round text-[13px] font-semibold text-white">Download</span>
+              <span className="font-round text-[13px] font-semibold text-white">Launch</span>
             </CloudChip>
-          </button>
+          </Link>
         </div>
       )}
     </header>

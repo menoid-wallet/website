@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
 
 import AppSky from "./AppSky";
@@ -116,13 +115,6 @@ export default function PrivateApp({ network = "mainnet" }: { network?: KeyNetwo
             </p>
           )}
         </main>
-
-        <footer className="relative z-10 pb-6 text-center text-[11px] font-medium text-[#4E2F8E]/70">
-          Menoid v1 · {network === "mainnet" ? `${m.config?.name ?? "mainnet"} · mainnet beta — use small amounts` : `testnet · ${m.config?.name ?? "…"} · test tokens, no real value`} ·{" "}
-          <Link href="/" className="underline decoration-dotted underline-offset-4">
-            menoid.xyz
-          </Link>
-        </footer>
 
         {m.tx && <TxOverlay tx={m.tx} explorer={m.config?.explorer} onClose={m.closeTx} />}
         <WalletPicker

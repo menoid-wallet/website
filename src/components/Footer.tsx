@@ -14,7 +14,7 @@ const PRODUCT_LINKS = [
 // A link with an `href` goes somewhere; one without still raises the
 // "coming soon" toast, which is what all four used to do.
 const DEV_LINKS: { label: string; href?: string }[] = [
-  { label: "Docs", href: "https://github.com/menoid-wallet/Docs/blob/main/DOCS.md" },
+  { label: "Docs", href: "/docs" },
   { label: "SDK" },
   { label: "Audits" },
   { label: "GitHub", href: "https://github.com/menoid-wallet" },

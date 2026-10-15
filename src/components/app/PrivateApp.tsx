@@ -14,11 +14,13 @@ import UnmaskPanel from "./UnmaskPanel";
 import TxOverlay from "./TxOverlay";
 import WalletPicker from "./WalletPicker";
 import { useMenoid } from "./useMenoid";
+import type { KeyNetwork } from "@/lib/v1m/protocol";
 import { CARD, ConnectContext } from "./ui";
 
 /* ────────────────────────────────────────────────────────────
-   /app — Menoid's private mode on the web (v1-mainnet), on every
-   chain the backend serves (Monad testnet, Base Sepolia).
+   Menoid's private mode on the web (v1-mainnet). /app
+   (app.menoid.xyz) runs the mainnets — Monad, Base; /testnet
+   (testnet.menoid.xyz) the testnets, with free test tokens.
    Mask · Send · Swap · Unmask are on show from the start; the
    panel's button walks you through it: Connect wallet → sign once
    (keys are derived in this tab) → Register (new accounts only) →
@@ -59,8 +61,8 @@ function Tabs({ value, onChange }: { value: Tab; onChange: (t: Tab) => void }) {
   );
 }
 
-export default function PrivateApp() {
-  const m = useMenoid();
+export default function PrivateApp({ network = "mainnet" }: { network?: KeyNetwork }) {
+  const m = useMenoid(network);
   const [tab, setTab] = useState<Tab>("mask");
   const [picking, setPicking] = useState(false);
   const [awake, setAwake] = useState(false);
@@ -77,7 +79,7 @@ export default function PrivateApp() {
     <ConnectContext.Provider value={connect}>
       <div className="relative flex min-h-svh flex-1 flex-col text-[#2E1A5C]">
         <AppSky />
-        <AppHeader m={m} asleep={asleep} onConnect={openPicker} onWake={wake} />
+        <AppHeader m={m} network={network} asleep={asleep} onConnect={openPicker} onWake={wake} />
 
         <main className="relative z-10 mx-auto w-full max-w-[540px] flex-1 px-4 pb-44 pt-8 sm:pt-12">
           {m.wrongChain && (
@@ -116,7 +118,7 @@ export default function PrivateApp() {
         </main>
 
         <footer className="relative z-10 pb-6 text-center text-[11px] font-medium text-[#4E2F8E]/70">
-          Menoid v1 · {m.config?.name ?? "testnet"} · {m.config?.keyNetwork === "mainnet" ? "mainnet beta — use small amounts" : "test tokens only"} ·{" "}
+          Menoid v1 · {network === "mainnet" ? `${m.config?.name ?? "mainnet"} · mainnet beta — use small amounts` : `testnet · ${m.config?.name ?? "…"} · test tokens, no real value`} ·{" "}
           <Link href="/" className="underline decoration-dotted underline-offset-4">
             menoid.xyz
           </Link>

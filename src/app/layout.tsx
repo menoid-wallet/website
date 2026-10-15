@@ -45,9 +45,9 @@ const siteUrl =
     ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
     : "http://localhost:3000");
 
-const title = "Menoid — Privacy layer for the multichain world";
+const title = "Menoid — Compliance-friendly multichain privacy layer";
 const description =
-  "Menoid is the privacy layer for the multichain world. Shield your assets, transact completely unseen, and unmask safely — with one click. V1 is live on Monad and Base mainnets; the V0.5 demo runs on 6 testnets.";
+  "Menoid is the compliance-friendly multichain privacy layer. Shield your assets, transact unseen, and share a viewing key whenever you need to prove your activity. V1 is live on Monad and Base mainnets; the V0.5 demo runs on 6 testnets.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

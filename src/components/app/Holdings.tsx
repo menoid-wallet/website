@@ -20,26 +20,37 @@ export function totalUsd(view: WalletView | null, tokens: TokenConfig[], prices:
 }
 
 export function TokenList({ tokens, view, prices, publicBalances }: { tokens: TokenConfig[]; view: WalletView | null; prices: Record<string, number>; publicBalances?: Record<string, bigint> }) {
+  // what is held privately first (largest value first), a thin line, then the
+  // rest — those with something in the public wallet ahead of the empty ones
+  const priv = (t: TokenConfig) => view?.balances[t.address] ?? 0n;
+  const value = (t: TokenConfig) => usdOf(priv(t), t.decimals, prices[t.address]);
+  const inWallet = (t: TokenConfig) => Number((publicBalances?.[t.address] ?? 0n) > 0n);
+  const held = tokens.filter((t) => priv(t) > 0n).sort((a, b) => value(b) - value(a));
+  const rest = tokens.filter((t) => priv(t) === 0n).sort((a, b) => inWallet(b) - inWallet(a));
+
+  const row = (t: TokenConfig) => (
+    <div key={t.address} className="flex items-center justify-between rounded-[18px] px-3.5 py-2.5" style={WELL}>
+      <div className="flex items-center gap-3">
+        <TokenIcon symbol={t.symbol} logo={t.logo} size={32} />
+        <div>
+          <p className="font-round text-[14.5px] font-semibold text-[#2E1A5C]">{t.symbol}</p>
+          <p className="text-[11px] text-[#2E1A5C]/50">{publicBalances ? `public ${formatAmount(publicBalances[t.address] ?? 0n, t.decimals)}` : t.name}</p>
+        </div>
+      </div>
+      <div className="text-right">
+        <p className="font-round text-[14.5px] font-semibold text-[#2E1A5C]">{formatAmount(priv(t), t.decimals)}</p>
+        <p className="font-mono text-[11px] text-[#2E1A5C]/50">{formatUsd(value(t))}</p>
+      </div>
+    </div>
+  );
+
   return (
     <div className="flex flex-col gap-1.5">
-      {tokens.map((t) => {
-        const priv = view?.balances[t.address] ?? 0n;
-        return (
-          <div key={t.address} className="flex items-center justify-between rounded-[18px] px-3.5 py-2.5" style={WELL}>
-            <div className="flex items-center gap-3">
-              <TokenIcon symbol={t.symbol} logo={t.logo} size={32} />
-              <div>
-                <p className="font-round text-[14.5px] font-semibold text-[#2E1A5C]">{t.symbol}</p>
-                <p className="text-[11px] text-[#2E1A5C]/50">{publicBalances ? `public ${formatAmount(publicBalances[t.address] ?? 0n, t.decimals)}` : t.name}</p>
-              </div>
-            </div>
-            <div className="text-right">
-              <p className="font-round text-[14.5px] font-semibold text-[#2E1A5C]">{formatAmount(priv, t.decimals)}</p>
-              <p className="font-mono text-[11px] text-[#2E1A5C]/50">{formatUsd(usdOf(priv, t.decimals, prices[t.address]))}</p>
-            </div>
-          </div>
-        );
-      })}
+      {held.map(row)}
+      {held.length > 0 && rest.length > 0 && (
+        <div className="mx-10 my-1 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(78,47,142,0.22), transparent)" }} aria-hidden />
+      )}
+      {rest.map(row)}
     </div>
   );
 }
@@ -83,7 +94,8 @@ function ago(timestamp: number | undefined): string {
   return `${Math.floor(s / 86400)}d ago`;
 }
 
-const LOOK: Record<ActivityItem["kind"], { label: string; tint: string; icon: React.ReactNode }> = {
+// each kind of activity: its label, colour and icon (the homepage's app mockups use them too)
+export const ACTIVITY_LOOK: Record<ActivityItem["kind"], { label: string; tint: string; icon: React.ReactNode }> = {
   masked: { label: "Masked", tint: "#7556CF", icon: <path d="M9 2L15 4.2V8.5C15 12 12.4 14.7 9 16C5.6 14.7 3 12 3 8.5V4.2L9 2Z M6.4 9L8.2 10.8L11.8 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /> },
   received: { label: "Received privately", tint: "#16794F", icon: <path d="M14 4L4 14M4 14H11M4 14V7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /> },
   sent: { label: "Sent privately", tint: "#C2417E", icon: <path d="M4 14L14 4M14 4H7M14 4V11" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /> },
@@ -128,7 +140,7 @@ export function History({
   return (
     <div className="flex flex-col gap-1.5">
       {grouped.map((a, i) => {
-        const look = LOOK[a.kind];
+        const look = ACTIVITY_LOOK[a.kind];
         const token = tokenOf(a.token);
         const out = tokenOf(a.tokenOut);
         const toSomeoneElse = a.kind === "unmasked" && a.counterparty && self && ethers.getAddress(a.counterparty) !== ethers.getAddress(self);

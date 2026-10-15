@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ethers } from "ethers";
 
 import { ApiError, chainApi, listChains, type AppConfig, type ChainApi, type ChainInfo, type FeeQuote, type RelayResult, type TokenConfig, type TokenLookup } from "@/lib/v1m/api";
-import { decodeViewingKey, deriveKeysFromSignature, encodeViewingKey, fullViewingKey, keyMessage, withViewingEpoch, type PrivateKeys } from "@/lib/v1m/protocol";
+import { decodeViewingKey, deriveKeysFromSignature, encodeViewingKey, fullViewingKey, keyMessage, withViewingEpoch, type KeyNetwork, type PrivateKeys } from "@/lib/v1m/protocol";
 import { Mirror, scan, type WalletView } from "@/lib/v1m/mirror";
 import { buildDeposit, buildSwap, buildTransfer, buildWithdraw, pickNotes, planBatches, type Recipient } from "@/lib/v1m/build";
 import { preloadProver, proveInBrowser, type ProvingKeys } from "@/lib/v1m/prover";
@@ -45,7 +45,8 @@ export type InspectResult = { address: string; registered: boolean; view: Wallet
 const SYNC_MS = 8_000;
 const PRICE_MS = 30_000;
 export const LAST_WALLET_KEY = "menoid:lastWallet";
-export const CHAIN_KEY = "menoid:chain";
+// the chain on screen, remembered per site: the mainnet app and the testnet one
+export const chainKey = (network: KeyNetwork) => `menoid:chain:${network}`;
 const CUSTOM_TOKENS_KEY = (chainId: string) => `menoid:tokens:${chainId}`;
 
 // tokens the user added by address, per chain (this browser only)
@@ -103,15 +104,18 @@ const hasReserve = (cfg: AppConfig) => Number(cfg.reserveBalance ?? 0) > 0;
 const feeTooLow = (e: unknown): FeeQuote | null =>
   e instanceof ApiError && e.status === 409 && e.body?.code === "fee_too_low" ? (e.body.required as FeeQuote) : null;
 
-const storedChain = () => {
+const storedChain = (network: KeyNetwork) => {
   try {
-    return localStorage.getItem(CHAIN_KEY);
+    return localStorage.getItem(chainKey(network));
   } catch {
     return null;
   }
 };
 
-export function useMenoid() {
+/* One site, one kind of network: the app (app.menoid.xyz) runs the mainnets,
+   the testnet site (testnet.menoid.xyz) the testnets. The backend may serve
+   both; each site only shows its own. */
+export function useMenoid(network: KeyNetwork = "mainnet") {
   const [chains, setChains] = useState<ChainInfo[]>([]);
   const [chainId, setChainId] = useState<string | null>(null);
   const [configs, setConfigs] = useState<Record<string, AppConfig>>({});
@@ -165,13 +169,19 @@ export function useMenoid() {
     let retry: ReturnType<typeof setTimeout> | undefined;
     const load = async () => {
       try {
-        const { default: fallback, chains: list } = await listChains();
+        const { default: preferred, chains: served } = await listChains();
+        const list = served.filter((c) => c.keyNetwork === network);
+        if (!list.length) {
+          if (live) setError(`This server runs no ${network} networks right now.`);
+          return;
+        }
+        const fallback = list.some((c) => c.id === preferred) ? preferred : list[0].id;
         const loaded = await Promise.all(list.map((c) => chainApi(c.id).config().then((cfg) => [c.id, cfg] as const)));
         if (!live) return;
         W.rememberChains(list);
         setChains(list);
         setConfigs(Object.fromEntries(loaded));
-        const saved = storedChain();
+        const saved = storedChain(network);
         setChainId((current) => current ?? (list.some((c) => c.id === saved) ? saved! : fallback));
         for (const c of list) {
           chainApi(c.id)
@@ -189,7 +199,7 @@ export function useMenoid() {
       live = false;
       clearTimeout(retry);
     };
-  }, []);
+  }, [network]);
 
   useEffect(() => {
     tokensRef.current = tokens;
@@ -411,7 +421,7 @@ export function useMenoid() {
     const cfg = configs[id];
     if (!cfg || id === chainRef.current.id) return;
     try {
-      localStorage.setItem(CHAIN_KEY, id);
+      localStorage.setItem(chainKey(network), id);
     } catch {
       // storage blocked: the choice lasts this visit
     }
@@ -454,7 +464,7 @@ export function useMenoid() {
       reset();
       setError(friendlyError(e, cfg.nativeSymbol));
     }
-  }, [configs, address, phase, refreshPublic, reset, syncNow]);
+  }, [network, configs, address, phase, refreshPublic, reset, syncNow]);
 
   // wallet switched account or chain: start over / ask to switch back
   useEffect(() => {

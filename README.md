@@ -1,14 +1,24 @@
-# 🌑 Menoid Wallet
-A Private crypto wallet..
+# 🌑 Menoid
+The compliance-friendly multichain privacy layer.
 
 ## ✨ Introduction
-Menoid is a Private crypto wallet built for multi-chain privacy, supporting 15+ chains..
+Menoid is a compliance-friendly multichain privacy layer, targeting 15+ chains.
+
+- **V1 — live on mainnet.** The private app runs in the browser at [app.menoid.xyz](https://app.menoid.xyz), on **Monad** and **Base**: mask, send, swap and unmask privately, and share a viewing key whenever you need to prove your activity. Testnets: [testnet.menoid.xyz](https://testnet.menoid.xyz).
+- **V0.5 — the older demo.** The browser extension and the Android app, with Open Mode and Noid Mode, on 6 testnets.
 
 Menoid enables users to:
 
-🌍 Use both Public Mode and Noid Mode depending on how visible they want to be onchain.
-🕶️ Transfer assets privately through Noid Mode
+🕶️ Mask, send, swap and unmask privately — no address on-chain, no link between payments
+🔍 Share a viewing key to prove their activity — read-only, so it can never spend
+🌍 Use both Public Mode and Noid Mode depending on how visible they want to be on-chain (V0.5)
 🛡️ Maintain privacy while remaining fully composable with multi-chain protocols
+
+## 🎬 Demo
+
+![Menoid V1 — a private swap on Monad mainnet](demo/09-swap.png)
+
+One real session on Monad mainnet, step by step — connect, register, mask, send, swap, unmask, your account and viewing keys: **[see the demo →](demo.md)**
 
 ## ⚙️ Tech Stack
 ### 🧠 Zero Knowledge

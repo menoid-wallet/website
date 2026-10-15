@@ -16,7 +16,7 @@ export default function Nav() {
   const [open, setOpen] = useState(false);
 
   const links = [
-    { href: "#wallet-modes", label: "Modes" },
+    { href: "#v1-mainnet", label: "V1 Mainnet" },
     { href: "#chains", label: "Chains" },
     // { href: "#meno", label: "Meno" },
     { href: "#roadmap", label: "Roadmap" },

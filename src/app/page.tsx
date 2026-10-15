@@ -1,7 +1,7 @@
 import Loader from "@/components/Loader";
 import Nav from "@/components/Nav";
 import Hero from "@/components/Hero";
-import WalletModes from "@/components/WalletModes";
+import MainnetTour from "@/components/MainnetTour";
 import Chains from "@/components/Chains";
 import Roadmap from "@/components/Roadmap";
 import Footer from "@/components/Footer";
@@ -14,7 +14,8 @@ export default function Home() {
       <Nav />
       <main className="relative flex-1">
         <Hero />
-        <WalletModes />
+        {/* V1 Mainnet step by step, then V0.5 (the older wallet) in brief */}
+        <MainnetTour />
         <Chains />
         {/* Roadmap closes with the download CTA — same section, same rain. */}
         <Roadmap />

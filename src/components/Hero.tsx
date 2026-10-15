@@ -238,7 +238,7 @@ export default function Hero() {
           </h1>
 
           <p className="mb-5 max-w-md text-[17px] leading-relaxed text-white/85" style={rise(280)}>
-            A wallet that keeps your on-chain activity private.
+            Compliance-friendly multichain privacy layer.
           </p>
 
           {/* the multichain line */}

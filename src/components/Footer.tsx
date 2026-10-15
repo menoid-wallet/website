@@ -6,11 +6,8 @@ import { ROADMAP_SEAM } from "./seams";
 import { useRef, useState } from "react";
 
 const PRODUCT_LINKS = [
-  { label: "Wallet", href: "#top" },
-  // both of these used to point at #wallet-modes, which is the section wrapper
-  // — so "Noid Mode" scrolled you to the Open Mode intro
-  { label: "Open Mode", href: "#open-mode" },
-  { label: "Noid Mode", href: "#noid-mode" },
+  { label: "Launch App", href: "/app" },
+  { label: "V1 Mainnet", href: "#v1-mainnet" },
   { label: "Roadmap", href: "#roadmap" },
 ];
 
@@ -83,7 +80,7 @@ export default function Footer() {
                 <span className="font-round text-2xl font-semibold tracking-tight text-white">Menoid</span>
               </div>
               <p className="max-w-xs text-[14px] leading-relaxed text-white/70">
-                The Private crypto wallet.
+                Compliance-friendly multichain privacy layer.
               </p>
 
               <div className="mt-6 flex gap-2">
@@ -138,7 +135,7 @@ export default function Footer() {
 
         <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-[rgba(255,255,255,0.14)] pt-8 md:flex-row">
           <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-white/45">
-            © {new Date().getFullYear()} Menoid · Private crypto wallet
+            © {new Date().getFullYear()} Menoid · Compliance-friendly multichain privacy layer
           </p>
           <div className="flex gap-6 text-[12px] text-white/70">
             <a href="#" onClick={soon} className="transition-colors hover:text-white">Privacy</a>

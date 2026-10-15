@@ -48,7 +48,6 @@ const PHASES: Phase[] = [
     cohorts: [
       { label: "V0.5 Extension", shipped: true },
       { label: "V0.5 Android", shipped: true },
-      { label: "V0.5 iOS" },
     ],
   },
   {
@@ -59,7 +58,7 @@ const PHASES: Phase[] = [
       { icon: "⛓️", text: "Live on 2 mainnets — Monad & Base." },
       { icon: "🕶️", text: "Mask, send, swap and unmask privately, right in the browser." },
       { icon: "🐸", text: "Top tokens and memecoins, swapped privately." },
-      { icon: "🌍", text: "Next: many more ecosystems and chains." },
+      { icon: "🔍", text: "Viewing keys — compliance-friendly by design." },
     ],
     cohorts: [{ label: "V1 Web App", shipped: true }],
   },
@@ -68,7 +67,7 @@ const PHASES: Phase[] = [
     tagline: "Sealed Orders",
     locked: true,
     bullets: [
-      { icon: "⛓️", text: "20+ mainnet networks, shielded end to end." },
+      { icon: "⛓️", text: "15+ chains, shielded end to end." },
       { icon: "🧠", text: "Multi-dApp AutoPilot running across tabs at once." },
       { icon: "🔐", text: "Shielded pool v2 with instant client-side proofs." },
       { icon: "🤝", text: "Private cross-chain bridges with hidden routing." },

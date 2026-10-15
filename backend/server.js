@@ -14,6 +14,7 @@ const ALLOWED_ORIGINS = [
   "https://menoid.xyz",
   "https://www.menoid.xyz",
   "https://app.menoid.xyz",
+  "https://testnet.menoid.xyz",
   // more sites (a Vercel preview, testnet.menoid.xyz …) without a code change:
   // CORS_ORIGINS=https://a.example,https://b.example
   ...(process.env.CORS_ORIGINS || "").split(",").map((o) => o.trim()).filter(Boolean),

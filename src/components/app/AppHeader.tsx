@@ -14,6 +14,7 @@ import type { Menoid } from "./useMenoid";
 import { PRIMARY } from "./ui";
 import { formatUsd } from "@/lib/v1m/format";
 import { shortAddress } from "@/lib/v1m/wallet";
+import type { KeyNetwork } from "@/lib/v1m/protocol";
 
 /* ────────────────────────────────────────────────────────────
    Header: the mark (home), the network, and — once connected —
@@ -21,7 +22,7 @@ import { shortAddress } from "@/lib/v1m/wallet";
    account box.
    ──────────────────────────────────────────────────────────── */
 
-export default function AppHeader({ m, asleep, onConnect, onWake }: { m: Menoid; asleep: boolean; onConnect: () => void; onWake: () => void }) {
+export default function AppHeader({ m, network, asleep, onConnect, onWake }: { m: Menoid; network: KeyNetwork; asleep: boolean; onConnect: () => void; onWake: () => void }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -65,6 +66,7 @@ export default function AppHeader({ m, asleep, onConnect, onWake }: { m: Menoid;
       <div className="flex items-center gap-2">
         {/* the network, left of the private balance */}
         <ChainSwitcher
+          network={network}
           chains={m.chains}
           value={m.chainId}
           onChange={(id) => void m.selectChain(id)}

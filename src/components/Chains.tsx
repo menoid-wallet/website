@@ -341,14 +341,12 @@ export default function Chains() {
             is where the sky drops toward CHAINS_SEAM to hand over to the
             roadmap. Violet on that is barely there. */}
         <Reveal delay={140} className="mx-auto mt-14 max-w-2xl text-center sm:mt-16">
-          <p className="text-[14px] leading-relaxed text-white/85 sm:text-[15px]">
-            Shield, send and swap across every chain Menoid supports — without your activity
-            following you from one to the next.
+          <p className="font-round font-semibold text-white" style={{ fontSize: "clamp(20px, 2.4vw, 26px)" }}>
+            Targeting 15+ chains
           </p>
-          <p className="mt-3 text-[13px] leading-relaxed text-white/75 sm:text-[14px]">
-            <span className="font-semibold text-white">V1 is live on 2 mainnets</span> — Monad and Base.{" "}
-            <span className="font-semibold text-white">V0.5, the demo,</span> runs on 6 testnets. Next, Menoid
-            grows across many more ecosystems and chains.
+          <p className="mt-2 text-[14px] leading-relaxed text-white/80 sm:text-[15px]">
+            One compliance-friendly privacy layer wherever your crypto lives — Monad and Base today,
+            many more ecosystems next.
           </p>
         </Reveal>
       </div>

@@ -3,14 +3,26 @@
 import { useEffect, useRef, useState } from "react";
 
 import type { ChainInfo } from "@/lib/v1m/api";
+import type { KeyNetwork } from "@/lib/v1m/protocol";
 import { CARD } from "./ui";
 
 /* ────────────────────────────────────────────────────────────
    The network the app is on, in the header next to the private
    balance. Each chain has its own pool: its own registration,
-   notes and balance. The same signature's keys work on all of
-   them.
+   notes and balance. One signature's keys work on all the
+   mainnets (another one's on all the testnets). The testnets
+   live on their own site; the menu links across.
    ──────────────────────────────────────────────────────────── */
+
+const SITES: Record<KeyNetwork, { host: string; path: string }> = {
+  mainnet: { host: "app.menoid.xyz", path: "/app" },
+  testnet: { host: "testnet.menoid.xyz", path: "/testnet" },
+};
+
+// menoid.xyz and its subdomains link by subdomain; anywhere else (localhost, a preview) by path
+function siteHref(network: KeyNetwork) {
+  return window.location.hostname.endsWith("menoid.xyz") ? `https://${SITES[network].host}` : SITES[network].path;
+}
 
 export function ChainMark({ chain, size = 24 }: { chain: Pick<ChainInfo, "id" | "shortName">; size?: number }) {
   if (chain.id.startsWith("monad")) {
@@ -47,11 +59,13 @@ export function ChainMark({ chain, size = 24 }: { chain: Pick<ChainInfo, "id" | 
 }
 
 export default function ChainSwitcher({
+  network,
   chains,
   value,
   onChange,
   disabled = false,
 }: {
+  network: KeyNetwork;
   chains: ChainInfo[];
   value: string | null;
   onChange: (id: string) => void;
@@ -130,8 +144,23 @@ export default function ChainSwitcher({
             </button>
           ))}
           <p className="px-3 pb-2 pt-1 text-[10.5px] leading-relaxed text-[#2E1A5C]/45">
-            Each network has its own private balance. Your keys come from the same signature everywhere.
+            Each network has its own private balance. One signature makes your keys for all of them.
           </p>
+          <a
+            href={siteHref(network === "mainnet" ? "testnet" : "mainnet")}
+            className="mt-1 flex items-center justify-between gap-2 rounded-[16px] px-3 py-2.5 transition-colors hover:bg-[rgba(243,234,255,0.9)]"
+            style={{ border: "1px dashed rgba(78,47,142,0.22)" }}
+          >
+            <span className="min-w-0">
+              <span className="block font-round text-[13px] font-semibold text-[#5E40A8]">{network === "mainnet" ? "Switch to testnet" : "Back to mainnet"}</span>
+              <span className="block text-[10.5px] text-[#2E1A5C]/50">
+                {network === "mainnet" ? "Monad Testnet & Base Sepolia — free test tokens" : "Monad & Base — real assets"}
+              </span>
+            </span>
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="shrink-0 text-[#5E40A8]">
+              <path d="M3.5 1.5L7 5L3.5 8.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </a>
         </div>
       )}
     </div>

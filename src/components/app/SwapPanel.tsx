@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-import { api, type Quote, type TokenConfig } from "@/lib/v1m/api";
+import type { Quote, TokenConfig } from "@/lib/v1m/api";
 import { maxSpendable } from "@/lib/v1m/build";
 import { amountForInput, formatAmount, tryParseAmount, usdOf } from "@/lib/v1m/format";
 import type { Menoid } from "./useMenoid";
@@ -10,15 +10,16 @@ import { AmountBox, BalanceHint, InfoRows, PanelAction, TokenIcon, TokenSelect, 
 
 /* ────────────────────────────────────────────────────────────
    SWAP — private in, private out. Menoid picks the route (every
-   fee tier, and two hops through a connector), the pool trades on
-   Uniswap V3 itself, and the bought tokens land as a new private
+   venue, every fee tier, and two hops through a connector), the pool
+   trades on Uniswap V3 itself — or on Capricorn, nad.fun's DEX, for
+   Monad's memecoins — and the bought tokens land as a new private
    note. Nobody can link the trade to the wallet behind it.
    ──────────────────────────────────────────────────────────── */
 
 const SLIPPAGES = [50, 100, 200];
 
 export default function SwapPanel({ m }: { m: Menoid }) {
-  const tokens = m.config!.tokens;
+  const tokens = m.tokens;
   const [tokenIn, setTokenIn] = useState<TokenConfig>(tokens[0]);
   const [tokenOut, setTokenOut] = useState<TokenConfig>(tokens[1] ?? tokens[0]);
   const [amount, setAmount] = useState("");
@@ -29,10 +30,11 @@ export default function SwapPanel({ m }: { m: Menoid }) {
   const parsed = tryParseAmount(amount, tokenIn.decimals);
 
   // a fresh quote, half a second after the user stops typing
-  const quoteKey = parsed && parsed > 0n && tokenIn.address !== tokenOut.address ? `${tokenIn.address}:${tokenOut.address}:${parsed}` : null;
+  const api = m.api;
+  const quoteKey = api && parsed && parsed > 0n && tokenIn.address !== tokenOut.address ? `${api.chain}:${tokenIn.address}:${tokenOut.address}:${parsed}` : null;
   useEffect(() => {
-    if (!quoteKey) return;
-    const [inAddr, outAddr, raw] = quoteKey.split(":");
+    if (!quoteKey || !api) return;
+    const [, inAddr, outAddr, raw] = quoteKey.split(":");
     let live = true;
     const t = setTimeout(async () => {
       try {
@@ -46,14 +48,14 @@ export default function SwapPanel({ m }: { m: Menoid }) {
       live = false;
       clearTimeout(t);
     };
-  }, [quoteKey]);
+  }, [quoteKey, api]);
   const current = quoteKey && quoted?.key === quoteKey ? quoted : null;
   const quote = current?.quote ?? null;
   const quoteError = current?.error ?? null;
   const quoting = Boolean(quoteKey) && !current;
 
   // a swap is one proof (up to 4 notes); its gas depends on the route's hops
-  const feeQuote = useFeeQuote("swap", tokenIn.address, 1, quote?.fees.length ?? 1);
+  const feeQuote = useFeeQuote(m.api, "swap", tokenIn.address, 1, quote?.fees.length ?? 1);
   const fee = feeQuote.quote ? BigInt(feeQuote.quote.feePerCall) : null;
   const max = m.view && fee !== null ? maxSpendable(m.view.unspent, tokenIn.address, fee, 1) : 0n;
   // quoted all along (Max needs it), shown once there is an amount and its route (the hops set the gas)
@@ -61,7 +63,7 @@ export default function SwapPanel({ m }: { m: Menoid }) {
 
   const amountOut = quote ? BigInt(quote.amountOut) : null;
   const minOut = amountOut ? (amountOut * BigInt(10_000 - slippage)) / 10_000n : null;
-  const symbolOf = (address: string) => tokens.find((t) => t.address.toLowerCase() === address.toLowerCase())?.symbol ?? "?";
+  const tokenAt = (address: string) => tokens.find((t) => t.address.toLowerCase() === address.toLowerCase());
 
   const blocker = useMemo(() => {
     if (tokenIn.address === tokenOut.address) return "Pick two different tokens";
@@ -89,7 +91,7 @@ export default function SwapPanel({ m }: { m: Menoid }) {
         value={amount}
         onChange={setAmount}
         usd={parsed ? usdOf(parsed, tokenIn.decimals, m.prices[tokenIn.address]) : 0}
-        right={<TokenSelect tokens={tokens} value={tokenIn} onChange={(t) => { if (t.address === tokenOut.address) setTokenOut(tokenIn); setTokenIn(t); setAmount(""); }} balances={m.view?.balances} balanceLabel="Private" />}
+        right={<TokenSelect tokens={tokens} value={tokenIn} onChange={(t) => { if (t.address === tokenOut.address) setTokenOut(tokenIn); setTokenIn(t); setAmount(""); }} balances={m.view?.balances} balanceLabel="Private" blockReason={(t) => (t.relayable === false ? "No price yet for the relayer's fee" : null)} onLookup={m.lookupToken} onAdd={m.addToken} onRemove={m.removeToken} />}
         footer={m.phase === "ready" && <BalanceHint label="Private" amount={privateBalance} decimals={tokenIn.decimals} onMax={() => setAmount(amountForInput(max, tokenIn.decimals))} />}
       />
 
@@ -111,7 +113,7 @@ export default function SwapPanel({ m }: { m: Menoid }) {
         value={amountOut !== null ? amountForInput(amountOut, tokenOut.decimals) : quoting ? "…" : ""}
         readOnly
         usd={amountOut ? usdOf(amountOut, tokenOut.decimals, m.prices[tokenOut.address]) : 0}
-        right={<TokenSelect tokens={tokens} value={tokenOut} onChange={(t) => { if (t.address === tokenIn.address) setTokenIn(tokenOut); setTokenOut(t); }} balances={m.view?.balances} balanceLabel="Private" />}
+        right={<TokenSelect tokens={tokens} value={tokenOut} onChange={(t) => { if (t.address === tokenIn.address) setTokenIn(tokenOut); setTokenOut(t); }} balances={m.view?.balances} balanceLabel="Private" blockReason={(t) => (t.enabled === false ? "Not accepted by the pool yet" : null)} onLookup={m.lookupToken} onAdd={m.addToken} onRemove={m.removeToken} />}
         footer={<span className="text-[#2E1A5C]/45">into a new private note</span>}
       />
 
@@ -125,9 +127,10 @@ export default function SwapPanel({ m }: { m: Menoid }) {
                   {quote.tokens.map((t, i) => (
                     <span key={i} className="inline-flex items-center gap-1.5">
                       {i > 0 && <span className="text-[11px] text-[#2E1A5C]/45">{(quote.fees[i - 1] / 10_000).toFixed(2).replace(/\.?0+$/, "")}% →</span>}
-                      <TokenIcon symbol={symbolOf(t)} size={18} />
+                      <TokenIcon symbol={tokenAt(t)?.symbol ?? "?"} logo={tokenAt(t)?.logo} size={18} />
                     </span>
                   ))}
+                  {quote.venueName && <span className="text-[11px] text-[#2E1A5C]/45">· {quote.venueName}</span>}
                 </span>
               ) : (
                 "—"

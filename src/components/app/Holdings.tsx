@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ethers } from "ethers";
 
-import type { TokenConfig } from "@/lib/v1m/api";
+import type { AppConfig, TokenConfig } from "@/lib/v1m/api";
 import type { ActivityItem, WalletView } from "@/lib/v1m/mirror";
 import { formatAmount, formatUsd, usdOf } from "@/lib/v1m/format";
 import { explorerTx, readProvider, shortAddress } from "@/lib/v1m/wallet";
@@ -27,7 +27,7 @@ export function TokenList({ tokens, view, prices, publicBalances }: { tokens: To
         return (
           <div key={t.address} className="flex items-center justify-between rounded-[18px] px-3.5 py-2.5" style={WELL}>
             <div className="flex items-center gap-3">
-              <TokenIcon symbol={t.symbol} size={32} />
+              <TokenIcon symbol={t.symbol} logo={t.logo} size={32} />
               <div>
                 <p className="font-round text-[14.5px] font-semibold text-[#2E1A5C]">{t.symbol}</p>
                 <p className="text-[11px] text-[#2E1A5C]/50">{publicBalances ? `public ${formatAmount(publicBalances[t.address] ?? 0n, t.decimals)}` : t.name}</p>
@@ -46,18 +46,20 @@ export function TokenList({ tokens, view, prices, publicBalances }: { tokens: To
 
 /* ─── history ──────────────────────────────────────────────────────── */
 
-const blockTimes = new Map<number, number>();
+// "chainId:block" -> timestamp
+const blockTimes = new Map<string, number>();
 
-function useBlockTimes(blocks: number[]) {
+function useBlockTimes(chain: AppConfig | null, blocks: number[]) {
   const [, bump] = useState(0);
-  const key = blocks.join(",");
+  const key = chain ? `${chain.chainId}|${blocks.join(",")}` : "";
   useEffect(() => {
+    if (!chain) return;
     let live = true;
     (async () => {
-      for (const b of blocks.filter((n) => !blockTimes.has(n)).slice(0, 15)) {
+      for (const b of blocks.filter((n) => !blockTimes.has(`${chain.chainId}:${n}`)).slice(0, 15)) {
         try {
-          const block = await readProvider().getBlock(b);
-          if (block) blockTimes.set(b, block.timestamp);
+          const block = await readProvider(chain).getBlock(b);
+          if (block) blockTimes.set(`${chain.chainId}:${b}`, block.timestamp);
         } catch {
           // a time is a nicety
         }
@@ -69,7 +71,7 @@ function useBlockTimes(blocks: number[]) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
-  return blockTimes;
+  return (block: number) => (chain ? blockTimes.get(`${chain.chainId}:${block}`) : undefined);
 }
 
 function ago(timestamp: number | undefined): string {
@@ -105,9 +107,21 @@ function groupByTx(items: ActivityItem[]): ActivityItem[] {
   return out;
 }
 
-export function History({ items, tokens, self, empty = "Nothing here yet. Mask something to begin." }: { items: ActivityItem[]; tokens: TokenConfig[]; self?: string | null; empty?: string }) {
+export function History({
+  items,
+  tokens,
+  chain,
+  self,
+  empty = "Nothing here yet. Mask something to begin.",
+}: {
+  items: ActivityItem[];
+  tokens: TokenConfig[];
+  chain: AppConfig | null;
+  self?: string | null;
+  empty?: string;
+}) {
   const grouped = useMemo(() => groupByTx(items), [items]);
-  const times = useBlockTimes(useMemo(() => grouped.slice(0, 15).map((a) => a.blockNumber), [grouped]));
+  const timeOf = useBlockTimes(chain, useMemo(() => grouped.slice(0, 15).map((a) => a.blockNumber), [grouped]));
   const tokenOf = (address?: string) => tokens.find((t) => address && t.address.toLowerCase() === address.toLowerCase());
 
   if (!grouped.length) return <p className="py-6 text-center text-[13px] text-[#2E1A5C]/50">{empty}</p>;
@@ -121,7 +135,7 @@ export function History({ items, tokens, self, empty = "Nothing here yet. Mask s
         const label = toSomeoneElse ? "Sent to a public wallet" : look.label;
         const incoming = a.kind === "masked" || a.kind === "received";
         return (
-          <a key={`${a.txHash}-${i}`} href={explorerTx(a.txHash)} target="_blank" rel="noreferrer" className="flex items-center gap-3 rounded-[16px] px-3 py-2.5 transition-colors hover:bg-white/80" style={WELL}>
+          <a key={`${a.txHash}-${i}`} href={chain ? explorerTx(chain.explorer, a.txHash) : undefined} target="_blank" rel="noreferrer" className="flex items-center gap-3 rounded-[16px] px-3 py-2.5 transition-colors hover:bg-white/80" style={WELL}>
             <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white" style={{ color: look.tint }}>
               <svg width="15" height="15" viewBox="0 0 18 18" fill="none">{look.icon}</svg>
             </span>
@@ -132,7 +146,7 @@ export function History({ items, tokens, self, empty = "Nothing here yet. Mask s
               </span>
               <span className="block truncate text-[11px] text-[#2E1A5C]/50">
                 {a.kind === "swapped" && out ? `into ${a.amountOut !== undefined ? formatAmount(a.amountOut, out.decimals) : "…"} ${out.symbol}` : a.counterparty ? `to ${shortAddress(a.counterparty)}` : `tx ${shortAddress(a.txHash)}`}
-                {times.get(a.blockNumber) ? ` · ${ago(times.get(a.blockNumber))}` : ""}
+                {timeOf(a.blockNumber) ? ` · ${ago(timeOf(a.blockNumber))}` : ""}
               </span>
             </span>
             <span className="text-right">

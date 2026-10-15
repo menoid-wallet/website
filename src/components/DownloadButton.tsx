@@ -11,7 +11,8 @@ import { openDownload } from "./DownloadModal";
 
    `fluid` fills the column it is given (the hero, where it has a
    whole block to itself); left off, it hugs its label (the
-   closing section, where it sits under centred copy).
+   closing section, where it sits under centred copy). `label`
+   names the build when the hero needs to (the V0.5 testnet apps).
    ──────────────────────────────────────────────────────────── */
 
 const DownloadGlyph = ({ size = 14 }: { size?: number }) => (
@@ -33,7 +34,7 @@ const DownloadGlyph = ({ size = 14 }: { size?: number }) => (
   </svg>
 );
 
-export default function DownloadButton({ fluid = false }: { fluid?: boolean }) {
+export default function DownloadButton({ fluid = false, label = "Download" }: { fluid?: boolean; label?: string }) {
   return (
     <div className={fluid ? "block w-full" : "inline-flex max-w-full"}>
       <button
@@ -47,7 +48,7 @@ export default function DownloadButton({ fluid = false }: { fluid?: boolean }) {
             style={{ color: "var(--violet-deep)" }}
           >
             <span className="text-[13px] leading-none">✦</span>
-            Download
+            {label}
             <DownloadGlyph size={15} />
           </span>
         </CloudChip>

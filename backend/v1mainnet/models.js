@@ -140,8 +140,8 @@ const relaySchema = new Schema(
     gasEstimate: { type: String },
     gasLimit: { type: String },
     gasPriceGwei: { type: Number },
-    costMON: { type: String }, // what the relayer paid: gas limit × price (+ the later sweep of the fee notes)
-    paidMON: { type: String }, // what the fee notes were worth in MON
+    costNative: { type: String }, // what the relayer paid in the native coin: gas (+ L1 data fee) + the later sweep of the fee notes
+    paidNative: { type: String }, // what the fee notes were worth in the native coin
     feeToken: { type: String },
     feeAmount: { type: String },
     reason: { type: String },

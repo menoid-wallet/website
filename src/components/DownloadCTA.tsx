@@ -28,7 +28,7 @@ export default function DownloadCTA() {
           Your privacy, one download away.
         </h3>
 
-        {/* V1 is out — the two builds live behind this button. */}
+        {/* V0.5, the demo, is out — its two builds live behind this button. */}
         <div className="mt-6">
           <DownloadButton />
         </div>

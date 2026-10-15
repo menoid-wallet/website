@@ -8,6 +8,7 @@ import CloudChip from "../CloudChip";
 import MenoidWordmark from "../MenoidWordmark";
 import RollingNumber from "./RollingNumber";
 import AccountPanel from "./AccountPanel";
+import ChainSwitcher from "./ChainSwitcher";
 import { totalUsd } from "./Holdings";
 import type { Menoid } from "./useMenoid";
 import { PRIMARY } from "./ui";
@@ -38,7 +39,7 @@ export default function AppHeader({ m, asleep, onConnect, onWake }: { m: Menoid;
     };
   }, [open]);
 
-  const tokens = useMemo(() => m.config?.tokens ?? [], [m.config]);
+  const tokens = m.tokens;
   const total = useMemo(() => totalUsd(m.view, tokens, m.prices), [m.view, tokens, m.prices]);
   const connected = m.phase === "ready" && m.address;
 
@@ -58,10 +59,17 @@ export default function AppHeader({ m, asleep, onConnect, onWake }: { m: Menoid;
 
       <span className="hidden items-center gap-2 rounded-full bg-white/45 px-3.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.24em] text-[#4E2F8E] ring-1 ring-white/60 backdrop-blur md:inline-flex">
         <span className="h-1.5 w-1.5 rounded-full bg-[#22A06B] shadow-[0_0_0_3px_rgba(34,160,107,0.2)]" />
-        Private mode · {m.config?.name ?? "Monad Testnet"}
+        Private mode · {m.config?.name ?? "…"}
       </span>
 
       <div className="flex items-center gap-2">
+        {/* the network, left of the private balance */}
+        <ChainSwitcher
+          chains={m.chains}
+          value={m.chainId}
+          onChange={(id) => void m.selectChain(id)}
+          disabled={m.tx?.status === "running" || (m.phase !== "idle" && m.phase !== "ready")}
+        />
         {connected ? (
           <div ref={ref} className="relative flex items-center gap-2">
             <button
@@ -79,7 +87,7 @@ export default function AppHeader({ m, asleep, onConnect, onWake }: { m: Menoid;
               type="button"
               onClick={() => setOpen((o) => !o)}
               aria-expanded={open}
-              className="flex items-center gap-2 whitespace-nowrap rounded-[18px] px-3 py-3 font-mono text-[12px] font-semibold text-white transition-transform hover:-translate-y-0.5 sm:px-4 sm:text-[13px]"
+              className="hidden items-center gap-2 whitespace-nowrap rounded-[18px] px-3 py-3 font-mono text-[12px] font-semibold text-white transition-transform hover:-translate-y-0.5 sm:flex sm:px-4 sm:text-[13px]"
               style={PRIMARY}
             >
               <span className={`hidden h-2 w-2 rounded-full sm:inline-block ${m.registered ? "bg-[#7CF2B4]" : "bg-[#F5C451]"}`} />
@@ -97,7 +105,7 @@ export default function AppHeader({ m, asleep, onConnect, onWake }: { m: Menoid;
               onClick={onConnect}
               onMouseEnter={onWake}
               onFocus={onWake}
-              className="btn-spring rounded-[18px] px-5 py-3 font-round text-[14px] font-semibold text-white"
+              className="btn-spring whitespace-nowrap rounded-[18px] px-4 py-3 font-round text-[14px] font-semibold text-white sm:px-5"
               style={PRIMARY}
             >
               Connect wallet

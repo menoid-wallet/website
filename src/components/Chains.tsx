@@ -345,6 +345,11 @@ export default function Chains() {
             Shield, send and swap across every chain Menoid supports — without your activity
             following you from one to the next.
           </p>
+          <p className="mt-3 text-[13px] leading-relaxed text-white/75 sm:text-[14px]">
+            <span className="font-semibold text-white">V1 is live on 2 mainnets</span> — Monad and Base.{" "}
+            <span className="font-semibold text-white">V0.5, the demo,</span> runs on 6 testnets. Next, Menoid
+            grows across many more ecosystems and chains.
+          </p>
         </Reveal>
       </div>
 

@@ -1,9 +1,10 @@
 "use client";
 
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { ethers } from "ethers";
 
-import { api, type FeeQuote, type TokenConfig } from "@/lib/v1m/api";
+import type { AppConfig, ChainApi, FeeQuote, TokenConfig, TokenLookup } from "@/lib/v1m/api";
 import { registrationOf, shortAddress } from "@/lib/v1m/wallet";
 import { formatAmount, formatUsd } from "@/lib/v1m/format";
 import type { Menoid } from "./useMenoid";
@@ -38,12 +39,27 @@ export const PRIMARY: React.CSSProperties = {
 
 const TOKEN_LOOK: Record<string, { from: string; to: string; glyph: string }> = {
   MON: { from: "#B49CFF", to: "#6E54FF", glyph: "M" },
+  ETH: { from: "#A9B8F5", to: "#627EEA", glyph: "Ξ" },
   mUSDC: { from: "#7FB2F0", to: "#2775CA", glyph: "$" },
+  USDC: { from: "#7FB2F0", to: "#2775CA", glyph: "$" },
   mTKN: { from: "#F7A8D8", to: "#D25EA6", glyph: "T" },
 };
 
-export function TokenIcon({ symbol, size = 28 }: { symbol: string; size?: number }) {
-  const look = TOKEN_LOOK[symbol] ?? { from: "#C9B0FF", to: "#7F63C7", glyph: symbol.slice(0, 1) };
+/** The token's logo (served by this site), or a lettered badge when it has none. */
+export function TokenIcon({ symbol, logo, size = 28 }: { symbol: string; logo?: string; size?: number }) {
+  if (logo) {
+    return (
+      <span
+        className="inline-flex shrink-0 overflow-hidden rounded-full bg-white"
+        style={{ width: size, height: size, boxShadow: "0 3px 8px -3px rgba(46,26,92,0.45)" }}
+        aria-hidden
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={logo} alt="" width={size} height={size} className="h-full w-full object-cover" draggable={false} />
+      </span>
+    );
+  }
+  const look = TOKEN_LOOK[symbol] ?? { from: "#C9B0FF", to: "#7F63C7", glyph: symbol.slice(0, 1).toUpperCase() };
   return (
     <span
       className="inline-flex shrink-0 items-center justify-center rounded-full font-round font-bold text-white"
@@ -61,79 +77,256 @@ export function TokenIcon({ symbol, size = 28 }: { symbol: string; size?: number
   );
 }
 
+const same = (a: string, b: string) => a.toLowerCase() === b.toLowerCase();
+
+/* The token picker: the chain's popular tokens, search, and any token by
+   pasting its address (looked up on the chain through the backend). A token
+   the pool does not take, or the relayer cannot price, shows why it cannot be
+   picked for this action. Opens over the page (a portal: the glass cards
+   would otherwise clip it). */
 export function TokenSelect({
   tokens,
   value,
   onChange,
   balances,
   balanceLabel = "Balance",
+  blockReason,
+  onLookup,
+  onAdd,
+  onRemove,
 }: {
   tokens: TokenConfig[];
   value: TokenConfig | null;
   onChange: (t: TokenConfig) => void;
   balances?: Record<string, bigint>;
   balanceLabel?: string;
+  blockReason?: (t: TokenConfig) => string | null;
+  onLookup?: (address: string) => Promise<TokenLookup>;
+  onAdd?: (t: TokenLookup) => void;
+  onRemove?: (address: string) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const [query, setQuery] = useState("");
+  const [memesOnly, setMemesOnly] = useState(false);
+  const [lookup, setLookup] = useState<{ key: string; token?: TokenLookup; error?: string } | null>(null);
+  const close = () => {
+    setOpen(false);
+    setQuery("");
+  };
+  const hasMemes = tokens.some((t) => t.meme);
+
   useEffect(() => {
     if (!open) return;
-    const close = (e: MouseEvent) => {
-      if (!ref.current?.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener("mousedown", close);
-    return () => document.removeEventListener("mousedown", close);
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
+  const q = query.trim();
+  const needle = q.toLowerCase();
+  const isAddress = ethers.isAddress(q);
+  const shown = tokens.filter((t) =>
+    q ? (isAddress ? same(t.address, q) : `${t.symbol} ${t.name}`.toLowerCase().includes(needle)) : !memesOnly || !hasMemes || t.meme
+  );
+  // a pasted address the list does not have: ask the chain, half a second after typing stops
+  const lookupKey = isAddress && !shown.length && onLookup ? ethers.getAddress(q) : null;
+  useEffect(() => {
+    if (!lookupKey || !onLookup) return;
+    let live = true;
+    const t = setTimeout(async () => {
+      try {
+        const token = await onLookup(lookupKey);
+        if (live) setLookup({ key: lookupKey, token });
+      } catch (e) {
+        if (live) setLookup({ key: lookupKey, error: (e as Error).message });
+      }
+    }, 300);
+    return () => {
+      live = false;
+      clearTimeout(t);
+    };
+  }, [lookupKey, onLookup]);
+  const found = lookupKey && lookup?.key === lookupKey ? lookup : null;
+
+  const sorted = [...shown].sort((a, b) => Number((balances?.[b.address] ?? 0n) > 0n) - Number((balances?.[a.address] ?? 0n) > 0n));
+  const flagged = tokens.filter((t) => t.popular && !t.custom);
+  const popular = (flagged.length ? flagged : tokens.filter((t) => !t.custom)).slice(0, 6);
+  const pick = (t: TokenConfig) => {
+    if (blockReason?.(t)) return;
+    onChange(t);
+    close();
+  };
+
   return (
-    <div ref={ref} className="relative">
+    <>
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => setOpen(true)}
         className="flex items-center gap-2 rounded-full bg-white py-1.5 pl-1.5 pr-3 font-round text-[15px] font-semibold shadow-[0_6px_16px_-8px_rgba(46,26,92,0.45)] transition-transform hover:-translate-y-0.5 active:scale-95"
         style={{ color: INK }}
       >
-        {value ? <TokenIcon symbol={value.symbol} size={26} /> : <span className="h-[26px] w-1" />}
+        {value ? <TokenIcon symbol={value.symbol} logo={value.logo} size={26} /> : <span className="h-[26px] w-1" />}
         <span>{value ? value.symbol : "Select token"}</span>
-        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className={`transition-transform duration-300 ${open ? "rotate-180" : ""}`}>
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
           <path d="M1.5 3.5L5 7L8.5 3.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </button>
-      {open && (
-        <div
-          data-lenis-prevent
-          className="absolute right-0 top-full z-40 mt-2 w-64 overflow-hidden rounded-[22px] p-1.5"
-          style={{ ...CARD, animation: "app-pop 260ms cubic-bezier(0.34,1.4,0.5,1) both", transformOrigin: "top right" }}
-        >
-          {tokens.map((t) => {
-            const bal = balances?.[t.address];
-            return (
-              <button
-                key={t.address}
-                type="button"
-                onClick={() => {
-                  onChange(t);
-                  setOpen(false);
-                }}
-                className="flex w-full items-center gap-3 rounded-[16px] px-3 py-2.5 text-left transition-colors hover:bg-[rgba(243,234,255,0.9)]"
-              >
-                <TokenIcon symbol={t.symbol} size={30} />
-                <span className="min-w-0 flex-1">
-                  <span className="block font-round text-[14px] font-semibold" style={{ color: INK }}>{t.symbol}</span>
-                  <span className="block truncate text-[11px] text-[#2E1A5C]/55">{t.name}</span>
-                </span>
-                {bal !== undefined && (
-                  <span className="text-right">
-                    <span className="block font-mono text-[12px]" style={{ color: INK }}>{formatAmount(bal, t.decimals)}</span>
-                    <span className="block text-[9px] uppercase tracking-[0.14em] text-[#2E1A5C]/45">{balanceLabel}</span>
-                  </span>
+
+      {open &&
+        createPortal(
+          <div className="fixed inset-0 z-[70] flex items-start justify-center px-3 pt-[9vh]" style={{ background: "rgba(46,26,92,0.32)", backdropFilter: "blur(4px)", animation: "app-fade 180ms ease both" }} onMouseDown={close}>
+            <div
+              role="dialog"
+              aria-label="Select a token"
+              className="w-full max-w-[420px] rounded-[28px] p-4"
+              style={{ ...CARD, animation: "app-pop 260ms cubic-bezier(0.34,1.4,0.5,1) both" }}
+              onMouseDown={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between">
+                <p className="font-round text-[17px] font-semibold" style={{ color: INK }}>Select a token</p>
+                <button type="button" onClick={close} aria-label="Close" className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#4E2F8E] shadow-sm transition-transform hover:rotate-90">
+                  <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                    <path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                  </svg>
+                </button>
+              </div>
+
+              <input
+                autoFocus
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search name or paste a token address"
+                spellCheck={false}
+                className="mt-3 w-full rounded-[16px] bg-white px-4 py-3 text-[14px] outline-none"
+                style={{ border: "1.5px solid rgba(78,47,142,0.12)", color: INK }}
+              />
+
+              {!q && hasMemes && (
+                <div className="mt-3 flex w-fit rounded-full p-1" style={WELL}>
+                  {[
+                    { id: false, label: "All tokens" },
+                    { id: true, label: "Memes" },
+                  ].map((o) => (
+                    <button
+                      key={o.label}
+                      type="button"
+                      onClick={() => setMemesOnly(o.id)}
+                      className="rounded-full px-3 py-1 text-[12px] font-semibold transition-all"
+                      style={memesOnly === o.id ? { background: "#fff", color: "#2E1A5C", boxShadow: "0 3px 10px -4px rgba(46,26,92,0.35)" } : { color: "rgba(46,26,92,0.55)" }}
+                    >
+                      {o.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {!q && !memesOnly && popular.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {popular.map((t) => (
+                    <button
+                      key={t.address}
+                      type="button"
+                      onClick={() => pick(t)}
+                      disabled={Boolean(blockReason?.(t))}
+                      className="flex items-center gap-1.5 rounded-full bg-white py-1 pl-1 pr-2.5 text-[12.5px] font-semibold shadow-sm transition-transform hover:-translate-y-0.5 disabled:opacity-40"
+                      style={{ color: INK, outline: value && same(value.address, t.address) ? "2px solid #9F7DF9" : undefined }}
+                    >
+                      <TokenIcon symbol={t.symbol} logo={t.logo} size={20} />
+                      {t.symbol}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              <div className="app-scroll mt-3 max-h-[46vh] overflow-y-auto overscroll-contain pr-1" data-lenis-prevent>
+                {sorted.map((t) => {
+                  const bal = balances?.[t.address];
+                  const reason = blockReason?.(t) ?? null;
+                  return (
+                    <div key={t.address} className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => pick(t)}
+                        disabled={Boolean(reason)}
+                        className="flex min-w-0 flex-1 items-center gap-3 rounded-[16px] px-2.5 py-2.5 text-left transition-colors hover:bg-[rgba(243,234,255,0.9)] disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                        style={{ opacity: reason ? 0.5 : 1 }}
+                      >
+                        <TokenIcon symbol={t.symbol} logo={t.logo} size={32} />
+                        <span className="min-w-0 flex-1">
+                          <span className="flex items-center gap-1.5 font-round text-[14px] font-semibold" style={{ color: INK }}>
+                            {t.symbol}
+                            {t.custom && <span className="rounded-full bg-[rgba(117,86,207,0.12)] px-1.5 py-px text-[9px] font-bold uppercase tracking-[0.1em] text-[#4E2F8E]">added</span>}
+                            {t.meme && <span className="rounded-full bg-[rgba(255,170,90,0.18)] px-1.5 py-px text-[9px] font-bold uppercase tracking-[0.1em] text-[#A0521A]">meme</span>}
+                          </span>
+                          <span className="block truncate text-[11px] text-[#2E1A5C]/55">{reason ?? t.name}</span>
+                        </span>
+                        {bal !== undefined && bal > 0n && (
+                          <span className="text-right">
+                            <span className="block font-mono text-[12px]" style={{ color: INK }}>{formatAmount(bal, t.decimals)}</span>
+                            <span className="block text-[9px] uppercase tracking-[0.14em] text-[#2E1A5C]/45">{balanceLabel}</span>
+                          </span>
+                        )}
+                      </button>
+                      {t.custom && onRemove && (
+                        <button type="button" onClick={() => onRemove(t.address)} title="Remove from your list" aria-label={`Remove ${t.symbol}`} className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[#2E1A5C]/40 transition-colors hover:bg-white hover:text-[#B32748]">
+                          <svg width="9" height="9" viewBox="0 0 12 12" fill="none">
+                            <path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+
+                {lookupKey && !found && (
+                  <p className="flex items-center gap-2 px-2.5 py-4 text-[13px] text-[#2E1A5C]/55">
+                    <span className="h-3 w-3 animate-spin rounded-full border-2 border-[#7556CF] border-t-transparent" />
+                    Looking that address up on the chain…
+                  </p>
                 )}
-              </button>
-            );
-          })}
-        </div>
-      )}
-    </div>
+                {found?.error && <p className="px-2.5 py-4 text-[13px] text-[#B32748]">{found.error}</p>}
+                {found?.token && (
+                  <div className="mt-1 rounded-[18px] p-3" style={WELL}>
+                    <div className="flex items-center gap-3">
+                      <TokenIcon symbol={found.token.symbol} logo={found.token.logo} size={34} />
+                      <span className="min-w-0 flex-1">
+                        <span className="block font-round text-[15px] font-semibold" style={{ color: INK }}>{found.token.symbol}</span>
+                        <span className="block truncate text-[11px] text-[#2E1A5C]/55">{found.token.name} · {shortAddress(found.token.address)}</span>
+                      </span>
+                      {onAdd && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onAdd(found.token!);
+                            const added: TokenConfig = { ...found.token!, custom: true };
+                            if (!blockReason?.(added)) onChange(added);
+                            close();
+                          }}
+                          className="btn-spring rounded-[14px] px-4 py-2 font-round text-[13px] font-semibold text-white"
+                          style={PRIMARY}
+                        >
+                          Add
+                        </button>
+                      )}
+                    </div>
+                    <div className="mt-2.5 flex flex-wrap gap-1.5">
+                      <Chip tone={found.token.enabled ? "green" : "amber"}>{found.token.enabled ? "✓ the pool accepts it" : "not accepted by the pool yet"}</Chip>
+                      <Chip tone={found.token.relayable ? "green" : "amber"}>{found.token.relayable ? "✓ has a market price" : "no market price yet"}</Chip>
+                    </div>
+                    {(!found.token.enabled || !found.token.relayable) && (
+                      <p className="mt-2 text-[11px] leading-relaxed text-[#2E1A5C]/55">
+                        You can add it to watch it. Masking it needs the pool to accept it, and private sends need a price for the relayer&apos;s fee.
+                      </p>
+                    )}
+                  </div>
+                )}
+                {!sorted.length && !lookupKey && <p className="px-2.5 py-4 text-[13px] text-[#2E1A5C]/50">No token matches. Paste its address to look it up.</p>}
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
+    </>
   );
 }
 
@@ -245,7 +438,7 @@ export function ActionButton({ label, disabled, busy, onClick, onHover }: { labe
 export const ConnectContext = createContext<{ open: () => void; wake: () => void }>({ open: () => {}, wake: () => {} });
 
 const CONNECTING: Record<"connecting" | "signing" | "syncing", { label: string; hint: string }> = {
-  connecting: { label: "Connecting…", hint: "Approve the connection in your wallet and switch to Monad Testnet." },
+  connecting: { label: "Connecting…", hint: "Approve the connection in your wallet, and the network switch if it asks." },
   signing: { label: "Sign the message in your wallet", hint: "Once. It costs no gas, and the keys it creates never leave this tab." },
   syncing: { label: "Syncing your private balance…", hint: "Your notes are decrypted here, in your browser. No server learns which ones are yours." },
 };
@@ -314,31 +507,34 @@ export type RecipientState =
   | { status: "unregistered"; address: string }
   | { status: "error"; address: string; message: string };
 
-export function useRecipient(input: string, pool: string | undefined): RecipientState {
+export function useRecipient(input: string, config: AppConfig | null): RecipientState {
   const raw = input.trim();
   const address = raw && ethers.isAddress(raw) ? ethers.getAddress(raw) : null;
-  const [checked, setChecked] = useState<RecipientState | null>(null);
+  // registration is per pool: an answer for one chain never shows on another
+  const key = address && config ? `${config.chainId}:${address}` : null;
+  const [checked, setChecked] = useState<{ key: string; state: RecipientState } | null>(null);
 
   useEffect(() => {
-    if (!address || !pool) return;
+    if (!key || !config || !address) return;
     let live = true;
     const t = setTimeout(async () => {
       try {
-        const reg = await registrationOf(pool, address);
-        if (live) setChecked({ status: reg.registered ? "registered" : "unregistered", address });
+        const reg = await registrationOf(config, config.pool, address);
+        if (live) setChecked({ key, state: { status: reg.registered ? "registered" : "unregistered", address } });
       } catch (e) {
-        if (live) setChecked({ status: "error", address, message: (e as Error).message });
+        if (live) setChecked({ key, state: { status: "error", address, message: (e as Error).message } });
       }
     }, 350);
     return () => {
       live = false;
       clearTimeout(t);
     };
-  }, [address, pool]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
 
   if (!raw) return { status: "empty" };
   if (!address) return { status: "invalid" };
-  if (checked && "address" in checked && checked.address === address) return checked;
+  if (checked && checked.key === key) return checked.state;
   return { status: "checking", address };
 }
 
@@ -395,8 +591,8 @@ export function AddressField({
    Its real cost (gas now + cashing the fee note out later) plus a small
    profit; refreshed every 20 seconds while the panel is open. */
 
-export function useFeeQuote(kind: FeeQuote["kind"], token: string | undefined, calls = 1, hops = 1) {
-  const key = token ? `${kind}:${token}:${calls}:${hops}` : null;
+export function useFeeQuote(api: ChainApi | null, kind: FeeQuote["kind"], token: string | undefined, calls = 1, hops = 1) {
+  const key = token && api ? `${api.chain}:${kind}:${token}:${calls}:${hops}` : null;
   const [state, setState] = useState<{ key: string; quote?: FeeQuote; error?: string } | null>(null);
   const [tick, setTick] = useState(0);
 
@@ -406,9 +602,9 @@ export function useFeeQuote(kind: FeeQuote["kind"], token: string | undefined, c
   }, []);
 
   useEffect(() => {
-    if (!key) return;
+    if (!key || !api) return;
     let live = true;
-    const [k, tok, c, h] = key.split(":");
+    const [, k, tok, c, h] = key.split(":");
     api
       .fee(k as FeeQuote["kind"], tok, Number(c), Number(h))
       .then((quote) => live && setState({ key, quote }))
@@ -416,7 +612,7 @@ export function useFeeQuote(kind: FeeQuote["kind"], token: string | undefined, c
     return () => {
       live = false;
     };
-  }, [key, tick]);
+  }, [key, tick, api]);
 
   const current = state && state.key === key ? state : null;
   return { quote: current?.quote ?? null, error: current?.error ?? null };
@@ -427,7 +623,7 @@ export function feeValue(quote: FeeQuote | null, error: string | null): React.Re
   if (!quote) return <span className="text-[#2E1A5C]/45">quoting…</span>;
   const total = BigInt(quote.feeTotal);
   return (
-    <span title={`Covers the relayer's gas (${Number(quote.costMON).toFixed(3)} MON at ${quote.gasPriceGwei} gwei) plus a ${quote.breakdown.profitPct}% margin`}>
+    <span title={`Covers the relayer's gas (${Number(quote.costNative).toPrecision(3)} ${quote.nativeSymbol} at ${quote.gasPriceGwei} gwei) plus a ${quote.breakdown.profitPct}% margin`}>
       {formatAmount(total, quote.decimals, 6)} {quote.symbol}
       <span className="ml-1 text-[12px] text-[#2E1A5C]/45">≈ {quote.feeUsd < 0.01 ? "<$0.01" : formatUsd(quote.feeUsd)}</span>
       {quote.calls > 1 && <span className="ml-1 text-[12px] text-[#2E1A5C]/45">· {quote.calls} proofs</span>}

@@ -1,8 +1,13 @@
 /**
  * Groth16 proving in the browser: snarkjs (the same 0.7.6 the protocol repo
- * proves with) loaded once from /zk, the circuits' wasm + proving keys from
- * /zk/v1m. The proving keys are ~18 MB each and are cached by the browser
- * after the first proof.
+ * proves with) loaded once from /zk, the circuits' wasm from /zk/v1m, and the
+ * proving keys of the chain's setup:
+ *
+ *   testnet   /zk/v1m/*_proof_final.zkey          development setup (one contributor)
+ *   mainnet   /zk/v1m/mainnet/*_proof_final.zkey  the ceremony (scripts/ceremony.js)
+ *
+ * A proof made with one setup's key only verifies against that setup's
+ * verifier contract. The keys are ~18 MB each and cached after the first proof.
  */
 import type { SolidityProof } from "./build.ts";
 
@@ -36,16 +41,19 @@ function loadSnarkjs(): Promise<Snarkjs> {
 const stringify = (v: unknown): unknown =>
   Array.isArray(v) ? v.map(stringify) : typeof v === "bigint" || typeof v === "number" ? v.toString() : v;
 
+export type ProvingKeys = "testnet" | "mainnet";
+const zkeyUrl = (circuit: string, keys: ProvingKeys) => `/zk/v1m/${keys === "mainnet" ? "mainnet/" : ""}${circuit}_proof_final.zkey`;
+
 /** Warm the prover (script + proving key) before the user presses the button. */
-export function preloadProver(circuit: "transfer" | "withdraw") {
+export function preloadProver(circuit: "transfer" | "withdraw", keys: ProvingKeys = "testnet") {
   void loadSnarkjs().catch(() => {});
-  void fetch(`/zk/v1m/${circuit}_proof_final.zkey`, { cache: "force-cache" }).catch(() => {});
+  void fetch(zkeyUrl(circuit, keys), { cache: "force-cache" }).catch(() => {});
 }
 
-export async function proveInBrowser(circuit: "transfer" | "withdraw", input: Record<string, unknown>): Promise<SolidityProof> {
+export async function proveInBrowser(circuit: "transfer" | "withdraw", input: Record<string, unknown>, keys: ProvingKeys = "testnet"): Promise<SolidityProof> {
   const snarkjs = await loadSnarkjs();
   const circuitInput = Object.fromEntries(Object.entries(input).map(([k, v]) => [k, stringify(v)]));
-  const { proof } = await snarkjs.groth16.fullProve(circuitInput, `/zk/v1m/${circuit}_proof.wasm`, `/zk/v1m/${circuit}_proof_final.zkey`);
+  const { proof } = await snarkjs.groth16.fullProve(circuitInput, `/zk/v1m/${circuit}_proof.wasm`, zkeyUrl(circuit, keys));
   // G2 coordinates swapped for the Solidity verifier
   return {
     a: [proof.pi_a[0], proof.pi_a[1]],

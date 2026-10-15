@@ -4,7 +4,7 @@ import PrivateApp from "@/components/app/PrivateApp";
 
 export const metadata: Metadata = {
   title: "Menoid — Private Mode",
-  description: "Mask, send, swap and unmask privately on Monad. Your keys never leave your browser.",
+  description: "Mask, send, swap and unmask privately on Monad and Base. Your keys never leave your browser.",
 };
 
 export default function AppPage() {

@@ -12,7 +12,7 @@ import { useEffect, useRef, useState } from "react";
    ROADMAP — under the weather.
    The sky the page has been climbing through finally closes over:
    an overcast ceiling hangs from the top of the section, rain
-   falls out of it, and the three phases hang off a lit thread
+   falls out of it, and the phases hang off a lit thread
    running down the middle. The download CTA closes the same section,
    in the same rain, rather than starting a page of its own.
    ──────────────────────────────────────────────────────────── */
@@ -33,22 +33,35 @@ interface Phase {
   bullets: Bullet[];
   cohorts?: Cohort[];
   locked?: boolean;
+  here?: boolean; // the newest live phase
 }
 
 const PHASES: Phase[] = [
   {
-    version: "V1",
-    tagline: "Live",
+    version: "V0.5",
+    tagline: "The Demo",
     bullets: [
       { icon: "🌐", text: "6 testnets — Monad, Sepolia, Base, Solana, Sui & Aptos." },
       { icon: "🎯", text: "Target: 1,000 crypto user reviews." },
       { icon: "🎁", text: "Rewards distributed to the 1,000 reviewers after the stable launch." },
     ],
     cohorts: [
-      { label: "V1 Extension", shipped: true },
-      { label: "V1 Android", shipped: true },
-      { label: "V1 iOS" },
+      { label: "V0.5 Extension", shipped: true },
+      { label: "V0.5 Android", shipped: true },
+      { label: "V0.5 iOS" },
     ],
+  },
+  {
+    version: "V1",
+    tagline: "Mainnet",
+    here: true,
+    bullets: [
+      { icon: "⛓️", text: "Live on 2 mainnets — Monad & Base." },
+      { icon: "🕶️", text: "Mask, send, swap and unmask privately, right in the browser." },
+      { icon: "🐸", text: "Top tokens and memecoins, swapped privately." },
+      { icon: "🌍", text: "Next: many more ecosystems and chains." },
+    ],
+    cohorts: [{ label: "V1 Web App", shipped: true }],
   },
   {
     version: "V2",
@@ -59,17 +72,6 @@ const PHASES: Phase[] = [
       { icon: "🧠", text: "Multi-dApp AutoPilot running across tabs at once." },
       { icon: "🔐", text: "Shielded pool v2 with instant client-side proofs." },
       { icon: "🤝", text: "Private cross-chain bridges with hidden routing." },
-    ],
-  },
-  {
-    version: "V3",
-    tagline: "Sealed Orders",
-    locked: true,
-    bullets: [
-      { icon: "🌍", text: "Universal chain abstraction — one balance, every chain." },
-      { icon: "🪄", text: "Autonomous on-chain agents executing your strategies." },
-      { icon: "🏦", text: "Institutional-grade private treasury suite." },
-      { icon: "🛡️", text: "Zero-knowledge identity & reputation layer." },
     ],
   },
 ];
@@ -229,7 +231,7 @@ function CardInner({ phase }: { phase: Phase }) {
                     <Lock size={22} />
                   </span>
                   <span className="rm-coming">Coming Soon</span>
-                  <span className="rm-coming-sub">Above the clouds</span>
+                  <span className="rm-coming-sub">Revealed in the future</span>
                 </div>
               </div>
             )}
@@ -247,7 +249,7 @@ function CardInner({ phase }: { phase: Phase }) {
         {current ? (
           <span className="rm-status rm-status-here">
             <span className="pulse-dot rm-dot" />
-            You are here
+            {phase.here ? "You are here" : "Live"}
           </span>
         ) : (
           <span className="rm-status rm-status-lock">
@@ -346,8 +348,8 @@ export default function Roadmap() {
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-[14px] leading-relaxed text-white/70 sm:text-[15px]">
             Three chapters chart the journey.{" "}
-            <span className="font-semibold text-white">V1 is live</span> — the rest stay sealed
-            above the clouds.
+            <span className="font-semibold text-white">V0.5 and V1 are live</span> — V2 stays sealed
+            above the clouds until it is revealed.
           </p>
         </Reveal>
 

@@ -17,7 +17,8 @@ import { useMenoid } from "./useMenoid";
 import { CARD, ConnectContext } from "./ui";
 
 /* ────────────────────────────────────────────────────────────
-   /app — Menoid's private mode on the web (v1-mainnet).
+   /app — Menoid's private mode on the web (v1-mainnet), on every
+   chain the backend serves (Monad testnet, Base Sepolia).
    Mask · Send · Swap · Unmask are on show from the start; the
    panel's button walks you through it: Connect wallet → sign once
    (keys are derived in this tab) → Register (new accounts only) →
@@ -81,14 +82,15 @@ export default function PrivateApp() {
         <main className="relative z-10 mx-auto w-full max-w-[540px] flex-1 px-4 pb-44 pt-8 sm:pt-12">
           {m.wrongChain && (
             <button type="button" onClick={m.switchChain} className="mb-4 w-full rounded-[18px] bg-amber-50/95 px-4 py-3 text-[13px] font-semibold text-amber-800 shadow-sm">
-              Your wallet left Monad Testnet — tap to switch back
+              Your wallet is on another network — tap to switch to {m.config?.name ?? "this one"}
             </button>
           )}
 
           {m.config ? (
             <>
               <Tabs value={tab} onChange={setTab} />
-              <section key={tab} className="mt-3 rounded-[30px] p-2.5 sm:p-3" style={{ ...CARD, animation: "app-rise 520ms cubic-bezier(0.22,1,0.36,1) both" }}>
+              {/* keyed by chain too: a switch starts every panel fresh (its tokens are another chain's) */}
+              <section key={`${m.chainId}:${tab}`} className="mt-3 rounded-[30px] p-2.5 sm:p-3" style={{ ...CARD, animation: "app-rise 520ms cubic-bezier(0.22,1,0.36,1) both" }}>
                 {tab === "mask" && <MaskPanel m={m} />}
                 {tab === "send" && <SendPanel m={m} />}
                 {tab === "swap" && <SwapPanel m={m} />}
@@ -114,13 +116,13 @@ export default function PrivateApp() {
         </main>
 
         <footer className="relative z-10 pb-6 text-center text-[11px] font-medium text-[#4E2F8E]/70">
-          Menoid v1 · Monad Testnet · test tokens only ·{" "}
+          Menoid v1 · {m.config?.name ?? "testnet"} · {m.config?.keyNetwork === "mainnet" ? "mainnet beta — use small amounts" : "test tokens only"} ·{" "}
           <Link href="/" className="underline decoration-dotted underline-offset-4">
             menoid.xyz
           </Link>
         </footer>
 
-        {m.tx && <TxOverlay tx={m.tx} onClose={m.closeTx} />}
+        {m.tx && <TxOverlay tx={m.tx} explorer={m.config?.explorer} onClose={m.closeTx} />}
         <WalletPicker
           open={picking}
           onClose={closePicker}

@@ -47,7 +47,7 @@ function Flavor({ kind }: { kind: TxState["kind"] }) {
   );
 }
 
-export default function TxOverlay({ tx, onClose }: { tx: TxState; onClose: () => void }) {
+export default function TxOverlay({ tx, explorer, onClose }: { tx: TxState; explorer?: string; onClose: () => void }) {
   const running = tx.status === "running";
   const success = tx.status === "success";
   const failed = tx.status === "error";
@@ -112,7 +112,7 @@ export default function TxOverlay({ tx, onClose }: { tx: TxState; onClose: () =>
           <div className="relative mt-5 rounded-[20px] px-4 py-3 text-left" style={{ background: "rgba(34,160,107,0.09)", border: "1px solid rgba(34,160,107,0.22)" }}>
             <p className="text-[14px] font-semibold text-[#16794F]">{tx.result ?? tx.message}</p>
             {tx.txHash && (
-              <a href={explorerTx(tx.txHash)} target="_blank" rel="noreferrer" className="mt-1 inline-block font-mono text-[11px] text-[#2E1A5C]/55 underline decoration-dotted underline-offset-4">
+              <a href={explorer ? explorerTx(explorer, tx.txHash) : undefined} target="_blank" rel="noreferrer" className="mt-1 inline-block font-mono text-[11px] text-[#2E1A5C]/55 underline decoration-dotted underline-offset-4">
                 tx {shortAddress(tx.txHash)} ↗
               </a>
             )}

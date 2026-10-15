@@ -45,10 +45,10 @@ const BUILDS: Build[] = [
     alt: "Android robot",
     eyebrow: "Mobile",
     name: "Android",
-    meta: "APK · V1 Testnet",
+    meta: "APK · V0.5 Testnet",
     points: [
       "Open and Noid modes, in your pocket.",
-      "Live on 6 testnets — Monad, Sepolia, Base, Solana, Sui & Aptos.",
+      "The V0.5 demo — live on 6 testnets: Monad, Sepolia, Base, Solana, Sui & Aptos.",
       "Self custodial wallet.",
     ],
     href: "https://drive.google.com/drive/folders/146EXALOzfd1enunzIPDTNcnipwjY3hAl",
@@ -128,7 +128,7 @@ export default function DownloadModal() {
       onClick={() => setOpen(false)}
       role="dialog"
       aria-modal="true"
-      aria-label="Download Menoid V1"
+      aria-label="Download Menoid V0.5"
     >
       <div
         onClick={(e) => e.stopPropagation()}
@@ -153,13 +153,13 @@ export default function DownloadModal() {
         {/* Header */}
         <div className="mb-5 pr-10 text-center sm:mb-6 sm:pr-0">
           <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--violet-deep)]">
-            ✦ Menoid V1 · Live
+            ✦ Menoid V0.5 · The demo
           </p>
           <h3 className="font-display mt-1.5 text-2xl font-black tracking-[-0.02em] text-[var(--violet-deep)] sm:text-3xl">
             Take Menoid with you.
           </h3>
           <p className="mt-1.5 text-[13px] text-[rgba(59,37,112,0.7)] sm:text-[14px]">
-            Two builds are out today. Pick your surface.
+            Two builds of the demo are out today, on testnets. Pick your surface.
           </p>
         </div>
 
@@ -201,7 +201,7 @@ export default function DownloadModal() {
         </div>
 
         {/* the one line that closes the sheet */}
-        <p className="dl-soon">✦ Stay tuned for V3</p>
+        <p className="dl-soon">✦ Stay tuned for V2</p>
       </div>
     </div>
   );

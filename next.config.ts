@@ -5,6 +5,28 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.resolve(__dirname),
   },
+  // token logos (public/tokens) are third-party SVGs: serve them as inert
+  // images even if someone opens one directly — no scripts, no requests out
+  async headers() {
+    return [
+      {
+        source: "/tokens/:path*",
+        headers: [
+          { key: "Content-Security-Policy", value: "default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; sandbox" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+        ],
+      },
+    ];
+  },
+  // app.menoid.xyz is the private app itself: its front page is /app. Only the
+  // root is rewritten; assets, proving keys (/zk) and logos are shared as is.
+  async rewrites() {
+    return {
+      beforeFiles: [{ source: "/", has: [{ type: "host", value: "app.menoid.xyz" }], destination: "/app" }],
+      afterFiles: [],
+      fallback: [],
+    };
+  },
 };
 
 export default nextConfig;

@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import ChainOrbit from "./ChainOrbit";
 import DownloadButton from "./DownloadButton";
+import LaunchAppButton from "./LaunchAppButton";
 import { HERO_SEAM } from "./seams";
 
 /* ────────────────────────────────────────────────────────────
@@ -256,18 +256,12 @@ export default function Hero() {
             <span className="h-px w-8 bg-white/30 sm:w-12" />
           </div>
 
-          {/* V1 has shipped — the button opens the two builds (was the register form) */}
+          {/* the private web app first (V1, mainnet), then the V0.5 testnet builds —
+              two clouds, spaced so their lobes never merge into one */}
           <div className="w-full max-w-md" style={rise(450)}>
-            <DownloadButton fluid />
-            {/* the private web app (v1-mainnet, on Monad testnet for now) */}
-            <div className="mt-4 flex justify-center lg:justify-start">
-              <Link
-                href="/app"
-                className="btn-spring inline-flex items-center gap-2 rounded-full bg-white/20 px-5 py-2 font-round text-[13px] font-semibold text-white ring-1 ring-white/40 backdrop-blur-sm transition-colors hover:bg-white/30"
-              >
-                <span className="h-2 w-2 rounded-full bg-[#7CF2B4] shadow-[0_0_0_3px_rgba(124,242,180,0.25)]" />
-                V1 Live
-              </Link>
+            <LaunchAppButton fluid label="Launch App V1 (Mainnet)" />
+            <div className="mt-8">
+              <DownloadButton fluid label="Download V0.5 (Testnet)" />
             </div>
           </div>
         </div>

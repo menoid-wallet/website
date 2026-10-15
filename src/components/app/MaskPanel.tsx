@@ -16,20 +16,22 @@ import { AddressField, AmountBox, BalanceHint, Chip, InfoRows, PanelAction, Toke
    It can mask straight into another registered user's balance.
    ──────────────────────────────────────────────────────────── */
 
-// keep a little MON back for gas when masking the native coin
-const GAS_RESERVE = ethers.parseEther("0.15");
-
 export default function MaskPanel({ m }: { m: Menoid }) {
-  const tokens = m.config!.tokens;
+  const tokens = m.tokens;
   const [token, setToken] = useState<TokenConfig>(tokens[0]);
   const [amount, setAmount] = useState("");
   const [toOther, setToOther] = useState(false);
   const [recipient, setRecipient] = useState("");
-  const recipientState = useRecipient(toOther ? recipient : "", m.config?.pool);
+  const recipientState = useRecipient(toOther ? recipient : "", m.config);
 
   const parsed = tryParseAmount(amount, token.decimals);
   const publicBalance = m.publicBalances[token.address] ?? 0n;
-  const maxAmount = token.native ? (publicBalance > GAS_RESERVE ? publicBalance - GAS_RESERVE : 0n) : publicBalance;
+  // keep a little of the native coin back for gas when masking it (per chain: 0.3 MON, 0.0005 ETH)
+  const gasReserve = ethers.parseEther(m.config!.gasReserve ?? "0");
+  // Monad: a smart account (EIP-7702) must always keep 10 MON when MON leaves it
+  const smartReserve = token.native && m.smartAccount ? ethers.parseEther(m.config!.reserveBalance ?? "0") : 0n;
+  const keep = smartReserve > gasReserve ? smartReserve : gasReserve;
+  const maxAmount = token.native ? (publicBalance > keep ? publicBalance - keep : 0n) : publicBalance;
   const usd = parsed ? usdOf(parsed, token.decimals, m.prices[token.address]) : 0;
 
   const self = m.address; // null until a wallet is connected
@@ -38,7 +40,7 @@ export default function MaskPanel({ m }: { m: Menoid }) {
   const blocker = useMemo(() => {
     if (!parsed || parsed === 0n) return "Enter an amount";
     if (parsed > publicBalance) return `Not enough ${token.symbol} in your wallet`;
-    if (token.native && parsed > maxAmount) return "Leave a little MON for gas";
+    if (token.native && parsed > maxAmount) return smartReserve > 0n ? `Keep ${m.config!.reserveBalance} ${token.symbol} in your smart account` : `Leave a little ${token.symbol} for gas`;
     if (toOther) {
       if (recipientState.status === "empty") return "Paste the recipient's address";
       if (recipientState.status === "invalid") return "Not a valid address";
@@ -47,7 +49,7 @@ export default function MaskPanel({ m }: { m: Menoid }) {
       if (recipientState.status === "error") return "Could not check the recipient";
     }
     return null;
-  }, [parsed, publicBalance, maxAmount, token, toOther, recipientState]);
+  }, [parsed, publicBalance, maxAmount, smartReserve, m.config, token, toOther, recipientState]);
 
   const receivingLabel = toSelf
     ? self
@@ -64,13 +66,13 @@ export default function MaskPanel({ m }: { m: Menoid }) {
         value={amount}
         onChange={setAmount}
         usd={usd}
-        right={<TokenSelect tokens={tokens} value={token} onChange={(t) => { setToken(t); setAmount(""); }} balances={m.publicBalances} balanceLabel="Public" />}
+        right={<TokenSelect tokens={tokens} value={token} onChange={(t) => { setToken(t); setAmount(""); }} balances={m.publicBalances} balanceLabel="Public" blockReason={(t) => (t.enabled === false ? "Not accepted by the pool yet" : null)} onLookup={m.lookupToken} onAdd={m.addToken} onRemove={m.removeToken} />}
         footer={m.phase === "ready" && <BalanceHint label="Wallet" amount={publicBalance} decimals={token.decimals} onMax={() => setAmount(amountForInput(maxAmount, token.decimals))} />}
       />
 
       <InfoRows
         rows={[
-          { label: "Total fee", value: token.native ? "Gas only · paid in MON" : "Gas only · approve + mask" },
+          { label: "Total fee", value: token.native ? `Gas only · paid in ${token.symbol}` : "Gas only · approve + mask" },
           { label: "Total received", value: parsed ? `${formatAmount(parsed, token.decimals)} ${token.symbol}` : "—", accent: Boolean(parsed) },
           {
             label: "Receiving address",
@@ -109,12 +111,26 @@ export default function MaskPanel({ m }: { m: Menoid }) {
         }}
       />
 
+      {smartReserve > 0n && m.phase === "ready" && (
+        <p className="text-center text-[12px] leading-relaxed text-[#2E1A5C]/55">
+          Your wallet is a smart account (EIP-7702), and {m.config!.name} makes smart accounts keep {m.config!.reserveBalance} {token.symbol}, so up to{" "}
+          {formatAmount(maxAmount, token.decimals)} {token.symbol} can be masked. Switch it back to a standard account in your wallet to mask more.
+        </p>
+      )}
       {token.faucet && m.phase === "ready" && (
         <p className="text-center text-[12px] text-[#2E1A5C]/55">
           Testnet token.{" "}
           <button type="button" onClick={() => m.mintTestTokens(token)} className="font-semibold text-[#5E40A8] underline decoration-dotted underline-offset-4">
             Mint 1,000 test {token.symbol}
           </button>
+        </p>
+      )}
+      {token.faucetUrl && (
+        <p className="text-center text-[12px] text-[#2E1A5C]/55">
+          Testnet token.{" "}
+          <a href={token.faucetUrl} target="_blank" rel="noreferrer" className="font-semibold text-[#5E40A8] underline decoration-dotted underline-offset-4">
+            Get test {token.symbol} from its faucet ↗
+          </a>
         </p>
       )}
     </div>

@@ -12,11 +12,11 @@ import { AmountBox, BalanceHint, Chip, InfoRows, PanelAction, TokenSelect, INK, 
 
 /* ────────────────────────────────────────────────────────────
    UNMASK — back to the open: private balance → a public wallet
-   (your own by default). MON comes out as native MON.
+   (your own by default). The native coin (MON, ETH) comes out as itself.
    ──────────────────────────────────────────────────────────── */
 
 export default function UnmaskPanel({ m }: { m: Menoid }) {
-  const tokens = m.config!.tokens;
+  const tokens = m.tokens;
   const [token, setToken] = useState<TokenConfig>(tokens[0]);
   const [amount, setAmount] = useState("");
   const [elsewhere, setElsewhere] = useState(false);
@@ -28,10 +28,10 @@ export default function UnmaskPanel({ m }: { m: Menoid }) {
   const usd = parsed ? usdOf(parsed, token.decimals, m.prices[token.address]) : 0;
   const destination = elsewhere ? (ethers.isAddress(to.trim()) ? ethers.getAddress(to.trim()) : null) : m.address;
 
-  const single = useFeeQuote("withdraw", token.address, 1);
+  const single = useFeeQuote(m.api, "withdraw", token.address, 1);
   const perCall = single.quote ? BigInt(single.quote.feePerCall) : null;
   const calls = parsed && perCall !== null ? (callsNeeded(unspent, token.address, parsed, perCall) ?? 1) : 1;
-  const batched = useFeeQuote("withdraw", calls > 1 ? token.address : undefined, calls);
+  const batched = useFeeQuote(m.api, "withdraw", calls > 1 ? token.address : undefined, calls);
   const fee = calls > 1 ? batched : single;
   const max = perCall !== null ? maxSpendable(unspent, token.address, perCall) : 0n;
   // quoted all along (Max needs it), shown once there is an amount and somewhere to send it
@@ -54,7 +54,7 @@ export default function UnmaskPanel({ m }: { m: Menoid }) {
         value={amount}
         onChange={setAmount}
         usd={usd}
-        right={<TokenSelect tokens={tokens} value={token} onChange={(t) => { setToken(t); setAmount(""); }} balances={m.view?.balances} balanceLabel="Private" />}
+        right={<TokenSelect tokens={tokens} value={token} onChange={(t) => { setToken(t); setAmount(""); }} balances={m.view?.balances} balanceLabel="Private" blockReason={(t) => (t.relayable === false ? "No price yet for the relayer's fee" : null)} onLookup={m.lookupToken} onAdd={m.addToken} onRemove={m.removeToken} />}
         footer={m.phase === "ready" && <BalanceHint label="Private" amount={privateBalance} decimals={token.decimals} onMax={() => setAmount(amountForInput(max, token.decimals))} />}
       />
 

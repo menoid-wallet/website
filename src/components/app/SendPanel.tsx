@@ -17,11 +17,11 @@ import { AddressField, AmountBox, BalanceHint, InfoRows, PanelAction, TokenSelec
    ──────────────────────────────────────────────────────────── */
 
 export default function SendPanel({ m }: { m: Menoid }) {
-  const tokens = m.config!.tokens;
+  const tokens = m.tokens;
   const [token, setToken] = useState<TokenConfig>(tokens[0]);
   const [amount, setAmount] = useState("");
   const [to, setTo] = useState("");
-  const recipient = useRecipient(to, m.config?.pool);
+  const recipient = useRecipient(to, m.config);
 
   const kind = recipient.status === "unregistered" ? "withdraw" : "transfer";
   const unspent = useMemo(() => m.view?.unspent ?? [], [m.view]);
@@ -31,10 +31,10 @@ export default function SendPanel({ m }: { m: Menoid }) {
   const isPublic = recipient.status === "unregistered";
 
   // the fee for one proof decides how many proofs are needed; then quote that many
-  const single = useFeeQuote(kind, token.address, 1);
+  const single = useFeeQuote(m.api, kind, token.address, 1);
   const perCall = single.quote ? BigInt(single.quote.feePerCall) : null;
   const calls = parsed && perCall !== null ? (callsNeeded(unspent, token.address, parsed, perCall) ?? 1) : 1;
-  const batched = useFeeQuote(kind, calls > 1 ? token.address : undefined, calls);
+  const batched = useFeeQuote(m.api, kind, calls > 1 ? token.address : undefined, calls);
   const fee = calls > 1 ? batched : single;
   const max = perCall !== null ? maxSpendable(unspent, token.address, perCall) : 0n;
   // quoted all along (Max needs it), shown once there is an amount and a recipient
@@ -60,7 +60,7 @@ export default function SendPanel({ m }: { m: Menoid }) {
         value={amount}
         onChange={setAmount}
         usd={usd}
-        right={<TokenSelect tokens={tokens} value={token} onChange={(t) => { setToken(t); setAmount(""); }} balances={m.view?.balances} balanceLabel="Private" />}
+        right={<TokenSelect tokens={tokens} value={token} onChange={(t) => { setToken(t); setAmount(""); }} balances={m.view?.balances} balanceLabel="Private" blockReason={(t) => (t.relayable === false ? "No price yet for the relayer's fee" : null)} onLookup={m.lookupToken} onAdd={m.addToken} onRemove={m.removeToken} />}
         footer={m.phase === "ready" && <BalanceHint label="Private" amount={privateBalance} decimals={token.decimals} onMax={() => setAmount(amountForInput(max, token.decimals))} />}
       />
 

@@ -70,7 +70,7 @@ function Inspector({ m, onBack }: { m: Menoid; onBack: () => void }) {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<InspectResult | null>(null);
   const [tab, setTab] = useState<"tokens" | "history">("history");
-  const tokens = m.config?.tokens ?? [];
+  const tokens = m.tokens;
 
   const view = async () => {
     setBusy(true);
@@ -137,7 +137,7 @@ function Inspector({ m, onBack }: { m: Menoid; onBack: () => void }) {
             />
           </div>
           <div className={LIST} data-lenis-prevent>
-            {tab === "tokens" ? <TokenList tokens={tokens} view={result.view} prices={m.prices} /> : <History items={result.view.activity} tokens={tokens} self={result.address} empty="No private activity for this key yet." />}
+            {tab === "tokens" ? <TokenList tokens={tokens} view={result.view} prices={m.prices} /> : <History items={result.view.activity} tokens={tokens} chain={m.config} self={result.address} empty="No private activity for this key yet." />}
           </div>
         </div>
       )}
@@ -149,7 +149,7 @@ export default function AccountPanel({ m, onClose }: { m: Menoid; onClose: () =>
   const [mode, setMode] = useState<"mine" | "inspect">("mine");
   const [tab, setTab] = useState<"tokens" | "history">("tokens");
   const { copied, copy } = useCopy();
-  const tokens = m.config?.tokens ?? [];
+  const tokens = m.tokens;
   const total = totalUsd(m.view, tokens, m.prices);
   const activity = m.view?.activity ?? [];
 
@@ -201,6 +201,14 @@ export default function AccountPanel({ m, onClose }: { m: Menoid; onClose: () =>
           </div>
 
           <div className="mt-4 flex items-center justify-between gap-2">
+            <Segmented
+              value={tab}
+              onChange={setTab}
+              options={[
+                { id: "tokens", label: "Tokens" },
+                { id: "history", label: `History${activity.length ? ` · ${activity.length}` : ""}` },
+              ]}
+            />
             <button
               type="button"
               onClick={() => {
@@ -215,20 +223,12 @@ export default function AccountPanel({ m, onClose }: { m: Menoid; onClose: () =>
               </svg>
               Disconnect
             </button>
-            <Segmented
-              value={tab}
-              onChange={setTab}
-              options={[
-                { id: "tokens", label: "Tokens" },
-                { id: "history", label: `History${activity.length ? ` · ${activity.length}` : ""}` },
-              ]}
-            />
           </div>
           <div className={LIST} data-lenis-prevent>
             {tab === "tokens" ? (
               <TokenList tokens={tokens} view={m.view} prices={m.prices} publicBalances={m.publicBalances} />
             ) : (
-              <History items={activity} tokens={tokens} self={m.address} />
+              <History items={activity} tokens={tokens} chain={m.config} self={m.address} />
             )}
           </div>
 

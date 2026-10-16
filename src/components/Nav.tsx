@@ -17,7 +17,6 @@ export default function Nav() {
 
   const links = [
     { href: "#v1-mainnet", label: "V1 Mainnet" },
-    { href: "#chains", label: "Chains" },
     // { href: "#meno", label: "Meno" },
     { href: "#roadmap", label: "Roadmap" },
     { href: "/docs", label: "Docs" },

@@ -11,12 +11,10 @@ const PRODUCT_LINKS = [
   { label: "Roadmap", href: "#roadmap" },
 ];
 
-// A link with an `href` goes somewhere; one without still raises the
-// "coming soon" toast, which is what all four used to do.
+// A link with an `href` goes somewhere; one without raises the
+// "coming soon" toast.
 const DEV_LINKS: { label: string; href?: string }[] = [
   { label: "Docs", href: "/docs" },
-  { label: "SDK" },
-  { label: "Audits" },
   { label: "GitHub", href: "https://github.com/menoid-wallet" },
 ];
 
@@ -35,12 +33,6 @@ const discordIcon = (
     <path d="M16.9308 3.5C15.6561 2.9219 14.2892 2.5 12.8462 2.5C12.6831 2.7831 12.4877 3.1546 12.3508 3.45C10.8277 3.2154 9.31846 3.2154 7.81308 3.45C7.67615 3.1546 7.47615 2.7831 7.31615 2.5C5.87077 2.5 4.50384 2.9219 3.22923 3.5C0.653077 7.35 -0.0015385 11.0985 0.33 14.7931C2.05385 16.0754 3.72308 16.8592 5.36 17.3731C5.77 16.8131 6.13846 16.2181 6.45846 15.5931C5.86308 15.3692 5.29538 15.09 4.76154 14.7631C4.89231 14.6638 5.02308 14.559 5.14769 14.4546C8.37231 15.9746 11.9031 15.9746 15.0862 14.4546C15.2108 14.559 15.3415 14.6638 15.4723 14.7631C14.9385 15.09 14.3708 15.3692 13.7754 15.5931C14.0954 16.2181 14.4638 16.8131 14.8738 17.3731C16.5108 16.8592 18.18 16.0754 19.9038 14.7931C20.3023 10.5085 19.2215 6.7954 16.9308 3.5ZM6.68 12.4731C5.69538 12.4731 4.88615 11.5777 4.88615 10.4823C4.88615 9.38692 5.67769 8.49154 6.68 8.49154C7.68231 8.49154 8.49154 9.38692 8.47385 10.4823C8.47385 11.5777 7.67462 12.4731 6.68 12.4731ZM13.32 12.4731C12.3354 12.4731 11.5262 11.5777 11.5262 10.4823C11.5262 9.38692 12.3177 8.49154 13.32 8.49154C14.3223 8.49154 15.1315 9.38692 15.1138 10.4823C15.1138 11.5777 14.3223 12.4731 13.32 12.4731Z" />
   </svg>
 );
-const telegramIcon = (
-  <svg viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
-    <path d="M10 0C4.478 0 0 4.478 0 10s4.478 10 10 10 10-4.478 10-10S15.522 0 10 0zm4.938 6.847l-1.69 7.962c-.122.569-.461.706-.933.44l-2.573-1.896-1.241 1.196c-.137.137-.252.252-.515.252l.183-2.603 4.737-4.28c.206-.183-.046-.283-.317-.1L5.33 12.43l-2.531-.79c-.549-.172-.561-.549.116-.812l9.882-3.809c.457-.165.858.113.14.828z" />
-  </svg>
-);
-
 export default function Footer() {
   const [toast, setToast] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -92,9 +84,6 @@ export default function Footer() {
                 </a>
                 <a href="https://discord.gg/JbPMSttDUY" target="_blank" rel="noopener noreferrer" aria-label="Discord" className={socialClass}>
                   {discordIcon}
-                </a>
-                <a href="https://t.me/+mTf2gEW_V4U4N2Ey" target="_blank" rel="noopener noreferrer" aria-label="Telegram" className={socialClass}>
-                  {telegramIcon}
                 </a>
               </div>
             </div>

@@ -347,7 +347,7 @@ export default function Roadmap() {
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-[14px] leading-relaxed text-white/70 sm:text-[15px]">
             Three chapters chart the journey.{" "}
-            <span className="font-semibold text-white">V0.5 and V1 are live</span> — V2 stays sealed
+            <span className="font-semibold text-white">V1 Mainnet is live</span> — V2 stays sealed
             above the clouds until it is revealed.
           </p>
         </Reveal>

@@ -5,6 +5,7 @@ import MenoidWordmark from "./MenoidWordmark";
 import CloudChip from "./CloudChip";
 import AnimatedLogo from "./AnimatedLogo";
 import Link from "next/link";
+import { APP_URL, DOCS_URL } from "@/lib/links";
 
 /* No bar — the nav is a row of little clouds floating in the hero's sky:
    one for the mark, one per link, one for the call to action. On a phone
@@ -19,7 +20,7 @@ export default function Nav() {
     { href: "#v1-mainnet", label: "V1 Mainnet" },
     // { href: "#meno", label: "Meno" },
     { href: "#roadmap", label: "Roadmap" },
-    { href: "/docs", label: "Docs" },
+    { href: DOCS_URL, label: "Docs" },
   ];
 
   return (
@@ -53,7 +54,7 @@ export default function Nav() {
         {/* the call to action, in a cloud of its own */}
         <div className="flex shrink-0 items-center gap-2.5">
           {/* straight into the app (V1, mainnet) */}
-          <Link href="/app" className="hidden md:inline-flex">
+          <Link href={APP_URL} className="hidden md:inline-flex">
             <CloudChip tone="violet" className="px-4 py-1.5 transition-transform duration-300 hover:-translate-y-0.5">
               <span className="font-round text-[13px] font-semibold text-white">Launch</span>
             </CloudChip>
@@ -93,7 +94,7 @@ export default function Nav() {
               </CloudChip>
             </a>
           ))}
-          <Link href="/app" onClick={() => setOpen(false)}>
+          <Link href={APP_URL} onClick={() => setOpen(false)}>
             <CloudChip tone="violet" className="px-4 py-1.5">
               <span className="font-round text-[13px] font-semibold text-white">Launch</span>
             </CloudChip>

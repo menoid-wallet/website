@@ -9,7 +9,8 @@ export function docMetadata(version: DocVersion, slug: string): Metadata {
   const title = slug ? `${page.label} · ${book.label}` : book.label;
   const shared = { title: `${title} — Menoid Docs`, description: page.description };
   return {
-    title,
+    // the docs layout's template only reaches child folders, not /docs itself
+    title: version === "v1" && !slug ? { absolute: shared.title } : title,
     description: page.description,
     openGraph: { type: "article", siteName: "Menoid", ...shared },
     twitter: { card: "summary_large_image", ...shared },

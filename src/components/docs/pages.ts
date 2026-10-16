@@ -155,6 +155,12 @@ export const pageHref = (book: DocBook, slug: string) => (slug ? `${book.base}/$
 
 export const pageNumber = (index: number) => String(index + 1).padStart(2, "0");
 
+/** The /docs path of a browser path: docs.menoid.xyz serves /docs/mask at /mask. */
+export function docsPath(pathname: string) {
+  if (pathname === "/docs" || pathname.startsWith("/docs/")) return pathname;
+  return pathname === "/" ? "/docs" : `/docs${pathname}`;
+}
+
 export function bookFromPath(pathname: string): DocBook {
   return pathname === BOOKS["v0.5"].base || pathname.startsWith(`${BOOKS["v0.5"].base}/`) ? BOOKS["v0.5"] : BOOKS.v1;
 }

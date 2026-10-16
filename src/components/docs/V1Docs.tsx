@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { APP_URL } from "@/lib/links";
 
 import {
   Addr,
@@ -94,7 +95,7 @@ export function V1Hero() {
       lede="The compliance-friendly multichain privacy layer, live on Monad and Base. Mask, send, swap and unmask privately from your browser — and show your history with a viewing key, only when you choose."
       chips={[{ label: "Live on Monad", live: true }, { label: "Live on Base", live: true }, { label: "Proofs made in your browser" }, { label: "Keys never leave your device" }]}
     >
-      <Link href="/app" className="rounded-full px-5 py-2.5 font-round text-[14px] font-semibold text-white transition-transform hover:-translate-y-0.5" style={{ background: LIT_INK, boxShadow: "0 10px 24px -10px rgba(59,37,112,0.7)" }}>
+      <Link href={APP_URL} className="rounded-full px-5 py-2.5 font-round text-[14px] font-semibold text-white transition-transform hover:-translate-y-0.5" style={{ background: LIT_INK, boxShadow: "0 10px 24px -10px rgba(59,37,112,0.7)" }}>
         Launch app V1
       </Link>
       <Link href="/docs/send" className="rounded-full px-4 py-2.5 font-round text-[14px] font-semibold text-[#3B2570] transition-colors hover:bg-[rgba(78,47,142,0.08)]">
@@ -855,10 +856,10 @@ function ViewingKeys() {
       <Table
         head={["Key", "Holds", "They can see", "Spend?"]}
         rows={[
-          ["Incoming viewing key", "ivk for one epoch", "Notes you received in that epoch", "No"],
-          ["Epoch viewing key", "ivk + ovk for one epoch", "Your activity in that period only", "No"],
-          ["Full viewing key", "incomingSecret, outgoingSecret, nk, userCommitment", "Everything: received, spent, who you paid, your balance", "No"],
-          ["Payment receipt", "One note’s opening (token, amount, owner, r)", "One payment — and no key at all", "No"],
+          ["Incoming viewing key", "incomingSecret, userCommitment", "Notes you received, every epoch — not what you spent or who you paid", "No"],
+          ["Epoch viewing key", "ivk + ovk of one epoch, nk, userCommitment", "Everything, but only for that viewing epoch", "No"],
+          ["Full viewing key", "incomingSecret, outgoingSecret, nk, userCommitment", "Everything — received, spent, who you paid, your balance — every epoch", "No"],
+          ["Payment receipt", "No key: one note’s opening (token, amount, receiver uc, r)", "One payment — anyone rebuilds its commitment and finds it on-chain", "No"],
         ]}
       />
       <P className="text-[14.5px] text-white/60">The protocol supports all four; the app shares the full viewing key.</P>
@@ -913,7 +914,7 @@ checksum = first 4 bytes of keccak256(payload)       // catches a mistyped key`}
       </P>
       <Callout tone="warn" title="Sharing can’t be undone">
         Whoever holds your full viewing key can read everything it covers — including future activity under the same key index. To stop that, move to a new key index with
-        rotateKeys: a new identity they can’t see. updateViewingKey only changes the epoch, which shuts out holders of an epoch key, not of a full one.
+        rotateKeys: a new identity they can’t see. updateViewingKey only changes the epoch: it shuts out holders of an epoch key, not holders of a full or an incoming key, which cover every epoch.
       </Callout>
     </>
   );

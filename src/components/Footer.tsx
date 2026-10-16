@@ -4,9 +4,10 @@ import Reveal from "./Reveal";
 import AnimatedLogo from "./AnimatedLogo";
 import { ROADMAP_SEAM } from "./seams";
 import { useRef, useState } from "react";
+import { APP_URL, DOCS_URL } from "@/lib/links";
 
 const PRODUCT_LINKS = [
-  { label: "Launch App", href: "/app" },
+  { label: "Launch App", href: APP_URL },
   { label: "V1 Mainnet", href: "#v1-mainnet" },
   { label: "Roadmap", href: "#roadmap" },
 ];
@@ -14,7 +15,7 @@ const PRODUCT_LINKS = [
 // A link with an `href` goes somewhere; one without raises the
 // "coming soon" toast.
 const DEV_LINKS: { label: string; href?: string }[] = [
-  { label: "Docs", href: "/docs" },
+  { label: "Docs", href: DOCS_URL },
   { label: "GitHub", href: "https://github.com/menoid-wallet" },
 ];
 

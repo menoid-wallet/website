@@ -7,8 +7,9 @@ import { usePathname } from "next/navigation";
 import AnimatedLogo from "@/components/AnimatedLogo";
 import MenoidWordmark from "@/components/MenoidWordmark";
 import { RainStyles } from "@/components/Rain";
+import { APP_URL, HOME_URL } from "@/lib/links";
 import { ACCENT, BUTTON, GLASS } from "./kit";
-import { BOOKS, bookFromPath, counterpart, pageHref, pageNumber, slugFromPath, type DocBook } from "./pages";
+import { BOOKS, bookFromPath, counterpart, docsPath, pageHref, pageNumber, slugFromPath, type DocBook } from "./pages";
 
 /* ────────────────────────────────────────────────────────────
    /docs — the frame every docs page shares (it lives in the
@@ -119,7 +120,8 @@ function PageLinks({ book, slug }: { book: DocBook; slug: string }) {
 }
 
 export default function DocsShell({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname() || "/docs";
+  // on docs.menoid.xyz the URL leaves out /docs (next.config.ts): put it back
+  const pathname = docsPath(usePathname() || "/docs");
   const book = bookFromPath(pathname);
   const slug = slugFromPath(book, pathname);
   const index = Math.max(0, book.pages.findIndex((p) => p.slug === slug));
@@ -145,7 +147,7 @@ export default function DocsShell({ children }: { children: React.ReactNode }) {
       <header className="sticky top-0 z-40 border-b border-white/10 backdrop-blur-xl" style={{ background: "rgba(29,17,64,0.62)" }}>
         <div className="mx-auto flex h-16 max-w-[1240px] items-center justify-between gap-3 px-4 sm:px-6">
           <div className="flex min-w-0 items-center gap-2.5">
-            <Link href="/" className="flex shrink-0 items-center gap-2" aria-label="Menoid home">
+            <Link href={HOME_URL} className="flex shrink-0 items-center gap-2" aria-label="Menoid home">
               <AnimatedLogo className="h-9 w-9" />
               <MenoidWordmark tone="light" className="hidden h-[15px] w-auto sm:block" />
             </Link>
@@ -162,7 +164,7 @@ export default function DocsShell({ children }: { children: React.ReactNode }) {
             <div className="sm:hidden">
               <Switcher book={book} slug={slug} compact />
             </div>
-            <Link href="/app" className="hidden rounded-full px-4 py-2 font-round text-[13px] font-semibold transition-transform hover:-translate-y-0.5 md:inline-flex" style={BUTTON}>
+            <Link href={APP_URL} className="hidden rounded-full px-4 py-2 font-round text-[13px] font-semibold transition-transform hover:-translate-y-0.5 md:inline-flex" style={BUTTON}>
               Launch app
             </Link>
           </div>
@@ -220,10 +222,10 @@ export default function DocsShell({ children }: { children: React.ReactNode }) {
             <p className="text-[13.5px] text-white/60">Menoid — the compliance-friendly multichain privacy layer.</p>
           </div>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2 font-round text-[13.5px] font-medium">
-            <Link href="/" className="text-white/70 hover:text-white">
+            <Link href={HOME_URL} className="text-white/70 hover:text-white">
               Home
             </Link>
-            <Link href="/app" className="text-white/70 hover:text-white">
+            <Link href={APP_URL} className="text-white/70 hover:text-white">
               Launch app
             </Link>
             <Link href={other.book.base} className="text-white/70 hover:text-white">

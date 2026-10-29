@@ -22,6 +22,8 @@ import {
  *     twice (a restart, a receipt applied early by the relayer) changes nothing
  *   - after each catch-up with new notes, the tree is rebuilt from the
  *     database and its root must be one the contract has had
+ *   - two ways to run: start() polls in a loop (a long-running server), or
+ *     syncNow() / syncIfStale() catch up when asked (Vercel: see routes.js)
  *
  * Nothing here is private: it is the chain's public log, kept so a wallet can
  * sync in one request.
@@ -42,6 +44,8 @@ export function createIndexer({ chain, logsProvider, pool }) {
   let lastError = null;
   let lastPollAt = null;
   let chainHead = null;
+  let syncing = null; // the on-demand catch-up under way, if any
+  let treesChecked = false;
   const trees = new Map(); // treeId -> { tree, size }
 
   async function loadState() {
@@ -213,13 +217,13 @@ export function createIndexer({ chain, logsProvider, pool }) {
 
   /* ─── catch-up ─────────────────────────────────────────────────────────── */
 
-  async function catchUp({ log = () => {} } = {}) {
+  async function catchUp({ log = () => {}, deadline = Infinity } = {}) {
     const state = await loadState();
     let from = state.lastBlock + 1;
     chainHead = await logsProvider.getBlockNumber();
     let newNotes = 0;
 
-    while (from <= chainHead && !stopRequested) {
+    while (from <= chainHead && !stopRequested && Date.now() < deadline) {
       const to = Math.min(chainHead, from + chain.indexer.logWindow - 1);
       const logs = await logsProvider.getLogs({ address: chain.pool, fromBlock: from, toBlock: to });
       if (logs.length) {
@@ -231,7 +235,7 @@ export function createIndexer({ chain, logsProvider, pool }) {
       from = to + 1;
     }
     lastPollAt = new Date();
-    return { newNotes, head: chainHead };
+    return { newNotes, head: chainHead, caughtUp: from > chainHead };
   }
 
   /** A transaction the backend just relayed (or a user just sent): index its
@@ -253,6 +257,53 @@ export function createIndexer({ chain, logsProvider, pool }) {
     const { head } = await catchUp({ log });
     const trees = await verifyTrees();
     return { head, trees };
+  }
+
+  /* ─── on demand (Vercel) ───────────────────────────────────────────────
+     Without the loop, the chain is read when someone asks: UptimeRobot's
+     ping to /api/v1m/catch-up, or the app's /sync and /status when the copy
+     is stale (routes.js). One catch-up at a time per chain; each stops at its
+     deadline and the next one carries on, since the last block is saved after
+     every window. The tree is checked once the head is reached: mid-backlog
+     its root is older than the pool's root history. */
+
+  function syncNow({ budgetMs }) {
+    if (!syncing) {
+      syncing = (async () => {
+        await initCrypto();
+        const { newNotes, head, caughtUp } = await catchUp({ deadline: Date.now() + budgetMs });
+        if (caughtUp) {
+          if (newNotes || !treesChecked) {
+            const results = await verifyTrees();
+            treesChecked = true;
+            for (const r of results) {
+              if (!r.known) console.error(`[v1m ${chain.id}] tree ${r.treeId}: rebuilt root ${r.root} is NOT known to the pool — rebuilding`);
+            }
+          }
+          await V1mState.updateOne({ chainId, key: STATE_KEY }, { $set: { syncedAt: new Date() } });
+        }
+        lastError = null;
+        const state = await loadState();
+        return { indexedBlock: state.lastBlock, head, lag: Math.max(0, head - state.lastBlock), caughtUp };
+      })()
+        .catch((error) => {
+          lastError = error?.message || String(error);
+          throw error;
+        })
+        .finally(() => {
+          syncing = null;
+        });
+    }
+    return syncing;
+  }
+
+  /** Before the app reads: catch up when the last catch-up to the head is
+      older than staleMs. Nothing to do while the loop runs or one is under way. */
+  async function syncIfStale({ staleMs, budgetMs }) {
+    if (running || syncing) return null;
+    const state = await loadState();
+    if (state.syncedAt && Date.now() - new Date(state.syncedAt).getTime() < staleMs) return null;
+    return syncNow({ budgetMs });
   }
 
   function start() {
@@ -304,9 +355,11 @@ export function createIndexer({ chain, logsProvider, pool }) {
       registrations,
       tree: { treeId: state.treeId, leaves: state.leaves, root: state.root, verified: state.rootVerified },
       lastPollAt,
+      syncedAt: state.syncedAt ?? null,
+      catchingUp: Boolean(syncing),
       lastError,
     };
   }
 
-  return { start, stop, status, applyReceipt, backfill };
+  return { start, stop, status, applyReceipt, backfill, syncNow, syncIfStale };
 }

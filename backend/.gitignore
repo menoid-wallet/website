@@ -1,2 +1,4 @@
 node_modules/
 .env
+# the variable names only (the website's .gitignore hides every .env*)
+!.env.example

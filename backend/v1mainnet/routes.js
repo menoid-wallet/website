@@ -1,7 +1,8 @@
 import express from "express";
 import { ethers } from "ethers";
+import { waitUntil } from "@vercel/functions";
 
-import { CHAINS, DEFAULT_CHAIN, chainFor, publicChain } from "./config.js";
+import { CHAINS, DEFAULT_CHAIN, SYNC, chainFor, publicChain } from "./config.js";
 import { RelayError } from "./relayer.js";
 import { serviceFor } from "./services.js";
 import { V1mNote, V1mNullifier, V1mOutgoing, V1mSwap, V1mRegistration, seqOf } from "./models.js";
@@ -10,6 +11,8 @@ import { V1mNote, V1mNullifier, V1mOutgoing, V1mSwap, V1mRegistration, seqOf } f
  * /api/v1m — what the website's private app talks to.
  *
  *   GET  /chains                        the chains, for the app's chain switcher
+ *   GET  /catch-up?key=                 every chain's indexer catches up
+ *                                       (UptimeRobot, every 5 minutes)
  *
  * and per chain, under /api/v1m/<chain>/ (chain = "monad-testnet",
  * "base-sepolia", or its chain id):
@@ -43,6 +46,33 @@ const wrap = (handler) => async (req, res) => {
     res.status(status).json({ error: error.message, ...(error.extra || {}) });
   }
 };
+
+/* ─── catching up on demand (config.js SYNC) ───────────────────────────── */
+
+// the promise's answer, or TIMED_OUT once `ms` have passed (the work carries on)
+const TIMED_OUT = Symbol("timed out");
+const within = (promise, ms) => Promise.race([promise, new Promise((resolve) => setTimeout(resolve, ms, TIMED_OUT).unref())]);
+
+// work still running when the answer goes out: Vercel keeps the function alive for it
+const finishLater = (promise) => waitUntil(promise.catch(() => {}));
+
+// still behind after a catch-up (a backlog): keep going once the answer is sent
+function keepCatchingUp({ chain, indexer }) {
+  waitUntil(indexer.syncNow({ budgetMs: SYNC.backgroundBudgetMs }).catch((error) => console.error(`[v1m ${chain.id}] catch-up:`, error.message)));
+}
+
+// the app is about to read this chain: catch up first when the copy is stale
+async function freshen(svc) {
+  try {
+    const run = svc.indexer.syncIfStale({ staleMs: SYNC.staleMs, budgetMs: SYNC.requestBudgetMs });
+    const result = await within(run, SYNC.requestBudgetMs + 2000);
+    if (result === TIMED_OUT) finishLater(run);
+    else if (result && !result.caughtUp) keepCatchingUp(svc);
+  } catch (error) {
+    // answer from what is stored; the next request tries again
+    console.error(`[v1m ${svc.chain.id}] catch-up:`, error.message);
+  }
+}
 
 // the routes for one chain: req.svc is that chain's service (services.js)
 const chainRoutes = express.Router();
@@ -79,6 +109,7 @@ chainRoutes.get(
   "/status",
   wrap(async (req, res) => {
     const { chain, indexer, relayer } = req.svc;
+    await freshen(req.svc);
     res.json({ chain: chain.id, chainId: chain.chainId, ...(await indexer.status()), relayerBalance: await relayer.relayerBalance().catch(() => null), nativeSymbol: chain.nativeSymbol });
   })
 );
@@ -91,6 +122,7 @@ chainRoutes.get(
     const since = Number(req.query.since ?? -1);
     const limit = Math.min(Math.max(Number(req.query.limit ?? 5000), 1), 20000);
     if (!Number.isFinite(since)) return res.status(400).json({ error: "since must be a number" });
+    await freshen(req.svc);
     /* Only blocks the indexer has FULLY processed. A relayed receipt is
        indexed early, but the cursor must never pass a block before all of its
        events are stored, or a late nullifier would be skipped for good. */
@@ -227,6 +259,42 @@ const router = express.Router();
 
 router.get("/chains", (_req, res) => {
   res.json({ default: DEFAULT_CHAIN.id, chains: CHAINS.map(publicChain) });
+});
+
+/* UptimeRobot's ping (every 5 minutes): what keeps the indexers current on
+   Vercel, where nothing runs between requests. Monad answers 100 blocks per
+   eth_getLogs, so a chain left alone for a day would need thousands of calls.
+   Each chain catches up for at most SYNC.budgetMs before the answer; one
+   still behind keeps going in the background. `ok` is false only when a chain
+   failed, so a keyword monitor on "ok":true alerts on real trouble. */
+router.get("/catch-up", async (req, res) => {
+  res.set("Cache-Control", "no-store");
+  const key = process.env.V1M_CATCHUP_KEY;
+  if (!key && process.env.VERCEL) return res.status(503).json({ ok: false, error: "V1M_CATCHUP_KEY is not set" });
+  if (key && req.query.key !== key) return res.status(401).json({ ok: false, error: "wrong or missing key" });
+
+  const chains = await Promise.all(
+    CHAINS.map(async (chain) => {
+      const svc = serviceFor(chain);
+      try {
+        const run = svc.indexer.syncNow({ budgetMs: SYNC.budgetMs });
+        const result = await within(run, SYNC.budgetMs + 5000);
+        if (result === TIMED_OUT) {
+          finishLater(run); // a longer catch-up is already under way
+          return { chain: chain.id, catchingUp: true };
+        }
+        if (!result.caughtUp) keepCatchingUp(svc);
+        return { chain: chain.id, ...result };
+      } catch (error) {
+        return { chain: chain.id, error: error.message };
+      }
+    })
+  );
+  // warm the prices too, so the app's first /prices answers at once
+  for (const chain of CHAINS) {
+    waitUntil(serviceFor(chain).market.tokenPrices().catch((error) => console.error(`[v1m ${chain.id}] prices:`, error.message)));
+  }
+  res.json({ ok: chains.every((c) => !c.error), chains });
 });
 
 // the old single-chain paths: Monad testnet

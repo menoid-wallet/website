@@ -16,17 +16,33 @@ import mongoose from "mongoose";
 const { Schema } = mongoose;
 
 /* Its own connection and database (V1M_DB_NAME, default "menoid_v1mainnet"),
-   so nothing here shares a database with the waitlist or the V1 demo. Models
-   are bound to it now; queries wait until connectV1MDatabase() opens it. */
+   so nothing here shares a database with the V1 demo. Models are bound to it
+   now; queries wait until connectV1MDatabase() opens it.
+
+   Opened once per process and shared by every request after that: on Vercel
+   each function instance is one process, so the pool stays small and a dead
+   database fails in seconds instead of hanging the request. */
 export const v1mDb = mongoose.createConnection();
 
-export async function connectV1MDatabase() {
-  const uri = process.env.V1M_MONGODB_URI || process.env.MONGODB_URI;
-  if (!uri) throw new Error("V1M_MONGODB_URI is not set");
-  if (v1mDb.readyState === 0) {
-    await v1mDb.openUri(uri, { dbName: process.env.V1M_DB_NAME || "menoid_v1mainnet" });
+let opening = null;
+
+export function connectV1MDatabase() {
+  if (!opening) {
+    const uri = process.env.V1M_MONGODB_URI || process.env.MONGODB_URI;
+    if (!uri) return Promise.reject(new Error("V1M_MONGODB_URI is not set"));
+    opening = v1mDb
+      .openUri(uri, {
+        dbName: process.env.V1M_DB_NAME || "menoid_v1mainnet",
+        maxPoolSize: 5,
+        serverSelectionTimeoutMS: 8000,
+      })
+      .then(() => v1mDb)
+      .catch((error) => {
+        opening = null; // the next request tries again
+        throw error;
+      });
   }
-  return v1mDb;
+  return opening;
 }
 const opts = (collection) => ({ collection, versionKey: false, timestamps: false });
 
@@ -121,6 +137,8 @@ const stateSchema = new Schema(
     leaves: { type: Number, default: 0 },
     rootVerified: { type: Boolean, default: false },
     updatedAt: { type: Date, default: Date.now },
+    // when an on-demand catch-up last reached the chain's head (indexer.js)
+    syncedAt: { type: Date, default: null },
   },
   opts("V1mainnet.state")
 );

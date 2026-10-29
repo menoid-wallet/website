@@ -1,4 +1,5 @@
 import { ethers } from "ethers";
+import { waitUntil } from "@vercel/functions";
 
 import { tokenInfo } from "./config.js";
 
@@ -56,7 +57,8 @@ const factoryInterface = new ethers.Interface(FACTORY_ABI);
 const quoterInterface = new ethers.Interface(QUOTER_ABI);
 
 const POOL_MISS_TTL = 10 * 60_000; // a pool that did not exist is looked up again after this
-const PRICE_TTL = 30_000;
+const PRICE_TTL = 60_000;
+const PRICE_STALE_MAX = 10 * 60_000; // older prices are never served (fees use them): wait for fresh ones
 const ROUTE_TTL = 10 * 60_000; // re-search a token's best probe route this often; quote it in between
 const TOKEN_TTL = 5 * 60_000;
 const LOOKUPS_PER_CALL = 120;
@@ -322,10 +324,16 @@ export function createMarket({ chain, provider, pool }) {
   }
 
   async function tokenPrices() {
-    if (priceCache.prices && Date.now() - priceCache.at < PRICE_TTL) return priceCache.prices;
+    const age = priceCache.prices ? Date.now() - priceCache.at : Infinity;
+    if (age < PRICE_TTL) return priceCache.prices;
     pricing ||= refreshPrices().finally(() => {
       pricing = null;
     });
+    // a little old: answer at once, the refresh finishes after the response
+    if (age < PRICE_STALE_MAX) {
+      waitUntil(pricing.catch((e) => console.error(`[v1m ${chain.id}] prices:`, e.message)));
+      return priceCache.prices;
+    }
     return pricing;
   }
 
@@ -383,13 +391,6 @@ export function createMarket({ chain, provider, pool }) {
 
   const priceNote = `${chain.nativeSymbol}: ${src.chainId === 143 ? "Monad" : "Base"} mainnet ${nativeToken?.wrapped}/USDC pool · stablecoins: $1 · pegged tokens: their peg · others: a $1 probe from ${chain.nativeSymbol} on ${venues.map((v) => v.name).join(" / ")}`;
 
-  // keep the cache warm, so /prices answers at once
-  function startPriceRefresher() {
-    const refresh = () => tokenPrices().catch((e) => console.error(`[v1m ${chain.id}] prices:`, e.message));
-    refresh();
-    setInterval(refresh, PRICE_TTL - 5_000).unref?.();
-  }
-
   return {
     venues,
     findBestRoute,
@@ -399,6 +400,5 @@ export function createMarket({ chain, provider, pool }) {
     priceOf,
     describeToken,
     priceNote,
-    startPriceRefresher,
   };
 }

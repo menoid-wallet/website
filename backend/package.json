@@ -1,14 +1,18 @@
 {
-  "name": "menoid-waitlist-backend",
+  "name": "menoid-backend",
   "version": "1.0.0",
-  "description": "Menoid waitlist API — email collection",
+  "description": "Menoid API — the V1 private app's indexer and relayer (Vercel or any Node host)",
   "type": "module",
   "main": "server.js",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js"
   },
   "dependencies": {
+    "@vercel/functions": "^3.10.4",
     "@zk-kit/incremental-merkle-tree": "^1.1.0",
     "circomlibjs": "^0.1.7",
     "cors": "^2.8.5",

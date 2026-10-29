@@ -494,6 +494,19 @@ if (!CHAINS.length) throw new Error("no chains to run: check V1M_CHAINS");
 // the mainnet when this server runs one
 export const DEFAULT_CHAIN = CHAINS.find((c) => c.keyNetwork === "mainnet") || CHAINS[0];
 
+/* On demand (Vercel), where nothing runs between requests: how the indexers
+   catch up (routes.js). UptimeRobot calls /api/v1m/catch-up every 5 minutes. */
+export const SYNC = Object.freeze({
+  // /catch-up: each chain catches up for this long before the answer
+  budgetMs: Number(env("V1M_SYNC_BUDGET_MS", "20000")),
+  // a chain still behind keeps going after the answer (under Vercel's 300 s)
+  backgroundBudgetMs: Number(env("V1M_BACKGROUND_BUDGET_MS", "240000")),
+  // the app's /sync and /status catch up first when the copy is older than this...
+  staleMs: Number(env("V1M_STALE_MS", "15000")),
+  // ...for at most this long
+  requestBudgetMs: Number(env("V1M_REQUEST_BUDGET_MS", "8000")),
+});
+
 /** A chain by its id ("base-sepolia") or chain id (84532); null if unknown. */
 export function chainFor(key) {
   const text = String(key ?? "").toLowerCase();
